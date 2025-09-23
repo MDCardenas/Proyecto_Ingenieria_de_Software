@@ -1,0 +1,52 @@
+# ========================
+# Python / Django
+# ========================
+
+# Cachés de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+ENV/
+env/
+.venv/
+
+# Archivos de migración compilados
+*/migrations/*.pyc
+
+# Base de datos local
+*.sqlite3
+
+# Archivos de logs
+*.log
+
+# Archivos estáticos y media compilados
+staticfiles/
+media/
+
+# Archivos de configuración sensibles
+*.secret
+settings_local.py
+.env
+
+# ========================
+# IDEs
+# ========================
+.vscode/
+.idea/
+
+# ========================
+# MacOS / Windows
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Otros
+# ========================
+coverage/
+*.cover
+*.bak
+*.swp
