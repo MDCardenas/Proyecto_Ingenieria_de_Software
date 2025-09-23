@@ -1,0 +1,72 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# This file should be placed at the root of the virtual environment directory
+# ========================
+# Node / React (frontend)
+# ========================
+
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
+# Logs de Node
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Archivos de entorno
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# ========================
+# Django / Python (backend)
+# ========================
+
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+
+# Entornos virtuales
+backend/venv/
+backend/ENV/
+backend/env/
+backend/.venv/
+
+# Base de datos local
+backend/*.sqlite3
+
+# Archivos de migración compilados
+backend/migrations/*.pyc
+
+# Archivos de logs
+backend/*.log
+
+# Archivos estáticos compilados y media
+backend/staticfiles/
+backend/media/
+
+# Configuración sensible
+backend/*.secret
+backend/settings_local.py
+
+# ========================
+# IDEs
+# ========================
+.vscode/
+.idea/
+
+# ========================
+# MacOS / Windows
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Otros
+# ========================
+coverage/
+*.cover
+*.bak
+*.swp
