@@ -1,21 +1,11 @@
-import { useState } from "react";
-import Login from "./Login";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Navegation from "./components/Navegation.jsx";
 
 function App() {
-  const [empleado, setEmpleado] = useState(null);
-
-  const handleLogin = (empleadoData) => {
-    setEmpleado(empleadoData);
-  };
-
   return (
-    <div>
-      {empleado ? (
-        <h1>Bienvenido {empleado.nombre}</h1>
-      ) : (
-        <Login onLogin={handleLogin} />
-      )}
-    </div>
+    <Router>
+      <Navegation />
+    </Router>
   );
 }
 

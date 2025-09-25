@@ -18,3 +18,61 @@ Este proyecto incluye un backend en Django y un frontend en React para la gesti�
 git clone https://github.com/MDCardenas/Proyecto_Ingenieria_de_Software
 cd Proyecto_Ingenieria_de_Software
 ```
+
+## iniciar el entorno virtual y las dependencias del backend
+
+```sh
+en el directorio principal
+abrir una terminal y ejecutar:
+python -m venv env
+.\env\Scripts\activate  # Windows
+una vez activado el entorno virtual, instalar las dependencias:
+pip install -r backend/requirements.txt
+
+pueden crear un script en powershell para automatizar este proceso.
+# ejemplo de script setup_env.ps1
+.\env\Scripts\activate
+```
+
+## Configura la base de datos
+
+```sh
+Asegúrate de tener SQL Server instalado y en ejecución.
+se usara el driver ODBC Driver 18 for SQL Server asi que debe estar instalado.
+importante: restaturar la base de datos JOYERIA con las tablas necesarias.
+Configura las credenciales de la base de datos en `backend/joyeria/settings.py`.
+DATABASES = {
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': 'JOYERIA',
+        'USER': 'tu_usuario',
+        'PASSWORD': 'tu_contraseña',    
+        'HOST': 'localhost',
+        'PORT': '1433',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 18 for SQL Server',
+            'extra_params': 'TrustServerCertificate=yes;',
+        },
+
+```
+
+### 3. Ejecuta las migraciones
+
+```sh
+cd backend
+python manage.py migrate
+```
+
+### 4. Instala las dependencias del frontend
+
+```sh
+cd frontend
+npm install
+```
+
+### 5. Ejecuta el servidor de desarrollo
+
+```sh
+cd /frontend
+npm start
+```

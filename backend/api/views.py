@@ -27,24 +27,30 @@ def login(request):
     if not (usuario or correo) or not contrasena:
         return JsonResponse({"success": False, "error": "Debes ingresar usuario/correo y contraseña"})
     try:
-        # Buscar por usuario o correo y contraseña
         empleado_obj = Empleado.objects.filter(
             contrasena=contrasena
         ).filter(
             models.Q(usuario=usuario) | models.Q(correo=correo)
-        ).first()
+        ).select_related("perfil").first()
+
         if empleado_obj:
             empleado = {
-                "id": empleado_obj.id,
-                "nombre": empleado_obj.nombre,
-                "apellido": empleado_obj.apellido,
-                "usuario": empleado_obj.usuario,
-                "correo": empleado_obj.correo,
-                "telefono": empleado_obj.telefono,
-                "salario": float(empleado_obj.salario) if empleado_obj.salario else None
-            }
+            "id_empleado": empleado_obj.id,
+            "nombre": empleado_obj.nombre,
+            "apellido": empleado_obj.apellido,
+            "usuario": empleado_obj.usuario,
+            "correo": empleado_obj.correo,
+            "telefono": empleado_obj.telefono,
+            "salario": float(empleado_obj.salario) if empleado_obj.salario else None,
+            "codigo_perfil": empleado_obj.perfil.id if empleado_obj.perfil else None,
+            "perfil": empleado_obj.perfil.perfil if empleado_obj.perfil else None,
+            "rol": empleado_obj.perfil.rol if empleado_obj.perfil else None,
+     }   
+
+
             return JsonResponse({"success": True, "empleado": empleado})
         else:
-            return JsonResponse({"success": False})
+            return JsonResponse({"success": False, "error": "Credenciales inválidas"})
+
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
