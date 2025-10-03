@@ -15,6 +15,7 @@ export default function AdminPanel() {
   };
 
   const [empleado, setEmpleado] = useState(null);
+  const [activeButton, setActiveButton] = useState("Dashboard"); // por defecto es Dashboard
 
   useEffect(()=> {
     //Recuperar el empleado guardado en localStorage
@@ -60,35 +61,59 @@ export default function AdminPanel() {
       <div className="contenido-principal">
         {/* Navbar vertical del lado izquierdo */}
         <div className="navbarVertical">
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Dashboard" ? "active" : ""}`}
+            onClick={()=> setActiveButton("Dashboard")}
+          >
             <FaTachometerAlt className="icon" />
             Dashboard
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Ventas" ? "active" : ""}`}
+            onClick={() => setActiveButton("Ventas")}
+          >
             <FaShoppingCart className="icon" />
             Ventas
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Facturacion" ? "active" : ""}`}
+            onClick={() => setActiveButton("Facturacion")}
+          >
             <FaFileInvoiceDollar className="icon" />
             Facturación
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Cotizaciones" ? "active" : ""}`}
+            onClick={() => setActiveButton("Cotizaciones")}
+          >
             <FaClipboardList className="icon" />
             Cotizaciones
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Inventario" ? "active" : ""}`}
+            onClick={() => setActiveButton("Inventario")}
+          >
             <FaBoxes className="icon" />
             Inventario
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Ordenes" ? "active" : ""}`}
+            onClick={() => setActiveButton("Ordenes")}
+          >
             <FaListAlt className="icon" />
             Órdenes
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Contabilidad" ? "active" : ""}`}
+            onClick={() => setActiveButton("Contabilidad")}
+          >
             <FaChartLine className="icon" />
             Contabilidad
           </button>
-          <button className="button">
+          <button 
+            className={`button ${activeButton === "Usuarios" ? "active" : ""}`}
+            onClick={() => setActiveButton("Usuarios")}
+          >
             <FaUserFriends className="icon" />
             Usuarios
           </button>
@@ -97,6 +122,14 @@ export default function AdminPanel() {
         {/* Aquí iría el contenido principal de tu aplicación */}
         <div className="contenido">
           {/* Tu contenido aquí */}
+          {activeButton === "Dashboard" && <h1>DASHBOARD</h1>}
+          {activeButton === "Ventas" && <h1>VENTAS</h1>}
+          {activeButton === "Facturacion" && <h1>FACTURACIÓN</h1>}
+          {activeButton === "Cotizaciones" && <h1>COTIZACIONES</h1>}
+          {activeButton === "Inventario" && <h1>INVENTARIO</h1>}
+          {activeButton === "Ordenes" && <h1>ÓRDENES</h1>}
+          {activeButton === "Contabilidad" && <h1>CONTABILIDAD</h1>}
+          {activeButton === "Usuarios" && <h1>USUARIOS</h1>}
         </div>
       </div>
     </div>

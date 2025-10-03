@@ -53,6 +53,7 @@
 .button {
   /*padding: 0.5rem;*/
   border: none;
+  outline: none;
   background-color: white;
   color: black;
   cursor: pointer;
@@ -63,7 +64,7 @@
   padding: 0.75rem 1 rem;
   text-align: left;
   font-size: 20px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .button:hover {
@@ -144,4 +145,16 @@
 
 .adminButton:hover {
   background-color: gray;
+}
+
+.button.active {
+  background-color: rgb(231, 213, 237);
+  color: rgb(222, 125, 254);
+  font-weight: bold;
+}
+
+/* Contenido de las paginas */
+.contenido {
+  background-color: white;
+  color: black;
 }
