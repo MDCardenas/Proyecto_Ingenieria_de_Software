@@ -5,6 +5,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import "../styles/AdminPanel.css";
+import Facturacion from "./facturacion";
 
 
 export default function AdminPanel() {
@@ -122,9 +123,12 @@ export default function AdminPanel() {
         {/* Aquí iría el contenido principal de tu aplicación */}
         <div className="contenido">
           {/* Tu contenido aquí */}
+          {/* Aqui en lugar del "h1" iria el llamado a los componentes de cada modulo */}
           {activeButton === "Dashboard" && <h1>DASHBOARD</h1>}
           {activeButton === "Ventas" && <h1>VENTAS</h1>}
-          {activeButton === "Facturacion" && <h1>FACTURACIÓN</h1>}
+          {activeButton === "Facturacion" && (
+            <Facturacion onCancel={()=> setActiveButton("Ventas")} />
+          )} 
           {activeButton === "Cotizaciones" && <h1>COTIZACIONES</h1>}
           {activeButton === "Inventario" && <h1>INVENTARIO</h1>}
           {activeButton === "Ordenes" && <h1>ÓRDENES</h1>}

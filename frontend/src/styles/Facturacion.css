@@ -1,0 +1,500 @@
+/* Contenedor principal */
+.contenedor-principal {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Encabezado superior */
+.contenedor-superior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.texto-superior .titulo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.texto-superior .subtitulo {
+  color: #777;
+  margin-top: 2px;
+}
+
+/* Botón "Nueva Factura" */
+.boton-nueva-factura {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgb(185, 25, 238);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.icono-plus {
+  font-size: 18px;
+}
+
+.boton-nueva-factura:hover {
+  background-color: rgb(200, 90, 245);
+  transform: scale(1.03);
+}
+
+/* Contenedor general de la factura */
+.contenedor-factura {
+  flex: 1; /* ocupa todo el espacio restante */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 98%;
+  background-color: #fff; /* blanco completo */
+  border-radius: 12px;
+  padding-left: 25px;
+  
+}
+
+/* Placeholder centrado dentro del contenedor blanco */
+.placeholder-factura {
+  font-size: 1.2rem;
+  color: #555;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Botones de opciones */
+.opciones-factura {
+  display: flex;
+  gap: 20px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.btn-opcion {
+  background-color: rgb(185, 25, 238);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.btn-opcion:hover {
+  background-color: rgb(200, 90, 245);
+  transform: scale(1.05);
+}
+
+/* CONTENIDO DE LAS FACTURAS */
+
+/* Cuadro de contenido de factura */
+.factura-contenido {
+  border: none;
+  border-radius: 10px;
+  /*padding: 20px;*/
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* alineado a la izquierda*/
+  justify-content: flex-start;
+  animation: fadeIn 0.4s ease-in-out;
+  overflow-y: auto; /* vertical scroll solo si se llena */
+  overflow-x: hidden; /* evita el scroll horizontal */
+  box-sizing: border-box; /* para que el padding no genere overflow */
+}
+
+/* Título principal de la factura */
+.titulo-factura {
+  color: black;
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Contenedor del formulario */
+.formulario-factura {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* espacio vertical entre filas */
+  /*margin-top: 5px;*/
+  /*padding-right: 20px;*/
+}
+
+/* Cada fila puede tener dos campos alineados horizontalmente */
+.fila-formulario {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  padding-right: 20px; /* <-- separa los inputs del borde derecho */
+  box-sizing: border-box;
+}
+
+/* Los campos dentro de cada fila */
+.campo-formulario {
+  flex: 1; /* para que cada campo ocupe igual espacio */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inputs y labels */
+.campo-formulario label {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.campo-formulario input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white; /* <-- fuerza el fondo blanco */
+  color: black; /* texto negro */
+  width: 100%; /* que no se salga de su contenedor */
+  box-sizing: border-box; /* para que el padding no genere overflow */
+}
+
+/* Opcional: forzar que el icono se vea en Chrome */
+.campo-formulario input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.5); /* opcional para visibilidad sobre blanco */
+}
+
+/* DETALLES DE LOS PRODUCTOS */
+
+.producto-bloque {
+  display: flex;
+  gap: 12px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  /* Para que no abarque todo el ancho y quede centrado */
+  width: 96.5%; 
+  /*max-width: 1000px; /* opcional para limitar tamaño máximo */
+  /*margin-left: auto;*/
+  /*margin-right: auto;*/
+  /*align-items: center; /* Para centrar el botón verticalmente */
+}
+
+.producto-contenido {
+  flex: 1; /* Ocupa todo el espacio excepto el del botón */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.producto-fila {
+  display: flex;
+  gap: 8px;
+}
+
+.campo-producto {
+  flex: 1; /* Todos los inputs tienen el mismo ancho */
+  display: flex;
+  flex-direction: column;
+}
+
+.campo-producto label {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.campo-producto input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white; /* igual que Datos del Cliente */
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.campo-descripcion {
+  flex: 1; /* textarea ocupa el mismo ancho que los cuatro inputs */
+  display: flex;
+  flex-direction: column;
+}
+
+.campo-descripcion label {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.campo-descripcion textarea {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white; /* igual que los otros inputs */
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.campo-producto textarea {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white; /* igual que los otros inputs */
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.producto-borrar {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centrado vertical y horizontal */
+}
+
+.producto-borrar button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.producto-borrar button:hover {
+  background-color: #e60000;
+}
+
+/* Boton de agregar producto */
+.boton-agregar-producto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: white; /* fondo blanco */
+  color: rgb(185, 25, 238); /* moradito */
+  border: none; /* sin borde */
+  /*padding: 2px 5px;*/
+  padding-left: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  /*margin-top: 12px; /* espacio sobre el botón */
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.boton-agregar-producto:hover {
+  background-color: #f3f0fb; /* un moradito muy claro al hacer hover */
+  transform: scale(1.03);
+}
+
+.boton-agregar-producto .icono-plus {
+  font-size: 20px;
+}
+
+/* ==== ANIMACIÓN DE BORRADO ==== */
+.producto-bloque {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.producto-eliminando {
+  transform: scale(0.9) translateY(10px);
+  opacity: 0;
+}
+
+
+/* ESTILOS DE LOS DETALLES ADICIONALES */
+
+/* Asegura que el botón tenga un tamaño compacto */
+.boton-agregar-material {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: white; /* fondo blanco */
+  color: rgb(185, 25, 238); /* moradito */
+  border: none; /* sin borde */
+  /*padding: 2px 5px;*/
+  padding-left: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  /*margin-top: 12px; /* espacio sobre el botón */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.boton-agregar-material:hover {
+  background-color: #f3f0fb; /* un moradito muy claro al hacer hover */
+  transform: scale(1.01);
+}
+
+/* ---------------- Animación de eliminación ---------------- */
+.producto-eliminando {
+  animation: desaparecer 0.3s forwards;
+}
+
+@keyframes desaparecer {
+  0% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* ---------------- Botón borrar dentro de la fila ---------------- */
+.producto-borrar button {
+  background-color: #e53e3e;
+  border: none;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.producto-borrar button:hover {
+  transform: scale(1.1);
+}
+
+/* Botones para calcular el total y Generar la Factura */
+
+/* Contenedor de toda la fila */
+.fila-botones {
+  display: flex;
+  justify-content: space-between; /* separa el botón izquierdo del grupo derecho */
+  align-items: center;
+  margin-top: 20px;
+ /* gap: 10px; /* espacio entre todos los botones */
+}
+
+.botones-izquierda {
+  display: flex;
+  gap: 453px; /* si quisieras más botones a la izquierda */
+}
+
+
+/* Estilo de los botones (puedes ajustar colores, tamaños, bordes, etc.) */
+.boton-calcular,
+.boton-cancelar,
+.boton-generar {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  /*font-weight: bold;*/
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.boton-calcular {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.boton-cancelar {
+  background-color: #f44336;
+  color: white;
+}
+
+.boton-generar {
+  background-color: rgb(185, 25, 238);
+  color: white;
+}
+
+.boton-calcular:hover {
+  background-color: rgb(0, 255, 0);
+  transform: scale(1.03);
+}
+
+.boton-cancelar:hover {
+  background-color: rgb(255, 0, 0);
+  transform: scale(1.03);
+}
+
+.boton-generar:hover {
+  background-color: rgb(183, 0, 255);
+  transform: scale(1.03);
+}
+
+
+
+
+/* Estilos para el dropdown (select) */
+.campo-producto select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: #374151;
+  transition: all 0.2s ease;
+  appearance: none; /* Elimina el estilo por defecto del navegador */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+/* Estilo cuando el dropdown está enfocado */
+.campo-producto select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Estilo cuando hay hover */
+.campo-producto select:hover {
+  border-color: #9ca3af;
+}
+
+/* Estilo para los options */
+.campo-producto select option {
+  padding: 8px 12px;
+  background-color: white;
+  color: #374151;
+}
+
+/* Estilo para el option por defecto */
+.campo-producto select option[value=""] {
+  color: #9ca3af;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
