@@ -76,3 +76,20 @@ npm install
 cd /frontend
 npm start
 ```
+
+
+## 🧾 Nuevas dependencias agregadas
+
+Se han agregado las siguientes dependencias al proyecto:
+
+- [`jspdf`](https://www.npmjs.com/package/jspdf): permite generar archivos PDF directamente desde el navegador.
+- [`html2canvas`](https://www.npmjs.com/package/html2canvas): convierte elementos HTML en imágenes para integrarlos en los PDF.
+- [`react-icons`](https://www.npmjs.com/package/react-icons): provee una amplia colección de íconos listos para usar en componentes React.
+
+### 🔧 Instalación
+
+Después de actualizar el repositorio, ejecuten el siguiente comando para instalar las nuevas dependencias:
+
+```bash
+npm install jspdf html2canvas react-icons
+
