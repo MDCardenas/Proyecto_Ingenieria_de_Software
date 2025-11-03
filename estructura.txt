@@ -1,0 +1,35 @@
+📁 backend
+┣━ api
+┃  ┣━ __init__.py
+┃  ┣━ __pycache__
+┃  ┃  ┣━ __init__.cpython-313.pyc
+┃  ┃  ┣━ admin.cpython-313.pyc
+┃  ┃  ┣━ apps.cpython-313.pyc
+┃  ┃  ┣━ models.cpython-313.pyc
+┃  ┃  ┣━ serializers.cpython-313.pyc
+┃  ┃  ┗━ views.cpython-313.pyc
+┃  ┣━ admin.py
+┃  ┣━ apps.py
+┃  ┣━ migrations
+┃  ┃  ┣━ 0001_initial.py
+┃  ┃  ┣━ __init__.py
+┃  ┃  ┗━ __pycache__
+┃  ┃     ┣━ 0001_initial.cpython-313.pyc
+┃  ┃     ┗━ __init__.cpython-313.pyc
+┃  ┣━ models.py
+┃  ┣━ serializers.py
+┃  ┣━ tests.py
+┃  ┣━ urls.py
+┃  ┗━ views.py
+┣━ backend
+┃  ┣━ __init__.py
+┃  ┣━ __pycache__
+┃  ┃  ┣━ __init__.cpython-313.pyc
+┃  ┃  ┣━ settings.cpython-313.pyc
+┃  ┃  ┣━ urls.cpython-313.pyc
+┃  ┃  ┗━ wsgi.cpython-313.pyc
+┃  ┣━ asgi.py
+┃  ┣━ settings.py
+┃  ┣━ urls.py
+┃  ┗━ wsgi.py
+┗━ manage.py

@@ -10,53 +10,65 @@ function Login({ onLogin }) {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    if (!usuarioOCorreo || !contrasena) {
-      setError("Debes ingresar usuario/correo y contraseña");
-      return;
-    }
+  if (!usuarioOCorreo || !contrasena) {
+    setError("Debes ingresar usuario/correo y contraseña");
+    return;
+  }
 
-    try {
-      const esCorreo = usuarioOCorreo.includes("@");
-      const payload = esCorreo
-        ? { correo: usuarioOCorreo, contrasena }
-        : { usuario: usuarioOCorreo, contrasena };
+  try {
+    // Determinar si es correo o usuario
+    const esCorreo = usuarioOCorreo.includes("@");
+    
+    // Preparar payload según lo que espera el backend
+    const payload = {
+      usuario: esCorreo ? '' : usuarioOCorreo,
+      correo: esCorreo ? usuarioOCorreo : '',
+      contrasena: contrasena
+    };
 
-      const res = await axios.post("http://127.0.0.1:8000/api/login/", payload);
-      console.log("Respuesta del servidor:", res.data);
+    console.log("Enviando datos de login:", payload);
 
-      if (res.data.success) {
-        const empleado = res.data.empleado;
-        // Guardar usuario en localStorage
-        localStorage.setItem("empleado", JSON.stringify(empleado));
-        // Llamar a la función del padre
-        onLogin(empleado);
+    const res = await axios.post("http://127.0.0.1:8000/api/login/", payload);
+    console.log("Respuesta del servidor:", res.data);
 
-        // Redirigir según rol
-        switch (empleado.rol) {
-          case "admin":
-            navigate("/admin");
-            break;
-          case "empleado":
-            navigate("/empleado");
-            break;
-          case "cliente":
-            navigate("/gerente");
-            break;
-          default:
-            navigate("/login");
-        }
-      } else {
-        setError("Usuario/correo o contraseña incorrectos");
+    if (res.data.success) {
+      const empleado = res.data.empleado;
+      // Guardar usuario en localStorage
+      localStorage.setItem("empleado", JSON.stringify(empleado));
+      // Llamar a la función del padre
+      onLogin(empleado);
+
+      // Redirigir según rol
+      switch (empleado.rol) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "empleado":
+          navigate("/empleado");
+          break;
+        case "cliente":
+          navigate("/gerente");
+          break;
+        default:
+          navigate("/dashboard"); // Ruta por defecto
       }
-    } catch (err) {
-      console.error(err);
+    } else {
+      setError(res.data.message || "Usuario/correo o contraseña incorrectos");
+    }
+  } catch (err) {
+    console.error("Error completo:", err);
+    console.error("Respuesta del error:", err.response?.data);
+    
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else {
       setError("Error al conectarse con el servidor");
     }
-  };
-
+  }
+};
   return (
     <div className="login-container">
       <div className="login-card">
