@@ -481,6 +481,42 @@
 
 
 
+.campo-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.mensaje-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.input-readonly.campo-error {
+  background-color: #fef2f2;
+}
+
+
+
+
+
+
+.input-readonly {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.mensaje-info {
+  color: #059669;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  font-style: italic;
+}
+
 
 
 

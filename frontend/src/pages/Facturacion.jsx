@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; 
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
+import DatosCliente from "../components/facturaComponentes/DatosCliente";
+import Producto from "../components/facturaComponentes/Producto";
+import DatosAdicionales from "../components/facturaComponentes/DatosAdicionales";
+import FormatoFactura from "../components/facturaComponentes/FormatoFactura";
+
 import "../styles/Facturacion.css";
 
 export default function Facturacion({ onCancel }) {
-  const navigate = useNavigate();
+  const facturaRef = useRef();
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const [tipoFactura, setTipoFactura] = useState(null);
 
@@ -15,7 +22,9 @@ export default function Facturacion({ onCancel }) {
     precio: 0, 
     codigo: "", 
     producto: "", 
-    descripcion: "" 
+    descripcion: "",
+    tipoJoya: "",
+    tipoReparacion: "" 
   }]);
 
   // Estado para detalles adicionales (materiales y costos)
@@ -39,9 +48,132 @@ export default function Facturacion({ onCancel }) {
     pagoPendiente: 0,
   });
 
+  // Agregar estado para errores de validación
+  const [errores, setErrores] = useState({});
+
+  // Función para validar todos los campos requeridos
+  const validarCampos = () => {
+    const nuevosErrores = {};
+
+    // Validar datos del cliente
+    const nombre = document.getElementById('nombre')?.value;
+    const fecha = document.getElementById('fecha')?.value;
+    const direccion = document.getElementById('direccion')?.value;
+    const telefono = document.getElementById('telefono')?.value;
+
+    if (!nombre) nuevosErrores.nombre = "El nombre del cliente es requerido";
+    if (!fecha) nuevosErrores.fecha = "La fecha es requerida";
+    if (!direccion) nuevosErrores.direccion = "La dirección es requerida";
+    if (!telefono) nuevosErrores.telefono = "El teléfono es requerido";
+
+    // Validar productos según el tipo de factura
+    if (tipoFactura === "Venta" || tipoFactura === "Fabricación") {
+      productos.forEach((producto, index) => {
+        if (!producto.codigo) nuevosErrores[`producto-${index}-codigo`] = "Código del producto requerido";
+        if (!producto.producto) nuevosErrores[`producto-${index}-producto`] = "Nombre del producto requerido";
+        if (!producto.cantidad || producto.cantidad <= 0) nuevosErrores[`producto-${index}-cantidad`] = "Cantidad debe ser mayor a 0";
+        
+        // SOLO validar precio para Venta, NO para Fabricación
+        if (tipoFactura === "Venta" && (!producto.precio || producto.precio <= 0)) {
+          nuevosErrores[`producto-${index}-precio`] = "Precio debe ser mayor a 0";
+        }
+        
+        if (!producto.descripcion) nuevosErrores[`producto-${index}-descripcion`] = "Descripción requerida";
+      });
+    }
+
+    if (tipoFactura === "Reparación") {
+      productos.forEach((producto, index) => {
+        const tipoJoya = document.querySelector(`[data-id="${producto.id}"] [data-campo="tipoJoya"]`)?.value;
+        const tipoReparacion = document.querySelector(`[data-id="${producto.id}"] [data-campo="tipoReparacion"]`)?.value;
+        
+        if (!tipoJoya) nuevosErrores[`producto-${index}-tipoJoya`] = "Tipo de joya requerido";
+        if (!tipoReparacion) nuevosErrores[`producto-${index}-tipoReparacion`] = "Tipo de reparación requerido";
+        if (!producto.descripcion) nuevosErrores[`producto-${index}-descripcion`] = "Descripción requerida";
+      });
+    }
+
+    // Validar detalles adicionales para Fabricación y Reparación
+    if (tipoFactura === "Fabricación" || tipoFactura === "Reparación") {
+      materiales.forEach((material, index) => {
+        if (!material.tipo) nuevosErrores[`material-${index}-tipo`] = "Tipo de material requerido";
+        if (!material.peso || material.peso <= 0) nuevosErrores[`material-${index}-peso`] = "Peso debe ser mayor a 0";
+        if (!material.precio || material.precio <= 0) nuevosErrores[`material-${index}-precio`] = "Precio debe ser mayor a 0";
+      });
+
+      if (!costoInsumos || costoInsumos < 0) nuevosErrores.costoInsumos = "Costo de insumos requerido";
+      if (!manoObra || manoObra < 0) nuevosErrores.manoObra = "Costo de mano de obra requerido";
+    }
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
+  // Función para limpiar errores de un campo específico
+  const limpiarError = (campo) => {
+    setErrores(prev => {
+      const nuevosErrores = { ...prev };
+      delete nuevosErrores[campo];
+      return nuevosErrores;
+    });
+  };
+
+
+
+  // Función para generar PDF con validación
+  const generarPDF = async () => {
+    if (!tipoFactura) {
+      alert("Por favor, seleccione un tipo de factura primero");
+      return;
+    }
+
+    if (!validarCampos()) {
+      alert("Por favor, complete todos los campos requeridos antes de generar la factura");
+      return;
+    }
+
+    try {
+      const element = facturaRef.current;
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`factura_${tipoFactura}_${Date.now()}.pdf`);
+      
+      alert("Factura generada exitosamente!");
+    } catch (error) {
+      console.error("Error al generar PDF:", error);
+      alert("Error al generar la factura. Intente nuevamente.");
+    }
+  };
+
+  // Función para obtener datos del cliente (actualizada para validación)
+  const obtenerDatosCliente = () => {
+    return {
+      nombre: document.getElementById('nombre')?.value || '',
+      direccion: document.getElementById('direccion')?.value || '',
+      telefono: document.getElementById('telefono')?.value || '',
+      rtn: document.getElementById('rtn')?.value || ''
+    };
+  };
+
+
+
+
   function generarId() {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   }
+
+
+  // HandleGenerarFactura actualizado
+  const handleGenerarFactura = () => {
+    generarPDF();
+  };
+
 
   const handleNuevaFactura = () => {
     setMostrarOpciones(true);
@@ -77,6 +209,17 @@ export default function Facturacion({ onCancel }) {
   const handleSeleccion = (tipo) => {
     setTipoFactura(tipo);
     setMostrarOpciones(false);
+    
+    // Si es fabricación, inicializar el precio automáticamente
+    if (tipo === "Fabricación") {
+      setTimeout(() => {
+        const precioInicial = calcularPrecioAutomatico();
+        setProductos(prev => prev.map(p => ({
+          ...p,
+          precio: precioInicial
+        })));
+      }, 100);
+    }
   };
 
   // Agregar nuevo producto
@@ -87,7 +230,8 @@ export default function Facturacion({ onCancel }) {
       precio: 0, 
       codigo: "", 
       producto: "", 
-      descripcion: "" 
+      descripcion: ""
+
     }]);
   };
 
@@ -96,19 +240,23 @@ export default function Facturacion({ onCancel }) {
     setProductos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  // Actualizar producto
+  // Actualizar producto con limpieza de errores
   const actualizarProducto = (id, campo, valor) => {
     setProductos(prev => prev.map(p => p.id === id ? {...p, [campo]: valor} : p));
+    // Limpiar error del campo actualizado
+    const productoIndex = productos.findIndex(p => p.id === id);
+    if (productoIndex !== -1) {
+      limpiarError(`producto-${productoIndex}-${campo}`);
+    }
   };
 
-  // Actualizar material
+  // Actualizar material con limpieza de errores
   const actualizarMaterial = (index, campo, valor) => {
     setMateriales((prev) =>
       prev.map((m, i) => {
         if (i === index) {
           const nuevoMaterial = { ...m, [campo]: valor };
           
-          // Recalcular costo automáticamente cuando cambia peso o precio
           if (campo === "peso" || campo === "precio") {
             const pesoNum = parseFloat(campo === "peso" ? valor : nuevoMaterial.peso) || 0;
             const precioNum = parseFloat(campo === "precio" ? valor : nuevoMaterial.precio) || 0;
@@ -119,6 +267,8 @@ export default function Facturacion({ onCancel }) {
         return m;
       })
     );
+    
+    limpiarError(`material-${index}-${campo}`);
   };
 
   // Agregar nuevo material
@@ -142,7 +292,7 @@ export default function Facturacion({ onCancel }) {
   };
 
   // Función para calcular resultados - DIFERENTE PARA VENTA
-  const calcularResultados = () => {
+  /*const calcularResultados = () => {
     if (tipoFactura === "Venta") {
       // CÁLCULO SIMPLIFICADO PARA VENTA
       const subtotalProductos = productos.reduce(
@@ -176,55 +326,344 @@ export default function Facturacion({ onCancel }) {
           (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
           0
         );
-      } else if (tipoFactura === "Reparación") {
+
+        // Aplicar descuento
+        const totalConDescuentoFa = subtotalProductos - (parseFloat(descuentos) || 0);
+
+        // ISV 15%
+        const isv = totalConDescuentoFa * 0.15;
+
+        // Total final
+        const total = totalConDescuentoFa + isv;
+
+        // Anticipo: 50% del total
+        const anticipo = total * 0.5;
+
+        // Pago pendiente
+        const pagoPendiente = total - anticipo;
+
+        return {
+          subtotal: totalConDescuentoFa,
+          isv,
+          total,
+          anticipo,
+          pagoPendiente,
+        };
+
+        
+
+
+
+
+      } //else if (tipoFactura === "Reparación") {
         // Para reparación: el precio ya viene incluido en el campo precio del producto
         // (aunque no se muestre en la interfaz)
-        subtotalProductos = productos.reduce(
-          (acc, p) => acc + (parseFloat(p.precio) || 0),
-          0
-        );
-      }
+        //subtotalProductos = productos.reduce(
+        //  (acc, p) => acc + (parseFloat(p.precio) || 0),
+        //  0
+        //);
 
-      // Subtotal materiales: sumatoria de costos de materiales
+        // Subtotal materiales: sumatoria de costos de materiales
+        //const subtotalMateriales = materiales.reduce(
+        //  (acc, m) => acc + (parseFloat(m.costo) || 0),
+        ////  0
+        //);
+
+        // Total parcial = materiales + insumos + mano de obra
+       // const totalParcial = subtotalMateriales + 
+       ////                     (parseFloat(costoInsumos) || 0) + 
+         //                   (parseFloat(manoObra) || 0);
+
+        
+  
+
+
+      //}
+
+      
+      
+      
+    } 
+  };*/
+
+
+  // Agrega esta función después de calcularSubtotalProductos()
+  /*const calcularSubtotalReparacion = () => {
+    if (tipoFactura !== "Reparación") return 0;
+    
+    const subtotalMateriales = materiales.reduce(
+      (acc, m) => acc + (parseFloat(m.costo) || 0),
+      0
+    );
+
+    const totalParcial = subtotalMateriales + 
+          (parseFloat(costoInsumos) || 0) + 
+          (parseFloat(manoObra) || 0);
+
+    const totalConDescuento = totalParcial - (parseFloat(descuentos) || 0);
+
+    // ISV 15%
+        const isv = totalConDescuento * 0.15;
+
+        // Total final
+        const total = totalConDescuento + isv;
+
+        // Anticipo: 50% del total
+        const anticipo = total * 0.5;
+
+        // Pago pendiente
+        const pagoPendiente = total - anticipo;
+
+        return {
+          subtotal: totalConDescuento,
+          isv,
+          total,
+          anticipo,
+          pagoPendiente,
+        };
+
+  };*/
+
+
+
+  // FUNCION PARA VENTA
+  const calcularResultadosVenta = () => {
+    // CÁLCULO SIMPLIFICADO PARA VENTA
+    const subtotalProductos = productos.reduce(
+      (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
+      0
+    );
+
+    // Aplicar descuento directamente
+    const totalConDescuento = subtotalProductos - (parseFloat(descuentos) || 0);
+
+    // ISV 15%
+    const isv = totalConDescuento * 0.15;
+
+    // Total final
+    const total = totalConDescuento + isv;
+
+    return {
+      subtotal: totalConDescuento,
+      isv,
+      total,
+      anticipo: 0,
+      pagoPendiente: 0,
+    };
+  };
+
+  // FUNCION PARA FABRICACION
+  const calcularResultadosFabricacion = () => {
+    // Primero calcular el precio automático
+    const precioCalculado = calcularPrecioAutomatico();
+    
+    // Calcular subtotal con el nuevo precio
+    const subtotalProductos = productos.reduce(
+      (acc, p) => acc + (parseFloat(p.cantidad) || 0) * precioCalculado,
+      0
+    );
+
+    // Aplicar descuento
+    const totalConDescuento = subtotalProductos - (parseFloat(descuentos) || 0);
+
+    // ISV 15%
+    const isv = totalConDescuento * 0.15;
+
+    // Total final
+    const total = totalConDescuento + isv;
+
+    // Anticipo: 50% del total
+    const anticipo = total * 0.5;
+
+    // Pago pendiente
+    const pagoPendiente = total - anticipo;
+
+    // Actualizar el precio en el estado
+    setProductos(prev => prev.map(p => ({
+      ...p,
+      precio: precioCalculado
+    })));
+
+    return {
+      subtotal: totalConDescuento,
+      isv,
+      total,
+      anticipo,
+      pagoPendiente,
+      subtotalProductos // ← Agregar esto para la tabla
+    };
+  };
+
+  // FUNCION PARA REPARACION
+  const calcularResultadosReparacion = () => {
+    // Para reparación: el subtotal es materiales + insumos + mano de obra
+    const subtotalMateriales = materiales.reduce(
+      (acc, m) => acc + (parseFloat(m.costo) || 0),
+      0
+    );
+
+    // Total parcial = materiales + insumos + mano de obra
+    const totalParcial = subtotalMateriales + 
+                        (parseFloat(costoInsumos) || 0) + 
+                        (parseFloat(manoObra) || 0);
+
+    const totalConDescuento = totalParcial - (parseFloat(descuentos) || 0);
+    const isv = totalConDescuento * 0.15;
+    const total = totalConDescuento + isv;
+    const anticipo = total * 0.5;
+    const pagoPendiente = total - anticipo;
+
+    return {
+      subtotal: totalConDescuento,
+      isv,
+      total,
+      anticipo,
+      pagoPendiente,
+    };
+  };
+
+  // HANDLECALCULAR
+  const handleCalcular = () => {
+    if (!validarCampos()) {
+      alert("Por favor, complete todos los campos requeridos antes de calcular");
+      return;
+    }
+
+    let nuevosResultados;
+
+    // Usar la función correcta según el tipo de factura
+    if (tipoFactura === "Venta") {
+      nuevosResultados = calcularResultadosVenta();
+    } else if (tipoFactura === "Fabricación") {
+      
+      nuevosResultados = calcularResultadosFabricacion();
+    } else if (tipoFactura === "Reparación") {
+      nuevosResultados = calcularResultadosReparacion();
+    }
+
+    setResultados(nuevosResultados);
+  };
+
+  const calcularSubtotalProductos = () => {
+    if (tipoFactura === "Venta") {
+      return productos.reduce(
+        (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
+        0
+      );
+    } else if (tipoFactura === "Fabricación") {
+      return resultados.subtotalProductos || productos.reduce(
+        (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
+        0
+      );
+    } else if (tipoFactura === "Reparación") {
+      // Para reparación: mostrar el total que incluye todo
       const subtotalMateriales = materiales.reduce(
         (acc, m) => acc + (parseFloat(m.costo) || 0),
         0
       );
 
-      // Total parcial = productos + materiales + insumos + mano de obra
-      const totalParcial = subtotalProductos + subtotalMateriales + 
+      return subtotalMateriales + 
+            (parseFloat(costoInsumos) || 0) + 
+            (parseFloat(manoObra) || 0);
+    }
+    return 0;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+  // Funcion para calcular el subtotal de los productos
+  /*const calcularSubtotalProductos = () => {
+    if (tipoFactura === "Venta") {
+      return productos.reduce(
+        (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
+        0
+      );
+    } else if (tipoFactura === "Fabricación") {
+      return productos.reduce(
+        (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
+        0
+      );
+    } else if (tipoFactura === "Reparación") {
+      return productos.reduce(
+        (acc, p) => acc + (parseFloat(p.precio) || 0),
+        0
+      );
+    }
+    return 0;
+  };*/
+
+
+  const calcularPrecioAutomatico = () => {
+    if (tipoFactura !== "Fabricación") return 0;
+    
+    // Calcular costo total de materiales (suma de todos los materiales)
+    const costoMateriales = materiales.reduce(
+      (acc, m) => acc + (parseFloat(m.costo) || 0), 
+      0
+    );
+
+    console.log("Costo Materiales:", costoMateriales); // Para debug
+    console.log("Costo Insumos:", costoInsumos); // Para debug
+    console.log("Mano de Obra:", manoObra); // Para debug
+    
+    // Calcular precio por unidad
+    const precioCalculado = costoMateriales + 
                           (parseFloat(costoInsumos) || 0) + 
                           (parseFloat(manoObra) || 0);
-
-      // Aplicar descuento
-      const totalConDescuento = totalParcial - (parseFloat(descuentos) || 0);
-
-      // ISV 15%
-      const isv = totalConDescuento * 0.15;
-
-      // Total final
-      const total = totalConDescuento + isv;
-
-      // Anticipo: 50% del total
-      const anticipo = total * 0.5;
-
-      // Pago pendiente
-      const pagoPendiente = total - anticipo;
-
-      return {
-        subtotal: totalConDescuento,
-        isv,
-        total,
-        anticipo,
-        pagoPendiente,
-      };
-    } 
+    
+    console.log("Precio Calculado:", precioCalculado); // Para debug
+    return precioCalculado;
   };
 
-  const handleCalcular = () => {
-    const nuevosResultados = calcularResultados();
-    setResultados(nuevosResultados);
-  };
+  
+
+
+
+
+
+  // HandleCalcular actualizado con validación
+  /*const handleCalcular = () => {
+    if (!validarCampos()) {
+      alert("Por favor, complete todos los campos requeridos antes de calcular");
+      return;
+    }
+
+    // Si es fabricación, calcular el precio automático antes de los resultados
+    if (tipoFactura === "Fabricación") {
+      const precioCalculado = calcularPrecioAutomatico();
+      // Actualizar el precio de todos los productos
+      setProductos(prev => prev.map(p => ({
+        ...p,
+        precio: precioCalculado
+      })));
+      
+      // Recalcular resultados con el nuevo precio
+      const nuevosResultados = calcularResultados();
+      setResultados(nuevosResultados);
+    } else {
+      // Para otros tipos de factura, cálculo normal
+      //const nuevosResultados = calcularResultados();
+      //setResultados(nuevosResultados);
+
+      if (tipoFactura === "Reparación") {
+        nuevosResultados = calcularSubtotalReparacion();
+      } else {
+        nuevosResultados = calcularResultados();
+      
+      }
+      setResultados(nuevosResultados);
+    }
+  };*/
+
 
   const handleCancelar = () => {
     if (onCancel) {
@@ -237,6 +676,12 @@ export default function Facturacion({ onCancel }) {
     }
   };
 
+
+
+
+
+
+  // ----------------------------- INTERFAZ ----------------------------------------
   return (
     <div className="contenedor-principal">
       <div className="contenedor-superior">
@@ -273,11 +718,14 @@ export default function Facturacion({ onCancel }) {
             <h2 className="titulo-factura">Nueva Factura de {tipoFactura}</h2>
 
             <h3>Datos del Cliente</h3>
-            <DatosCliente />
+            <DatosCliente 
+              errores={errores}
+              onCambioCampo={limpiarError}
+            />
 
             <h3>{tipoFactura === "Reparación" ? "Detalles de Reparación" : "Detalles del Producto"}</h3>
             
-            {productos.map((p) => (
+            {productos.map((p, index) => (
               <Producto
                 key={p.id}
                 id={p.id}
@@ -287,8 +735,12 @@ export default function Facturacion({ onCancel }) {
                 codigo={p.codigo}
                 producto={p.producto}
                 descripcion={p.descripcion}
+                tipoJoya={p.tipoJoya}
+                tipoReparacion={p.tipoReparacion}
                 onActualizar={actualizarProducto}
                 onBorrar={borrarProducto}
+                errores={errores}
+                productoIndex={index}
               />
             ))}
 
@@ -311,6 +763,7 @@ export default function Facturacion({ onCancel }) {
                   setManoObra={setManoObra}
                   descuentos={descuentos}
                   setDescuentos={setDescuentos}
+                  tipoFactura={tipoFactura}
                 />
               </>
             )}
@@ -345,16 +798,25 @@ export default function Facturacion({ onCancel }) {
               <div className="botones-izquierda">
                 <button className="boton-calcular" onClick={handleCalcular}>Calcular Total</button>
                 <button className="boton-cancelar" onClick={handleCancelar}>Cancelar</button>
-                <button className="boton-generar">Generar Factura</button>
+                <button className="boton-generar" onClick={handleGenerarFactura}>Generar Factura</button>
               </div>
             </div>
 
+            {/* Resultados */}
             <h3>Resultados</h3>
             <div className="tabla-resultados">
               <table>
                 <tbody>
                   <tr>
-                    <td>Subtotal:</td>
+                    <td>Subtotal Productos:</td>
+                    <td>L. {calcularSubtotalProductos().toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Descuentos:</td>
+                    <td>L. {parseFloat(descuentos || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Subtotal con Descuento:</td>
                     <td>L. {resultados.subtotal.toFixed(2)}</td>
                   </tr>
                   <tr>
@@ -391,329 +853,21 @@ export default function Facturacion({ onCancel }) {
           </div>
         )}
       </div>
+
+      {/* Este div estará oculto pero contendrá el formato para el PDF */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <div ref={facturaRef}>
+          <FormatoFactura
+            tipoFactura={tipoFactura}
+            datosCliente={obtenerDatosCliente()}
+            productos={productos}
+            materiales={materiales}
+            resultados={resultados}
+            descuentos={descuentos}
+          />
+        </div>
+      </div>
+
     </div>
   );
 }
-
-// Componente DatosCliente (sin cambios)
-function DatosCliente() {
-  return (
-    <div className="formulario-factura">
-      <div className="fila-formulario">
-        <div className="campo-formulario">
-          <label htmlFor="nombre">Nombre Completo del Cliente</label>
-          <input type="text" id="nombre" placeholder="Ingrese el nombre completo" />
-        </div>
-        <div className="campo-formulario">
-          <label htmlFor="fecha">Fecha</label>
-          <input type="date" id="fecha" />
-        </div>
-      </div>
-
-      <div className="fila-formulario">
-        <div className="campo-formulario">
-          <label htmlFor="direccion">Dirección</label>
-          <input type="text" id="direccion" placeholder="Ingrese la dirección" />
-        </div>
-        <div className="campo-formulario">
-          <label htmlFor="telefono">Número de teléfono</label>
-          <input type="tel" id="telefono" placeholder="Ingrese el teléfono" />
-        </div>
-      </div>
-
-      <div className="fila-formulario">
-        <div className="campo-formulario">
-          <label htmlFor="rtn">RTN (opcional)</label>
-          <input type="text" id="rtn" placeholder="Ingrese el RTN" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Componente Producto CORREGIDO
-function Producto({ 
-  id, 
-  tipoFactura, 
-  cantidad, 
-  precio, 
-  codigo, 
-  producto, 
-  descripcion, 
-  onActualizar, 
-  onBorrar 
-}) {
-  const [eliminando, setEliminando] = useState(false);
-  // Estado específico para reparación
-  const [tipoJoya, setTipoJoya] = useState("");
-  const [tipoReparacion, setTipoReparacion] = useState("");
-
-  const handleBorrar = () => {
-    setEliminando(true);
-    setTimeout(() => {
-      onBorrar(id);
-    }, 300);
-  };
-
-  // Función para manejar cambios en campos de reparación
-  const handleCambioReparacion = (campo, valor) => {
-    if (campo === "tipoJoya") {
-      setTipoJoya(valor);
-    } else if (campo === "tipoReparacion") {
-      setTipoReparacion(valor);
-    }
-  };
-
-  return (
-    <div className={`producto-bloque ${eliminando ? "producto-eliminando" : ""}`}>
-      <div className="producto-contenido">
-
-        {/* PARA VENTA Y FABRICACIÓN: Mostrar fila normal */}
-        {(tipoFactura === "Venta" || tipoFactura === "Fabricación") && (
-          <div className="producto-fila">
-            <div className="campo-producto">
-              <label>Código Producto</label>
-              <input 
-                type="text" 
-                placeholder="Ingrese el código del producto"
-                value={codigo}
-                onChange={(e) => onActualizar(id, "codigo", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Producto</label>
-              <input 
-                type="text" 
-                placeholder="Ingrese el producto"
-                value={producto}
-                onChange={(e) => onActualizar(id, "producto", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Cantidad</label>
-              <input 
-                type="number" 
-                min="0" 
-                placeholder="0"
-                value={cantidad}
-                onChange={(e) => onActualizar(id, "cantidad", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Precio</label>
-              <input 
-                type="number" 
-                min="0" 
-                step="0.01"
-                placeholder="0" 
-                value={precio}
-                onChange={(e) => onActualizar(id, "precio", e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* PARA REPARACIÓN: Mostrar campos específicos */}
-        {tipoFactura === "Reparación" && (
-          <div className="producto-fila">
-            <div className="campo-producto">
-              <label>Tipo de Joya</label>
-              <input 
-                type="text" 
-                placeholder="Ej: Anillo, Collar, Pulsera, etc."
-                value={tipoJoya}
-                onChange={(e) => handleCambioReparacion("tipoJoya", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Tipo de Reparación</label>
-              <select 
-                
-                value={tipoReparacion}
-                onChange={(e) => handleCambioReparacion("tipoReparacion", e.target.value)}
-              >
-                <option value="">Seleccione un tipo</option>
-                <option value="Soldadura">Soldadura</option>
-                <option value="Cambio de Piedra">Cambio de Piedra</option>
-                <option value="Limpieza">Limpieza</option>
-              </select>
-            </div>
-            {/* Estos campos se mantienen ocultos pero necesarios para cálculos */}
-            <input type="hidden" value={cantidad} />
-            <input type="hidden" value={precio} />
-          </div>
-        )}
-
-        {/* Segunda fila: Descripción (se mantiene para todos) */}
-        <div className="producto-fila">
-          <div className="campo-descripcion">
-            <label>Descripción</label>
-            <textarea 
-              rows="3" 
-              placeholder="Ingrese una descripción del producto"
-              value={descripcion}
-              onChange={(e) => onActualizar(id, "descripcion", e.target.value)}
-            />
-          </div>
-        </div>
-
-        {tipoFactura === "Fabricación" && (
-          <div className="producto-fila">
-            <div className="campo-producto">
-              <label>Materiales</label>
-              <textarea rows="2" placeholder="Ingrese los materiales a utilizar" />
-            </div>
-            <div className="campo-producto">
-              <label>Boceto (imagen)</label>
-              <input type="file" accept="image/*" />
-            </div>
-          </div>
-        )}
-
-        {tipoFactura === "Reparación" && (
-          <div className="producto-fila">
-            <div className="campo-producto">
-              <label>Materiales</label>
-              <textarea rows="2" placeholder="Ingrese los materiales a utilizar" />
-            </div>
-            <div className="campo-producto">
-              <label>Imagen de la pieza a reparar</label>
-              <input type="file" accept="image/*" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="producto-borrar">
-        <button onClick={handleBorrar}>
-          <FaTrash size={30} color="white" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// Componente DatosAdicionales CORREGIDO (sin estado interno duplicado)
-function DatosAdicionales({
-  materiales,
-  actualizarMaterial,
-  agregarMaterial,
-  borrarMaterial,
-  costoInsumos,
-  setCostoInsumos,
-  manoObra,
-  setManoObra,
-  descuentos,
-  setDescuentos
-}) {
-  return (
-    <div className="producto-bloque">
-      <div className="producto-contenido">
-        {materiales.map((m, index) => (
-          <div
-            key={index}
-            className={`producto-fila ${m.eliminando ? "producto-eliminando" : ""}`}
-            style={{ alignItems: "flex-end" }}
-          >
-            <div className="campo-producto">
-              <label>Tipo de Material</label>
-              <input
-                type="text"
-                placeholder="Ingrese el tipo de material"
-                value={m.tipo}
-                onChange={(e) => actualizarMaterial(index, "tipo", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Peso del Material (gramos)</label>
-              <input
-                type="number"
-                placeholder="Ingrese el peso del material"
-                min="0"
-                step="0.01"
-                value={m.peso}
-                onChange={(e) => actualizarMaterial(index, "peso", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Precio del Material</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Ingrese el precio del material"
-                value={m.precio}
-                onChange={(e) => actualizarMaterial(index, "precio", e.target.value)}
-              />
-            </div>
-            <div className="campo-producto">
-              <label>Costo del Material</label>
-              <input
-                type="number"
-                value={m.costo.toFixed(2)}
-                readOnly
-                className="input-readonly"
-                placeholder="Costo calculado automáticamente"
-              />
-            </div>
-
-            <div className="producto-borrar">
-              <button type="button" onClick={() => borrarMaterial(index)}>
-                <FaTrash size={18} color="white" />
-              </button>
-            </div>
-          </div>
-        ))}
-
-        <button
-          type="button"
-          className="boton-agregar-material"
-          onClick={agregarMaterial}
-        >
-          <FaPlus className="icono-plus" /> Agregar Material
-        </button>
-
-        <div className="producto-fila" style={{ marginTop: "15px" }}>
-          <div className="campo-producto">
-            <label>Costo de Insumos</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Ingrese el costo de los insumos"
-              value={costoInsumos}
-              onChange={(e) => setCostoInsumos(e.target.value)}
-            />
-          </div>
-          <div className="campo-producto">
-            <label>Costo de la Mano de Obra</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Ingrese el costo de la mano de obra"
-              value={manoObra}
-              onChange={(e) => setManoObra(e.target.value)}
-            />
-          </div>
-          <div className="campo-producto">
-            <label>Descuentos o Rebajas</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Ingrese el descuento o rebaja"
-              value={descuentos}
-              onChange={(e) => setDescuentos(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-
-
-
