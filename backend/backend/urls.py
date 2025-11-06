@@ -20,7 +20,21 @@ from api.views import hello, db_test, login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+<<<<<<< Updated upstream
     path('api/hello/', hello),
     path('api/db_test/', db_test),
     path('api/login/', login),  # Endpoint de login
+=======
+    
+    # Rutas básicas del sistema
+    path('api/db-test/', db_test, name='db_test'),
+    path('api/login/', login, name='login'),
+    path('api/hello/', hello, name='hello'),
+    
+    # Incluye todas las rutas de tu API principal
+    path('api/', include('api.urls')),
+
+    path('api/dashboard/', include('dashboard.urls')),
+    
+>>>>>>> Stashed changes
 ]

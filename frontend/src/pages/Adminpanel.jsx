@@ -5,8 +5,13 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import "../styles/AdminPanel.css";
+<<<<<<< Updated upstream
 import Facturacion from "./facturacion";
 
+=======
+import "../styles/BaseLayout.css";
+import Dashboard from "./Dashboard.jsx";
+>>>>>>> Stashed changes
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -31,6 +36,35 @@ export default function AdminPanel() {
     return <p>Cargando usuario...</p>;
   }
 
+<<<<<<< Updated upstream
+=======
+  // Renderiza módulo según botón activo
+  const renderContent = () => {
+    switch (activeButton) {
+      case "Dashboard":
+        return <Dashboard setActiveButton={setActiveButton} />;
+      case "Ventas":
+        return <VentasModule setActiveButton={setActiveButton} />;  // ✅ CAMBIO AQUÍ
+      case "Clientes":
+        return <ClientesModule setVistaActual={setActiveButton} />;
+      case "Facturacion":
+        return <h1 className="titulo-modulo">FACTURACIÓN</h1>;
+      case "Cotizaciones":
+        return <h1 className="titulo-modulo">COTIZACIONES</h1>;
+      case "Inventario":
+        return <h1 className="titulo-modulo">INVENTARIO</h1>;
+      case "Ordenes":
+        return <h1 className="titulo-modulo">ÓRDENES</h1>;
+      case "Contabilidad":
+        return <h1 className="titulo-modulo">CONTABILIDAD</h1>;
+      case "Usuarios":
+        return <h1 className="titulo-modulo">USUARIOS</h1>;
+      default:
+        return <VentasModule setActiveButton={setActiveButton} />;  // ✅ Y AQUÍ TAMBIÉN
+    }
+  };
+
+>>>>>>> Stashed changes
   return (
     // Contenedor padre de toda la pagina
     <div className="contenedor-principal">

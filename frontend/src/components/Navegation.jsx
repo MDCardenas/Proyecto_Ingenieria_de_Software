@@ -4,6 +4,12 @@ import Login from "../pages/Login.jsx";
 import AdminPanel from "../pages/Adminpanel.jsx";
 import EmployeePanel from "../pages/EmployeePanel.jsx";
 import Gerente from "../pages/Gerente.jsx";
+<<<<<<< Updated upstream
+=======
+import VentasModule from "../components/VentasModule.jsx";
+import ClientesModule from "../components/ClientesModule.jsx";
+import Dashboard from "../pages/Dashboard.jsx";
+>>>>>>> Stashed changes
 
 
 export default function Navegation() {
@@ -58,6 +64,39 @@ export default function Navegation() {
         }
       />
 
+<<<<<<< Updated upstream
+=======
+      {/* Módulo de Ventas (solo admin) */}
+        <Route
+        path="admin/dashboard"
+        element={
+          <ProtectedRoute role="admin">
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Módulo de ventas (solo admin) */}
+      <Route
+        path="/admin/ventas"
+        element={
+          <ProtectedRoute role="admin">
+            <VentasModule />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Módulo de clientes (solo admin) */}
+      <Route
+        path="/admin/clientes"
+        element={
+          <ProtectedRoute role="admin">
+            <ClientesModule setVistaActual={() => {}} />
+          </ProtectedRoute>
+        }
+      />
+
+>>>>>>> Stashed changes
       {/* Ruta fallback */}
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>

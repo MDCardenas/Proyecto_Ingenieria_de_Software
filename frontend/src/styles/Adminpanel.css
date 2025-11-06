@@ -144,12 +144,188 @@
 }
 
 .adminButton:hover {
+<<<<<<< Updated upstream
   background-color: gray;
 }
 
 .button.active {
   background-color: rgb(231, 213, 237);
   color: rgb(222, 125, 254);
+=======
+  background-color: #dc2626;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* ========================================
+   CONTENEDOR PRINCIPAL INTERNO
+   ======================================== */
+.contenido-principal {
+  display: flex;
+  flex: 1;
+  gap: 15px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ========================================
+   SIDEBAR VERTICAL
+   ======================================== */
+.navbarVertical {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Contenedor interno para los botones - empuja hacia arriba automáticamente */
+.navbarVertical .buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1; /* toma todo el espacio disponible */
+  justify-content: flex-start; /* botones arriba */
+  padding-bottom: 2rem; /* espacio extra al final */
+}
+
+/* ========================================
+   BOTONES DEL SIDEBAR
+   ======================================== */
+.button {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  margin: 1 auto;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 10px;
+  text-align: left;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto hover gradiente */
+.button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.button:hover {
+  color: white;
+  transform: translateX(8px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.button:hover::before {
+  width: 100%;
+}
+
+.button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transform: translateX(8px);
+}
+
+.button.active::before {
+  width: 100%;
+}
+
+.icon {
+  font-size: 1.25rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.button:hover .icon {
+  transform: scale(1.1);
+}
+
+/* ========================================
+   CONTENIDO PRINCIPAL
+   ======================================== */
+.contenido {
+  flex: 1;
+  padding: 25px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ===== Scrollbar pill minimal (Chrome/Edge/Safari + Firefox) ===== */
+
+/* Contenedores que scrollean en tu app */
+.contenido,
+.navbarVertical {
+  /* Firefox */
+  scrollbar-width: thin;                       /* grosor fino */
+  scrollbar-color: #c7d2e2 #f3f6fb;            /* thumb / track */
+}
+
+/* WebKit */
+.contenido::-webkit-scrollbar,
+.navbarVertical::-webkit-scrollbar {
+  width: 10px;                                 /* grosor */
+}
+
+.contenido::-webkit-scrollbar-track,
+.navbarVertical::-webkit-scrollbar-track {
+  background: #f3f6fb;                         /* rail muy claro */
+  border-radius: 999px;                        /* extremos redondos */
+}
+
+.contenido::-webkit-scrollbar-thumb,
+.navbarVertical::-webkit-scrollbar-thumb {
+  background: #c7d2e2;                         /* gris azulado */
+  border-radius: 999px;                        /* extremos redondos */
+  border: 2px solid #f3f6fb;                   /* halo claro alrededor */
+}
+
+.contenido::-webkit-scrollbar-thumb:hover,
+.navbarVertical::-webkit-scrollbar-thumb:hover {
+  background: #aebfd6;                         /* un poco más oscuro al hover */
+}
+
+/* (opcional) quita esquinas de scroll en contenedores con ambos ejes */
+.contenido::-webkit-scrollbar-corner,
+.navbarVertical::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.titulo-modulo {
+  font-size: 2rem;
+  color: #1e293b;
+>>>>>>> Stashed changes
   font-weight: bold;
 }
 
