@@ -1,160 +1,369 @@
+
+/* ========================================
+   CONTENEDOR GENERAL
+   Define layout principal de la página
+   ======================================== */
 .contenedor-principal {
-  display: flex;
+  display: flex;               
   flex-direction: column;
-  height: 100vh;
+  height: 100vh;               
+  width: 100vw;                
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f1f5f9;
+  padding: 15px;               
+  box-sizing: border-box;      
+  overflow: hidden;            
 }
 
+/* ========================================
+   NAVBAR SUPERIOR
+   ======================================== */
 .navbarHorizontal {
-  background-color: white;
-  padding: 0 1rem;
-  border-bottom: .5px rgb(205, 204, 204) solid;
-  width: 97vw;
-  height: 100px;
-  position: relative;
-  overflow: visible;
-  border-top: 1px black solid;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding-top: 5px;
+  align-items: center;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  padding: 15px 25px;
+  height: 70px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin-bottom: 15px;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
-.navbarHorizontal img {
-  height: 95px; 
-  width: 160px; 
-  object-fit: contain; /* asegura que la imagen se ajuste sin distorsionarse */
-  /*display: block;*/
-  margin-top: 0;
-}
-
-.contenido-principal {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.navbarVertical {
-  background-color: white;
-  width: 200px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-right: .5px rgb(205, 204, 204) solid;
-}
-
-.contenido {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-/* Estilos para los botones del navbar vertical */
-.button {
-  /*padding: 0.5rem;*/
-  border: none;
-  outline: none;
-  background-color: white;
-  color: black;
-  cursor: pointer;
-  border-radius: 4px;
+/* ========================================
+   LOGO Y TEXTO
+   ======================================== */
+.logo-containet {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1 rem;
-  text-align: left;
-  font-size: 20px;
-  transition: background-color 0.3s, color 0.3s;
+  gap: 10px;
 }
 
-.button:hover {
-  background-color: rgb(231, 213, 237);
-  color: rgb(222, 125, 254);
-}
-
-.icon {
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Espacio entre imagen y texto */
-  height: 100%;
+.logo-containet img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .logo-text {
-  font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
-  position: relative;
-  top: -40px; /* Ajusta este valor */
-  left: -30px;
+  font-size: 1.4rem;
+  color: #1e293b;
+  letter-spacing: 0.5px;
 }
 
-.article {
+/* ========================================
+   PERFIL DEL USUARIO
+   ======================================== */
+.article, .header {
   display: flex;
   align-items: center;
-  color: black;
-  font-size: 0.8rem;
-  position: absolute;
-  right: 1rem; /* Mismo padding que el navbar */
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 12px;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 1000px;
-  background-color: blueviolet;
-  color: white;
+  background-color: #0051ff;
+  color: #ffffff;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
 .info {
   display: flex;
   flex-direction: column;
+  font-size: 0.9rem;
 }
 
-.infoUsername {
-  opacity: .6;
-}
+.info strong { color: #00b3ff; }
+.infoUsername { font-size: 0.8rem; color: #00b3ff; }
 
 .adminButton {
-  margin-left: 16px;
-  border-radius: 999px;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-size: 25px;
-  /*padding: 8px;*/
-  transition: background-color 0.3s;
+  background-color: #ef4444;
+  border: none;
   color: white;
-  display: flex;
+  font-size: 1.2rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .adminButton:hover {
-  background-color: gray;
+  background-color: #dc2626;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* ========================================
+   CONTENEDOR PRINCIPAL INTERNO
+   ======================================== */
+.contenido-principal {
+  display: flex;
+  flex: 1;
+  gap: 15px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ========================================
+   SIDEBAR VERTICAL
+   ======================================== */
+.navbarVertical {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+/* Scrollbar del sidebar */
+.navbarVertical::-webkit-scrollbar {
+  width: 6px;
+}
+
+.navbarVertical::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navbarVertical::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+}
+
+.navbarVertical::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.5);
+}
+
+/* Contenedor interno para los botones - empuja hacia arriba automáticamente */
+.navbarVertical .buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+  justify-content: flex-start;
+  padding-bottom: 2rem;
+}
+
+/* ========================================
+   BOTONES DEL SIDEBAR
+   ======================================== */
+.button {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  margin: 1 auto;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 10px;
+  text-align: left;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto hover gradiente */
+.button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.button:hover {
+  color: white;
+  transform: translateX(8px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.button:hover::before {
+  width: 100%;
 }
 
 .button.active {
-  background-color: rgb(231, 213, 237);
-  color: rgb(222, 125, 254);
-  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transform: translateX(8px);
 }
 
-/* Contenido de las paginas */
+.button.active::before {
+  width: 100%;
+}
+
+.icon {
+  font-size: 1.25rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.button:hover .icon {
+  transform: scale(1.1);
+}
+
+/* ========================================
+   CONTENIDO PRINCIPAL - CON SCROLL PARA MÓDULOS
+   ======================================== */
 .contenido {
-  background-color: rgb(228, 227, 227);
-  color: black;
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Contenedor principal sin scroll */
+  position: relative;
+}
+
+/* CONTENEDOR INTERNO CON SCROLL PARA MÓDULOS */
+.contenido-interno {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar personalizado para el contenido interno */
+.contenido-interno::-webkit-scrollbar {
+  width: 8px;
+}
+
+.contenido-interno::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+  margin: 4px;
+}
+
+.contenido-interno::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 6px;
+  border: 2px solid #f1f5f9;
+}
+
+.contenido-interno::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Los módulos individuales manejan su propio padding */
+.modulo-contenedor {
+  height: 100%;
+  padding: 25px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.titulo-modulo {
+  font-size: 2rem;
+  color: #1e293b;
+  font-weight: bold;
+  margin: 0;
+  padding: 0 0 25px 0; /* Solo padding inferior */
+}
+
+.loading-text {
+  text-align: center;
+  padding: 50px;
+  color: #475569;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+  .navbarVertical { width: 220px; }
+}
+
+@media (max-width: 768px) {
+  .contenedor-principal {
+    padding: 10px;
+  }
+
+  .navbarHorizontal {
+    padding: 12px 20px;
+    margin-bottom: 10px;
+  }
+
+  .contenido-principal {
+    gap: 10px;
+  }
+
+  .navbarVertical {
+    width: 70px;
+    height: calc(100vh - 60px);
+    top: 60px;
+  }
+  
+  .button {
+    justify-content: center;
+    padding: 1rem 0.5rem;
+    width: 85%;
+  }
+  
+  .button span { display: none; }
+  
+  .icon {
+    margin-right: 0;
+    font-size: 1.3rem;
+  }
+
+  .modulo-contenedor {
+    padding: 15px;
+  }
+  
+  .contenido-interno::-webkit-scrollbar {
+    width: 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbarVertical { display: none; }
+
+  .contenido-principal {
+    margin: 0;
+  }
+  
+  .modulo-contenedor {
+    padding: 12px;
+  }
 }

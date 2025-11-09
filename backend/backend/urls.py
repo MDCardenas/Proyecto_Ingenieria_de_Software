@@ -14,13 +14,23 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# backend/backend/urls.py
+"""
+URL configuration for backend project.
+"""
 from django.contrib import admin
-from django.urls import path
-from api.views import hello, db_test, login
+from django.urls import path, include
+from api.views import db_test, login, hello  # Ahora estas funciones existen
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/hello/', hello),
-    path('api/db_test/', db_test),
-    path('api/login/', login),  # Endpoint de login
+    
+    # Rutas básicas del sistema
+    path('api/db-test/', db_test, name='db_test'),
+    path('api/login/', login, name='login'),
+    path('api/hello/', hello, name='hello'),
+    
+    # Incluye todas las rutas de tu API principal
+    path('api/', include('api.urls')),
+    
 ]

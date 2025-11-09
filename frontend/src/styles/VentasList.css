@@ -1,0 +1,578 @@
+/* VentasList.css - Estilos para lista de ventas */
+
+.ventas-list-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  background: transparent;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.header-left h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 5px 0 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.text-pagada {
+  color: #059669;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-volver {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-volver:hover {
+  background: #4b5563;
+}
+
+.btn-refresh {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-refresh:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESUMEN DE TOTALES
+   ======================================== */
+.resumen-totales {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.total-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-left: 4px solid #059669;
+}
+
+.total-icon {
+  font-size: 2rem;
+  color: #059669;
+}
+
+.total-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.total-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.total-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+/* ========================================
+   FILTROS
+   ======================================== */
+.filtros-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  margin-bottom: 15px;
+}
+
+.search-section {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.input-busqueda {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.input-busqueda:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-limpiar {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-limpiar:hover {
+  background: #4b5563;
+}
+
+.filtros-section {
+  display: flex;
+  gap: 15px;
+}
+
+.filtro-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filtro-group label {
+  font-size: 0.85rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.select-filtro {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.select-filtro:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ========================================
+   RESUMEN DE FILTROS
+   ======================================== */
+.resumen-filtros {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  background: #eff6ff;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.filtro-activo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #374151;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* ========================================
+   TABLA
+   ======================================== */
+.tabla-container {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  margin-bottom: 15px;
+}
+
+.tabla-ventas {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-ventas th {
+  background: #f9fafb;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabla-ventas td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.fila-factura {
+  transition: background-color 0.2s;
+}
+
+.fila-factura:hover {
+  background: #f9fafb;
+}
+
+.numero-factura {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.icon-factura {
+  color: #3b82f6;
+  font-size: 1.1rem;
+}
+
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cliente-info strong {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.observacion {
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.fecha-factura {
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.subtotal,
+.isv,
+.descuento {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.total-factura {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  color: #059669;
+  font-size: 0.95rem;
+}
+
+.total-factura strong {
+  font-weight: 600;
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+.badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.badge-venta {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-fabricacion {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.badge-reparacion {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-efectivo {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-tarjeta {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-transferencia {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.badge-metodo {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.badge-secondary {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ========================================
+   ACCIONES
+   ======================================== */
+.acciones-tabla {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.btn-detalles,
+.btn-anular {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-detalles {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-detalles:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-anular {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-anular:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   ESTADOS
+   ======================================== */
+.loading-message,
+.sin-resultados {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 1rem;
+}
+
+.loading-message {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.sin-resultados {
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* ========================================
+   RESUMEN FINAL
+   ======================================== */
+.resumen-final {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.resumen-stats {
+  display: flex;
+  gap: 30px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.resumen-stats strong {
+  color: #059669;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+.resumen-leyenda {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+  .resumen-totales {
+    grid-template-columns: 1fr;
+  }
+
+  .tabla-ventas {
+    font-size: 0.85rem;
+  }
+
+  .tabla-ventas th,
+  .tabla-ventas td {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-limpiar {
+    width: 100%;
+  }
+
+  .filtros-section {
+    flex-direction: column;
+  }
+
+  .resumen-final {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .resumen-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tabla-container {
+    overflow-x: auto;
+  }
+
+  .tabla-ventas {
+    min-width: 900px;
+  }
+
+  .acciones-tabla {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .btn-detalles,
+  .btn-anular {
+    width: 100%;
+  }
+}

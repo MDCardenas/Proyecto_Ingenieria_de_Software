@@ -1,142 +1,100 @@
+// src/pages/AdminPanel.jsx
 import { useEffect, useState } from "react";
-import { 
-  FaShoppingCart, FaFileInvoiceDollar, FaClipboardList, FaBoxes, FaListAlt, 
-  FaChartLine, FaUserFriends, FaTachometerAlt, FaSignOutAlt 
-} from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaSignOutAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import VentasModule from "../components/VentasModule";
+import ClientesModule from "../components/ClientesModule";
+import FacturacionModule from "../components/FacturacionModule"; // ✅ NUEVA IMPORTACIÓN
 import "../styles/AdminPanel.css";
-import Facturacion from "./facturacion";
-
+import "../styles/BaseLayout.css";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
+  const [empleado, setEmpleado] = useState(null);
+  const [activeButton, setActiveButton] = useState("Dashboard");
 
-  const handleLogout = ()=> {
-    navigate('/Login');
+  // Logout
+  const handleLogout = () => {
+    localStorage.removeItem("empleado");
+    navigate("/login");
   };
 
-  const [empleado, setEmpleado] = useState(null);
-  const [activeButton, setActiveButton] = useState("Dashboard"); // por defecto es Dashboard
-
-  useEffect(()=> {
-    //Recuperar el empleado guardado en localStorage
+  // Cargar empleado desde localStorage
+  useEffect(() => {
     const empleadoGuardado = localStorage.getItem("empleado");
     if (empleadoGuardado) {
       setEmpleado(JSON.parse(empleadoGuardado));
+    } else {
+      navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
-  // Si empleado es null, mostramos algo mientras carga
   if (!empleado) {
-    return <p>Cargando usuario...</p>;
+    return <p className="loading-text">Cargando usuario...</p>;
   }
 
-  return (
-    // Contenedor padre de toda la pagina
-    <div className="contenedor-principal">
+  // Renderiza módulo según botón activo
+  const renderContent = () => {
+    switch (activeButton) {
+      case "Dashboard":
+        return <h1 className="titulo-modulo">DASHBOARD</h1>;
+      case "Ventas":
+        return <VentasModule setActiveButton={setActiveButton} />;
+      case "Clientes":
+        return <ClientesModule setVistaActual={setActiveButton} />;
+      case "Facturacion": // ✅ NUEVO CASO
+        return <FacturacionModule onCancel={() => setActiveButton("Dashboard")} />;
+      case "Cotizaciones":
+        return <h1 className="titulo-modulo">COTIZACIONES</h1>;
+      case "Inventario":
+        return <h1 className="titulo-modulo">INVENTARIO</h1>;
+      case "Ordenes":
+        return <h1 className="titulo-modulo">ÓRDENES</h1>;
+      case "Contabilidad":
+        return <h1 className="titulo-modulo">CONTABILIDAD</h1>;
+      case "Usuarios":
+        return <h1 className="titulo-modulo">USUARIOS</h1>;
+      default:
+        return <VentasModule setActiveButton={setActiveButton} />;
+    }
+  };
 
-      {/* Navbar horizontal superior */}
+  return (
+    <div className="contenedor-principal">
+      {/* 🔹 Header / Navbar superior */}
       <div className="navbarHorizontal">
         <div className="logo-containet">
-          <img src="src/assets/logo-joyeria.jpg" alt="Logo de la joyeria" />
+          <img src="/src/assets/logo-joyeria.jpg" alt="Logo de la joyería" />
           <span className="logo-text">JoyaSystem</span>
         </div>
+
         <article className="article">
           <header className="header">
-            <div className="avatar">A</div>
+            <div className="avatar">
+              {empleado.nombre.charAt(0).toUpperCase()}
+            </div>
             <div className="info">
               <strong>Administrador</strong>
-              {empleado.nombre} {empleado.apellido}
+              <span>{empleado.nombre} {empleado.apellido}</span>
               <span className="infoUsername">{empleado.correo}</span>
             </div>
           </header>
           <aside>
-            <button onClick={handleLogout} className="adminButton">
+            <button onClick={handleLogout} className="adminButton" title="Cerrar Sesión">
               <FaSignOutAlt />
             </button>
           </aside>
         </article>
       </div>
 
-      {/* Contenedor del contenido principal */}
+      {/* 🔹 Cuerpo principal */}
       <div className="contenido-principal">
-        {/* Navbar vertical del lado izquierdo */}
-        <div className="navbarVertical">
-          <button 
-            className={`button ${activeButton === "Dashboard" ? "active" : ""}`}
-            onClick={()=> setActiveButton("Dashboard")}
-          >
-            <FaTachometerAlt className="icon" />
-            Dashboard
-          </button>
-          <button 
-            className={`button ${activeButton === "Ventas" ? "active" : ""}`}
-            onClick={() => setActiveButton("Ventas")}
-          >
-            <FaShoppingCart className="icon" />
-            Ventas
-          </button>
-          <button 
-            className={`button ${activeButton === "Facturacion" ? "active" : ""}`}
-            onClick={() => setActiveButton("Facturacion")}
-          >
-            <FaFileInvoiceDollar className="icon" />
-            Facturación
-          </button>
-          <button 
-            className={`button ${activeButton === "Cotizaciones" ? "active" : ""}`}
-            onClick={() => setActiveButton("Cotizaciones")}
-          >
-            <FaClipboardList className="icon" />
-            Cotizaciones
-          </button>
-          <button 
-            className={`button ${activeButton === "Inventario" ? "active" : ""}`}
-            onClick={() => setActiveButton("Inventario")}
-          >
-            <FaBoxes className="icon" />
-            Inventario
-          </button>
-          <button 
-            className={`button ${activeButton === "Ordenes" ? "active" : ""}`}
-            onClick={() => setActiveButton("Ordenes")}
-          >
-            <FaListAlt className="icon" />
-            Órdenes
-          </button>
-          <button 
-            className={`button ${activeButton === "Contabilidad" ? "active" : ""}`}
-            onClick={() => setActiveButton("Contabilidad")}
-          >
-            <FaChartLine className="icon" />
-            Contabilidad
-          </button>
-          <button 
-            className={`button ${activeButton === "Usuarios" ? "active" : ""}`}
-            onClick={() => setActiveButton("Usuarios")}
-          >
-            <FaUserFriends className="icon" />
-            Usuarios
-          </button>
-        </div>
-
-        {/* Aquí iría el contenido principal de tu aplicación */}
+        <Sidebar activeButton={activeButton} setActiveButton={setActiveButton} />
         <div className="contenido">
-          {/* Tu contenido aquí */}
-          {/* Aqui en lugar del "h1" iria el llamado a los componentes de cada modulo */}
-          {activeButton === "Dashboard" && <h1>DASHBOARD</h1>}
-          {activeButton === "Ventas" && <h1>VENTAS</h1>}
-          {activeButton === "Facturacion" && (
-            <Facturacion onCancel={()=> setActiveButton("Ventas")} />
-          )} 
-          {activeButton === "Cotizaciones" && <h1>COTIZACIONES</h1>}
-          {activeButton === "Inventario" && <h1>INVENTARIO</h1>}
-          {activeButton === "Ordenes" && <h1>ÓRDENES</h1>}
-          {activeButton === "Contabilidad" && <h1>CONTABILIDAD</h1>}
-          {activeButton === "Usuarios" && <h1>USUARIOS</h1>}
+          {renderContent()}
         </div>
       </div>
     </div>
   );
 }
-

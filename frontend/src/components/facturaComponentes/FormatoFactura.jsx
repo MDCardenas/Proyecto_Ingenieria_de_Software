@@ -1,188 +1,290 @@
-// components/FormatoFactura.jsx
 import React from "react";
 
-export default function FormatoFactura({ 
-  tipoFactura, 
-  datosCliente, 
-  productos, 
-  materiales, 
+export default function FormatoFactura({
+  tipoFactura,
+  datosCliente,
+  productos,
+  materiales,
   resultados,
-  descuentos 
+  descuentos,
+  datosFactura
 }) {
-  const fechaActual = new Date().toLocaleDateString();
-  
+  // Usar fecha de la factura si existe, sino usar fecha actual
+  const fechaFactura = datosFactura?.fecha 
+    ? new Date(datosFactura.fecha).toLocaleDateString('es-HN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
+    : new Date().toLocaleDateString('es-HN');
+
+  // Usar número de factura real si existe, sino generar uno temporal
+  const numeroFactura = datosFactura?.numero_factura 
+    ? `FAC-${tipoFactura}-${String(datosFactura.numero_factura).padStart(6, '0')}`
+    : `FAC-${tipoFactura}-${Date.now().toString().slice(-6)}`;
+
   return (
-    <div id="formato-factura" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      {/* Encabezado */}
-      <div style={{ textAlign: "center", marginBottom: "20px", borderBottom: "2px solid #000", paddingBottom: "10px" }}>
-        <h1>JOYERÍA CHARLY'S</h1>
-        <p>Bo. La Ronda, Ave. Maximo Jerez, media cuadra arriba del Instituto
-           Guillen Zelaya, Casa N.820, Correo: joyascharlys@gmail.com 
-        </p>
-        <p>RTN: 15011976000344 | Tel: 2222-5218 y 9971-7820</p>
-        <h2>FACTURA DE {tipoFactura?.toUpperCase()}</h2>
-        <p>No. Factura: {Date.now().toString().slice(-6)}</p>
-        <p>Fecha: {fechaActual}</p>
+    <div className="formato-factura-pdf">
+      {/* Encabezado moderno */}
+      <div className="encabezado-moderno">
+        <div className="membrete-empresa">
+          <div className="logo-empresa">
+            <h1>JOYERÍA LA ELEGANCIA</h1>
+            <div className="linea-decorativa"></div>
+          </div>
+          <div className="info-empresa">
+            <p><strong>Especialistas en Joyería Fina</strong></p>
+            <p>Centro Comercial Galerías, Tegucigalpa</p>
+            <p>Tel: +504 2233-4455 | Email: info@joyerialaelegancia.com</p>
+            <p>RTN: 0801-1990-12345</p>
+          </div>
+        </div>
+        
+        <div className="encabezado-derecho">
+          <div className="badge-tipo">{tipoFactura}</div>
+          <div className="info-factura">
+            <h2>FACTURA</h2>
+            <div className="datos-factura">
+              <div className="dato-factura">
+                <span className="etiqueta">No.:</span>
+                <span className="valor">{numeroFactura}</span>
+              </div>
+              <div className="dato-factura">
+                <span className="etiqueta">Fecha:</span>
+                <span className="valor">{fechaFactura}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Datos del Cliente */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>DATOS DEL CLIENTE</h3>
-        <p><strong>Nombre:</strong> {datosCliente.nombre || "No especificado"}</p>
-        <p><strong>Dirección:</strong> {datosCliente.direccion || "No especificado"}</p>
-        <p><strong>Teléfono:</strong> {datosCliente.telefono || "No especificado"}</p>
-        <p><strong>RTN:</strong> {datosCliente.rtn || "No especificado"}</p>
+      {/* Información del cliente */}
+      <div className="seccion-cliente">
+        <div className="titulo-seccion">
+          <span>INFORMACIÓN DEL CLIENTE</span>
+        </div>
+        <div className="contenido-seccion">
+          <div className="grid-cliente">
+            <div className="campo-cliente">
+              <span className="etiqueta">Nombre:</span>
+              <span className="valor">{datosCliente.nombre || 'No especificado'}</span>
+            </div>
+            <div className="campo-cliente">
+              <span className="etiqueta">Dirección:</span>
+              <span className="valor">{datosCliente.direccion || 'No especificada'}</span>
+            </div>
+            <div className="campo-cliente">
+              <span className="etiqueta">Teléfono:</span>
+              <span className="valor">{datosCliente.telefono || 'No especificado'}</span>
+            </div>
+            <div className="campo-cliente">
+              <span className="etiqueta">RTN:</span>
+              <span className="valor">{datosCliente.rtn || 'No especificado'}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Detalles según tipo de factura */}
-      {tipoFactura === "Venta" && (
-        <div style={{ marginBottom: "20px" }}>
-          <h3>DETALLES DE VENTA</h3>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ backgroundColor: "#f5f5f5" }}>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Producto</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Descripción</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Cantidad</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Precio Unit.</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productos.map((producto, index) => (
-                <tr key={index}>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{producto.producto}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px", maxWidth: "200px" }}>
-                    {producto.descripcion || "Sin descripción"}
-                  </td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{producto.cantidad}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>L. {parseFloat(producto.precio || 0).toFixed(2)}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    L. {((parseFloat(producto.cantidad) || 0) * (parseFloat(producto.precio) || 0)).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {tipoFactura === "Fabricación" && (
-        <div style={{ marginBottom: "20px" }}>
-          <h3>DETALLES DE FABRICACIÓN</h3>
-          {/* Tabla de productos */}
-          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "15px" }}>
-            <thead>
-              <tr style={{ backgroundColor: "#f5f5f5" }}>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Producto</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Descripción</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Cantidad</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Precio Unit.</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productos.map((producto, index) => (
-                <tr key={index}>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{producto.producto}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px", maxWidth: "200px" }}>
-                    {producto.descripcion || "Sin descripción"}
-                  </td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{producto.cantidad}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>L. {parseFloat(producto.precio || 0).toFixed(2)}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    L. {((parseFloat(producto.cantidad) || 0) * (parseFloat(producto.precio) || 0)).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Tabla de materiales */}
-          <h4>Materiales Utilizados</h4>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ backgroundColor: "#f5f5f5" }}>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Material</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Peso (g)</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Precio/g</th>
-                <th style={{ border: "1px solid #ddd", padding: "8px" }}>Costo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {materiales.map((material, index) => (
-                <tr key={index}>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{material.tipo || "No especificado"}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{material.peso || "0"}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>L. {parseFloat(material.precio || 0).toFixed(2)}</td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>L. {parseFloat(material.costo || 0).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {tipoFactura === "Reparación" && (
-        <div style={{ marginBottom: "20px" }}>
-          <h3>DETALLES DE REPARACIÓN</h3>
-          {/* Información específica de reparación */}
-          <div style={{ marginBottom: "15px" }}>
-            <p><strong>Tipo de Joya:</strong> {productos[0]?.tipoJoya || "No especificado"}</p>
-            <p><strong>Tipo de Reparación:</strong> {productos[0]?.tipoReparacion || "No especificado"}</p>
-            <p><strong>Descripción:</strong> {productos[0]?.descripcion || "No especificado"}</p>
+      {tipoFactura === "VENTA" && (
+        <div className="seccion-detalles">
+          <div className="titulo-seccion">
+            <span>DETALLES DE VENTA</span>
           </div>
-          
-          {/* Tabla de materiales si existen */}
-          {materiales.length > 0 && materiales.some(m => m.tipo) && (
-            <>
-              <h4>Materiales Utilizados</h4>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f5f5f5" }}>
-                    <th style={{ border: "1px solid #ddd", padding: "8px" }}>Material</th>
-                    <th style={{ border: "1px solid #ddd", padding: "8px" }}>Peso (g)</th>
-                    <th style={{ border: "1px solid #ddd", padding: "8px" }}>Precio/g</th>
-                    <th style={{ border: "1px solid #ddd", padding: "8px" }}>Costo</th>
+          <div className="contenido-seccion">
+            <table className="tabla-moderna">
+              <thead>
+                <tr>
+                  <th width="12%">Código</th>
+                  <th width="20%">Producto</th>
+                  <th width="28%">Descripción</th>
+                  <th width="10%">Cantidad</th>
+                  <th width="15%">Precio Unit.</th>
+                  <th width="15%">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productos.map((producto, index) => (
+                  <tr key={index}>
+                    <td className="texto-centro">{producto.codigo || 'N/A'}</td>
+                    <td className="texto-izquierda">{producto.producto || 'Producto no especificado'}</td>
+                    <td className="texto-izquierda">{producto.descripcion || 'Sin descripción'}</td>
+                    <td className="texto-centro">{producto.cantidad}</td>
+                    <td className="texto-derecha">L. {parseFloat(producto.precio || 0).toFixed(2)}</td>
+                    <td className="texto-derecha">L. {(parseFloat(producto.cantidad || 0) * parseFloat(producto.precio || 0)).toFixed(2)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {materiales.filter(material => material.tipo).map((material, index) => (
-                    <tr key={index}>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>{material.tipo}</td>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>{material.peso || "0"}</td>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>L. {parseFloat(material.precio || 0).toFixed(2)}</td>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>L. {parseFloat(material.costo || 0).toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Totales */}
-      <div style={{ marginTop: "20px", borderTop: "2px solid #000", paddingTop: "10px" }}>
-        <h3>RESUMEN DE PAGO</h3>
-        <p><strong>Descuentos:</strong> L. {parseFloat(descuentos || 0).toFixed(2)}</p>
-        <p><strong>Subtotal con Descuento:</strong> L. {resultados.subtotal?.toFixed(2) || "0.00"}</p>
-        <p><strong>ISV (15%):</strong> L. {resultados.isv?.toFixed(2) || "0.00"}</p>
-        <p><strong>Total:</strong> L. {resultados.total?.toFixed(2) || "0.00"}</p>
-        
-        {(tipoFactura === "Fabricación" || tipoFactura === "Reparación") && (
-            <>
-            <p><strong>Anticipo (50%):</strong> L. {resultados.anticipo?.toFixed(2) || "0.00"}</p>
-            <p><strong>Pago Pendiente:</strong> L. {resultados.pagoPendiente?.toFixed(2) || "0.00"}</p>
-            </>
-        )}
+      {tipoFactura === "FABRICACION" && (
+        <div className="seccion-detalles">
+          <div className="titulo-seccion">
+            <span>DETALLES DE FABRICACIÓN</span>
+          </div>
+          <div className="contenido-seccion">
+            <div className="descripcion-boceto">
+              <h4>Descripción del Boceto:</h4>
+              <div className="contenido-descripcion">
+                {productos[0]?.descripcion || 'No se proporcionó descripción'}
+              </div>
+            </div>
+
+            {materiales && materiales.length > 0 && (
+              <div className="materiales-utilizados">
+                <h4>Materiales Utilizados:</h4>
+                <table className="tabla-moderna">
+                  <thead>
+                    <tr>
+                      <th width="40%">Tipo</th>
+                      <th width="20%">Peso (gr)</th>
+                      <th width="20%">Precio por gr</th>
+                      <th width="20%">Costo Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {materiales.map((material, index) => (
+                      <tr key={index}>
+                        <td className="texto-izquierda">{material.tipo || 'No especificado'}</td>
+                        <td className="texto-derecha">{parseFloat(material.peso || 0).toFixed(2)}</td>
+                        <td className="texto-derecha">L. {parseFloat(material.precio || 0).toFixed(2)}</td>
+                        <td className="texto-derecha">L. {parseFloat(material.costo || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
+      )}
+
+      {tipoFactura === "REPARACION" && (
+        <div className="seccion-detalles">
+          <div className="titulo-seccion">
+            <span>DETALLES DE REPARACIÓN</span>
+          </div>
+          <div className="contenido-seccion">
+            <div className="info-reparacion">
+              <div className="grid-reparacion">
+                <div className="campo-reparacion">
+                  <span className="etiqueta">Tipo de Joya:</span>
+                  <span className="valor">{productos[0]?.tipoJoya || 'No especificado'}</span>
+                </div>
+                <div className="campo-reparacion">
+                  <span className="etiqueta">Tipo de Reparación:</span>
+                  <span className="valor">{productos[0]?.tipoReparacion || 'No especificado'}</span>
+                </div>
+              </div>
+              <div className="descripcion-dano">
+                <span className="etiqueta">Descripción del Daño:</span>
+                <div className="contenido-descripcion">
+                  {productos[0]?.descripcion || 'No se proporcionó descripción'}
+                </div>
+              </div>
+            </div>
+
+            {materiales && materiales.length > 0 && (
+              <div className="materiales-utilizados">
+                <h4>Materiales Utilizados en Reparación:</h4>
+                <table className="tabla-moderna">
+                  <thead>
+                    <tr>
+                      <th width="40%">Tipo</th>
+                      <th width="20%">Peso (gr)</th>
+                      <th width="20%">Precio por gr</th>
+                      <th width="20%">Costo Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {materiales.map((material, index) => (
+                      <tr key={index}>
+                        <td className="texto-izquierda">{material.tipo || 'No especificado'}</td>
+                        <td className="texto-derecha">{parseFloat(material.peso || 0).toFixed(2)}</td>
+                        <td className="texto-derecha">L. {parseFloat(material.precio || 0).toFixed(2)}</td>
+                        <td className="texto-derecha">L. {parseFloat(material.costo || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Resumen financiero */}
+      <div className="seccion-resumen">
+        <div className="titulo-seccion">
+          <span>RESUMEN FINANCIERO</span>
+        </div>
+        <div className="contenido-seccion">
+          <div className="resumen-grid">
+            <div className="linea-resumen">
+              <span>Subtotal:</span>
+              <span>L. {parseFloat(resultados.subtotal || 0).toFixed(2)}</span>
+            </div>
+            {parseFloat(descuentos || 0) > 0 && (
+              <div className="linea-resumen descuento">
+                <span>Descuentos:</span>
+                <span>- L. {parseFloat(descuentos || 0).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="linea-resumen">
+              <span>ISV (15%):</span>
+              <span>L. {parseFloat(resultados.isv || 0).toFixed(2)}</span>
+            </div>
+            <div className="linea-resumen total">
+              <span><strong>TOTAL:</strong></span>
+              <span><strong>L. {parseFloat(resultados.total || 0).toFixed(2)}</strong></span>
+            </div>
+            
+            {(tipoFactura === "FABRICACION" || tipoFactura === "REPARACION") && (
+              <>
+                <div className="linea-resumen anticipo">
+                  <span>Anticipo (50%):</span>
+                  <span>L. {parseFloat(resultados.anticipo || 0).toFixed(2)}</span>
+                </div>
+                <div className="linea-resumen pendiente">
+                  <span>Pago Pendiente:</span>
+                  <span>L. {parseFloat(resultados.pagoPendiente || 0).toFixed(2)}</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Observaciones y firmas */}
+      <div className="seccion-final">
+        <div className="observaciones">
+          <div className="titulo-seccion">
+            <span>OBSERVACIONES</span>
+          </div>
+          <div className="contenido-observaciones">
+            <p>{datosFactura?.observaciones || 'Ninguna'}</p>
+          </div>
+        </div>
+        
+        <div className="firmas">
+          <div className="firma-cliente">
+            <div className="linea-firma"></div>
+            <p>Firma del Cliente</p>
+          </div>
+          <div className="firma-empresa">
+            <div className="linea-firma"></div>
+            <p>JOYERÍA LA ELEGANCIA</p>
+          </div>
+        </div>
+      </div>
 
       {/* Pie de página */}
-      <div style={{ marginTop: "30px", textAlign: "center", fontSize: "12px", color: "#666" }}>
-        <p>¡Gracias por su compra!</p>
-        <p>Para reclamos o devoluciones presentar esta factura</p>
-        <p>Joyería Charly's - Su joyería de confianza</p>
+      <div className="pie-pagina">
+        <p><strong><em>"Gracias por su preferencia. Joyas que cuentan historias, elegancia que perdura."</em></strong></p>
+        <p>Para consultas o aclaraciones contactar al: +504 2233-4455</p>
       </div>
     </div>
   );
