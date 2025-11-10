@@ -1,0 +1,99 @@
+ESTRUCTURA DE DIRECTORIO
+
+
+[BACKEND]
+
+backend/
+    manage.py
+    api/
+        admin.py
+        apps.py
+        models.py
+        serializers.py
+        tests.py
+        urls.py
+        views.py
+        __init__.py
+        migrations/
+            0001_initial.py
+            __init__.py
+            __pycache__/
+                0001_initial.cpython-313.pyc
+                __init__.cpython-313.pyc
+        __pycache__/
+            admin.cpython-313.pyc
+            apps.cpython-313.pyc
+            models.cpython-313.pyc
+            serializers.cpython-313.pyc
+            urls.cpython-313.pyc
+            views.cpython-313.pyc
+            __init__.cpython-313.pyc
+    backend/
+        asgi.py
+        settings.py
+        urls.py
+        wsgi.py
+        __init__.py
+        __pycache__/
+            settings.cpython-313.pyc
+            urls.cpython-313.pyc
+            wsgi.cpython-313.pyc
+            __init__.cpython-313.pyc
+
+
+[FRONTEND]
+
+frontend/
+    .gitignore
+    eslint.config.js
+    index.html
+    node_modules/  (omitida)
+    package-lock.json
+    package.json
+    public/  (omitida)
+    README.md
+    src/
+        App.css
+        App.jsx
+        index.css
+        main.jsx
+        assets/
+            logo-joyeria.jpg
+            react.svg
+        components/
+            ClientesModule.jsx
+            Dashboard.jsx
+            FacturacionModule copy.jsx
+            FacturacionModule.jsx
+            Navegation.jsx
+            Sidebar.jsx
+            Usuarios.jsx
+            VentasList.jsx
+            VentasModule.jsx
+            facturaComponentes/
+                DatosAdicionales.jsx
+                DatosCliente.jsx
+                FormatoFactura.jsx
+                ListaFacturas.jsx
+                ModalDetalleFactura.jsx
+                Producto.jsx
+        pages/
+            Adminpanel.jsx
+            EmployeePanel.jsx
+            Gerente.jsx
+            Login.jsx
+        services/
+            api.js
+        styles/
+            Adminpanel.css
+            ClientesModule.css
+            Dashboard.css
+            Facturacion copy.css
+            Facturacion.css
+            login.css
+            Usuarios.css
+            VentasList.css
+            VentasModule.css
+        utils/
+            normalize.js
+    vite.config.js

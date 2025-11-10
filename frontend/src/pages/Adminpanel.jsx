@@ -7,7 +7,7 @@ import VentasModule from "../components/VentasModule";
 import ClientesModule from "../components/ClientesModule";
 import FacturacionModule from "../components/FacturacionModule"; // ✅ NUEVA IMPORTACIÓN
 import "../styles/AdminPanel.css";
-import "../styles/BaseLayout.css";
+
 
 export default function AdminPanel() {
   const navigate = useNavigate();
