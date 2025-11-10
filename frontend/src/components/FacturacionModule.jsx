@@ -704,10 +704,10 @@ export default function Facturacion({ onCancel }) {
       {/* Contenido principal */}
       <div className="pantalla-accion">
       {mostrarLista ? (
-      <div className="contenido-con-scroll">
-      <ListaFacturas />
-    </div>
-        ) : (
+        <div className="contenido-con-scroll">
+          <ListaFacturas />
+        </div> 
+      ) : (
           <>
             {mostrarOpciones && (
               <div className="opciones-factura">

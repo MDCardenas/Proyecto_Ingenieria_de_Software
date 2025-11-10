@@ -57,23 +57,31 @@ export default function ListaFacturas() {
         })
       };
 
-      const response = await fetch(`http://localhost:8000/api/facturas/${numeroFactura}/estado-pago/`, {
+      console.log('📤 Enviando PATCH a:', `http://localhost:8000/api/facturas/${numeroFactura}/`);
+      console.log('📦 Payload:', payload);
+
+      // URL CORREGIDA - sin /estado-pago/
+      const response = await fetch(`http://localhost:8000/api/facturas/${numeroFactura}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
+      console.log('📥 Respuesta HTTP:', response.status, response.statusText);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Error ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Error response body:', errorText);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
       const resultado = await response.json();
+      console.log('✅ Factura actualizada:', resultado);
       
       // Actualizar estado local
       setFacturas(prev => prev.map(f => 
         f.numero_factura === numeroFactura 
-          ? { ...f, ...resultado.factura }
+          ? { ...f, ...resultado }  // Usar resultado directamente
           : f
       ));
       
