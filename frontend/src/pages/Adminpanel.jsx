@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import VentasModule from "../components/VentasModule";
 import ClientesModule from "../components/ClientesModule";
-import FacturacionModule from "../components/FacturacionModule"; // ✅ NUEVA IMPORTACIÓN
-import "../styles/AdminPanel.css";
-
+import FacturacionModule from "../components/FacturacionModule";
+import Dashboard from "../components/Dashboard";
+import Usuarios from "../components/Usuarios";
+import InventarioModule from "../components/InventarioModule";
+import { menuItems } from "../services/menuItems.js";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -30,6 +32,45 @@ export default function AdminPanel() {
     }
   }, [navigate]);
 
+  const getActiveMenuItem = () => {
+    return menuItems.find(item => item.id === activeButton) || menuItems[0];
+  };
+
+  const activeMenuItem = getActiveMenuItem();
+  const ActiveIcon = activeMenuItem.icon;
+
+  // Obtener título del módulo activo
+  const getModuleTitle = () => {
+    const titles = {
+      "Dashboard": "Dashboard Principal",
+      "Ventas": "Gestión de Ventas",
+      "Clientes": "Gestión de Clientes",
+      "Facturacion": "Sistema de Facturación",
+      "Cotizaciones": "Cotizaciones y Presupuestos",
+      "Inventario": "Control de Inventario",
+      "Ordenes": "Órdenes de Trabajo",
+      "Contabilidad": "Contabilidad y Finanzas",
+      "Usuarios": "Gestión de Usuarios"
+    };
+    return titles[activeButton] || "Panel de Control";
+  };
+
+  // Obtener subtítulo del módulo activo
+  const getModuleSubtitle = () => {
+    const subtitles = {
+      "Dashboard": "Resumen general y métricas del sistema",
+      "Ventas": "Registro y seguimiento de ventas",
+      "Clientes": "Administración de clientes y contactos",
+      "Facturacion": "Emisión y control de documentos fiscales",
+      "Cotizaciones": "Crear y gestionar cotizaciones",
+      "Inventario": "Control de stock y productos",
+      "Ordenes": "Seguimiento de órdenes de servicio",
+      "Contabilidad": "Informes financieros y contables",
+      "Usuarios": "Administración de usuarios y permisos"
+    };
+    return subtitles[activeButton] || "Gestiona la información del sistema";
+  };
+
   if (!empleado) {
     return <p className="loading-text">Cargando usuario...</p>;
   }
@@ -38,23 +79,23 @@ export default function AdminPanel() {
   const renderContent = () => {
     switch (activeButton) {
       case "Dashboard":
-        return <h1 className="titulo-modulo">DASHBOARD</h1>;
+        return <Dashboard setActiveButton={setActiveButton} />;
       case "Ventas":
         return <VentasModule setActiveButton={setActiveButton} />;
       case "Clientes":
         return <ClientesModule setVistaActual={setActiveButton} />;
-      case "Facturacion": // ✅ NUEVO CASO
+      case "Facturacion":
         return <FacturacionModule onCancel={() => setActiveButton("Dashboard")} />;
       case "Cotizaciones":
         return <h1 className="titulo-modulo">COTIZACIONES</h1>;
       case "Inventario":
-        return <h1 className="titulo-modulo">INVENTARIO</h1>;
+        return <InventarioModule setActiveButton={setActiveButton} />;
       case "Ordenes":
         return <h1 className="titulo-modulo">ÓRDENES</h1>;
       case "Contabilidad":
         return <h1 className="titulo-modulo">CONTABILIDAD</h1>;
       case "Usuarios":
-        return <h1 className="titulo-modulo">USUARIOS</h1>;
+        return <Usuarios setActiveButton={setActiveButton} />;
       default:
         return <VentasModule setActiveButton={setActiveButton} />;
     }
@@ -62,37 +103,72 @@ export default function AdminPanel() {
 
   return (
     <div className="contenedor-principal">
-      {/* 🔹 Header / Navbar superior */}
-      <div className="navbarHorizontal">
-        <div className="logo-containet">
-          <img src="/src/assets/logo-joyeria.jpg" alt="Logo de la joyería" />
-          <span className="logo-text">JoyaSystem</span>
+      {/* 🔹 Grid Container Principal */}
+      <div className="grid-container">
+        
+        {/* 🔹 ITEM 1 - Header Superior */}
+        <div className="grid-item item-1">
+          <div className="header-content">
+            <div className="welcome-section">
+              <img src="/src/assets/logo-joyeria.jpg" alt="Logo" className="logo" />
+              <div className="welcome-text">
+                JoyaSystem - Panel de Administración
+              </div>
+            </div>
+            
+            <div className="user-info">
+              <div className="user-details">
+                <div className="user-name">{empleado.nombre} {empleado.apellido}</div>
+                <div className="user-role">Administrador</div>
+              </div>
+              <div className="user-avatar">
+                {empleado.nombre.charAt(0).toUpperCase()}
+              </div>
+              <button onClick={handleLogout} className="adminButton" title="Cerrar Sesión">
+                <FaSignOutAlt />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <article className="article">
-          <header className="header">
-            <div className="avatar">
-              {empleado.nombre.charAt(0).toUpperCase()}
-            </div>
-            <div className="info">
-              <strong>Administrador</strong>
-              <span>{empleado.nombre} {empleado.apellido}</span>
-              <span className="infoUsername">{empleado.correo}</span>
-            </div>
-          </header>
-          <aside>
-            <button onClick={handleLogout} className="adminButton" title="Cerrar Sesión">
-              <FaSignOutAlt />
-            </button>
-          </aside>
-        </article>
-      </div>
+        {/* 🔹 ITEM 2 - Sidebar */}
+        <div className="grid-item item-2">
+          <div className="sidebar-content">
+            <Sidebar activeButton={activeButton} setActiveButton={setActiveButton} />
+          </div>
+        </div>
 
-      {/* 🔹 Cuerpo principal */}
-      <div className="contenido-principal">
-        <Sidebar activeButton={activeButton} setActiveButton={setActiveButton} />
-        <div className="contenido">
-          {renderContent()}
+        {/* 🔹 ITEM 3 - Contenido Principal - AQUÍ ESTÁ LA CORRECCIÓN */}
+        <div className="grid-item item-3">
+          <div className="modules-content">
+            <div className="modules-navbar">
+              <div className="module-header">
+                {/* AGREGAR EL ICONO AQUÍ */}
+                <div className="module-title-with-icon">
+                  <ActiveIcon className="module-title-icon" />
+                  <div className="module-title-text">
+                    <div className="module-title">
+                      {getModuleTitle()}
+                    </div>
+                    <div className="module-subtitle">
+                      {getModuleSubtitle()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="module-actions">
+                <button className="action-btn">
+                  Exportar
+                </button>
+                <button className="action-btn">
+                  Ayuda
+                </button>
+              </div>
+            </div>
+            <div className="module-container">
+              {renderContent()}
+            </div>
+          </div>
         </div>
       </div>
     </div>

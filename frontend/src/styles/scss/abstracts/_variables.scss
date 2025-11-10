@@ -1,0 +1,266 @@
+// ========================================
+// PALETA DE COLORES PRINCIPAL
+// ========================================
+
+// Colores dorados (joyería)
+$primary-color: #bfa36f;
+$primary-dark: #a88c5f;
+$primary-light: #e9e6df;
+
+// Colores de texto
+$text-primary: #333333;
+$text-secondary: #666666;
+$text-light: #ffffff;
+$text-muted: #888888;
+
+// Colores de fondo
+$bg-primary: #ffffff;
+$bg-secondary: #f7f5f2;
+$bg-tertiary: #f1f5f9;
+$bg-dark: #1a1a1a;
+
+// Colores de estado
+$success-color: #10b981;
+$success-dark: #059669;
+$info-color: #3b82f6;
+$info-dark: #2563eb;
+$warning-color: #f59e0b;
+$warning-dark: #d97706;
+$error-color: #ef4444;
+$error-dark: #dc2626;
+
+// Colores del sistema
+$blue-primary: #667eea;
+$blue-dark: #764ba2;
+$red-primary: #ef4444;
+$red-dark: #dc2626;
+
+// Colores neutros
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+// Alias para compatibilidad
+$gray-light: $gray-100;
+$gray-medium: $gray-500;
+$gray-dark: $gray-900;
+
+// ========================================
+// GRADIENTES
+// ========================================
+
+$bg-gradient: linear-gradient(135deg, #f7f5f2 0%, #e9e6df 100%);
+$button-gradient: linear-gradient(90deg, #bfa36f 60%, #e9e6df 100%);
+$blue-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+// ========================================
+// TIPOGRAFÍA
+// ========================================
+
+$font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2.25rem;   // 36px
+
+// ========================================
+// ESPACIADO
+// ========================================
+
+$spacing-xs: 0.25rem;   // 4px
+$spacing-sm: 0.5rem;    // 8px
+$spacing-md: 1rem;      // 16px
+$spacing-lg: 1.5rem;    // 24px
+$spacing-xl: 2rem;      // 32px
+$spacing-2xl: 3rem;     // 48px
+$spacing-3xl: 4rem;     // 64px
+
+// Alias para compatibilidad
+$spacing-xxl: $spacing-xl;
+$spacing-xxxl: $spacing-2xl;
+
+// ========================================
+// BORDES Y SOMBRAS
+// ========================================
+
+$border-radius-sm: 4px;
+$border-radius: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+
+$border-color: #d6cfc0;
+$border-color-light: #e5e7eb;
+$border-color-dark: #374151;
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Sombras específicas
+$shadow-primary-sm: 0 2px 8px rgba(191, 163, 111, 0.08);
+$shadow-primary-lg: 0 8px 32px rgba(191, 163, 111, 0.12);
+
+// ========================================
+// BREAKPOINTS
+// ========================================
+
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ========================================
+// Z-INDEX
+// ========================================
+
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// ========================================
+// TRANSICIONES
+// ========================================
+
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// ========================================
+// VARIABLES CSS GLOBALES
+// ========================================
+
+:root {
+  // Colores dorados (joyería)
+  --primary-color: #{$primary-color};
+  --primary-dark: #{$primary-dark};
+  --primary-light: #{$primary-light};
+
+  // Colores de texto
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-light: #{$text-light};
+  --text-muted: #{$text-muted};
+
+  // Colores de fondo
+  --bg-primary: #{$bg-primary};
+  --bg-secondary: #{$bg-secondary};
+  --bg-tertiary: #{$bg-tertiary};
+  --bg-dark: #{$bg-dark};
+
+  // Colores de estado
+  --success-color: #{$success-color};
+  --success-dark: #{$success-dark};
+  --info-color: #{$info-color};
+  --info-dark: #{$info-dark};
+  --warning-color: #{$warning-color};
+  --warning-dark: #{$warning-dark};
+  --error-color: #{$error-color};
+  --error-dark: #{$error-dark};
+
+  // Colores del sistema
+  --blue-primary: #{$blue-primary};
+  --blue-dark: #{$blue-dark};
+  --red-primary: #{$red-primary};
+  --red-dark: #{$red-dark};
+
+  // Colores neutros
+  --gray-50: #{$gray-50};
+  --gray-100: #{$gray-100};
+  --gray-200: #{$gray-200};
+  --gray-300: #{$gray-300};
+  --gray-400: #{$gray-400};
+  --gray-500: #{$gray-500};
+  --gray-600: #{$gray-600};
+  --gray-700: #{$gray-700};
+  --gray-800: #{$gray-800};
+  --gray-900: #{$gray-900};
+
+  // Alias para compatibilidad
+  --gray-light: #{$gray-light};
+  --gray-medium: #{$gray-medium};
+  --gray-dark: #{$gray-dark};
+
+  // Bordes
+  --border-color: #{$border-color};
+  --border-color-light: #{$border-color-light};
+  --border-color-dark: #{$border-color-dark};
+
+  // Tipografía
+  --font-family: #{$font-family};
+  --font-weight-normal: #{$font-weight-normal};
+  --font-weight-medium: #{$font-weight-medium};
+  --font-weight-semibold: #{$font-weight-semibold};
+  --font-weight-bold: #{$font-weight-bold};
+
+  // Tamaños de fuente
+  --font-size-xs: #{$font-size-xs};
+  --font-size-sm: #{$font-size-sm};
+  --font-size-base: #{$font-size-base};
+  --font-size-lg: #{$font-size-lg};
+  --font-size-xl: #{$font-size-xl};
+  --font-size-2xl: #{$font-size-2xl};
+  --font-size-3xl: #{$font-size-3xl};
+  --font-size-4xl: #{$font-size-4xl};
+
+  // Espaciado
+  --spacing-xs: #{$spacing-xs};
+  --spacing-sm: #{$spacing-sm};
+  --spacing-md: #{$spacing-md};
+  --spacing-lg: #{$spacing-lg};
+  --spacing-xl: #{$spacing-xl};
+  --spacing-2xl: #{$spacing-2xl};
+  --spacing-3xl: #{$spacing-3xl};
+
+  // Border radius
+  --border-radius-sm: #{$border-radius-sm};
+  --border-radius: #{$border-radius};
+  --border-radius-lg: #{$border-radius-lg};
+  --border-radius-xl: #{$border-radius-xl};
+
+  // Sombras
+  --shadow-sm: #{$shadow-sm};
+  --shadow: #{$shadow};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --shadow-xl: #{$shadow-xl};
+  --shadow-primary-sm: #{$shadow-primary-sm};
+  --shadow-primary-lg: #{$shadow-primary-lg};
+
+  // Transiciones
+  --transition-fast: #{$transition-fast};
+  --transition-normal: #{$transition-normal};
+  --transition-slow: #{$transition-slow};
+
+  // Z-index
+  --z-index-dropdown: #{$z-index-dropdown};
+  --z-index-sticky: #{$z-index-sticky};
+  --z-index-fixed: #{$z-index-fixed};
+  --z-index-modal-backdrop: #{$z-index-modal-backdrop};
+  --z-index-modal: #{$z-index-modal};
+  --z-index-popover: #{$z-index-popover};
+  --z-index-tooltip: #{$z-index-tooltip};
+}

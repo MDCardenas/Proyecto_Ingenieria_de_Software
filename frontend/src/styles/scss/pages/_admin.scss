@@ -1,0 +1,534 @@
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+/* ========================================
+   CONTENEDOR GENERAL
+   ======================================== */
+.contenedor-principal {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  font-family: $font-family;
+  background-color: $gray-light;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ========================================
+   GRID CONTAINER PRINCIPAL - Layout Estándar
+   ======================================== */
+.grid-container {
+  display: grid;
+  grid-template-columns: 240px 1fr; /* Sidebar fijo + contenido flexible */
+  grid-template-rows: 70px 1fr;     /* Header + contenido */
+  grid-template-areas: 
+    "header header"
+    "sidebar content";
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ========================================
+   ITEM 1 - HEADER SUPERIOR
+   ======================================== */
+.item-1 {
+  grid-area: header;
+  background-color: $bg-primary;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    
+    .welcome-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .logo {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      
+      .welcome-text {
+        font-size: 1.2rem;
+        font-weight: $font-weight-bold;
+        color: $gray-dark;
+      }
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      
+      .user-details {
+        text-align: right;
+        
+        .user-name {
+          font-weight: $font-weight-bold;
+          color: $gray-dark;
+          font-size: 0.95rem;
+        }
+        
+        .user-role {
+          font-size: 0.8rem;
+          color: $gray-medium;
+        }
+      }
+      
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: $blue-gradient;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $bg-primary;
+        font-weight: $font-weight-bold;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+/* ========================================
+   ITEM 2 - SIDEBAR (Navegación)
+   ======================================== */
+.item-2 {
+  grid-area: sidebar;
+  background-color: $bg-primary;
+  border-radius: 8px;
+  padding: 16px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  .sidebar-content {
+    height: 100%;
+    
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      height: 100%;
+    }
+  }
+}
+
+/* ========================================
+   ITEM 3 - CONTENIDO PRINCIPAL (Módulos)
+   ======================================== */
+.item-3 {
+  grid-area: content;
+  background-color: $bg-primary;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  .modules-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    .modules-navbar {
+      background: $blue-gradient;
+      color: $bg-primary;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 70px;
+      
+      .module-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        
+        /* NUEVO: Contenedor para título con icono */
+        .module-title-with-icon {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          
+          .module-title-icon {
+            font-size: 2.5rem; /* Icono grande */
+            color: $bg-primary;
+            opacity: 0.9;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+          }
+          
+          .module-title-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            
+            .module-title {
+              font-size: 1.3rem;
+              font-weight: $font-weight-bold;
+              line-height: 1.2;
+              color: $bg-primary;
+              margin: 0;
+            }
+            
+            .module-subtitle {
+              font-size: 0.95rem;
+              opacity: 0.9;
+              font-weight: $font-weight-medium;
+              line-height: 1.2;
+              color: $bg-primary;
+              margin: 0;
+            }
+          }
+        }
+      }
+      
+      .module-actions {
+        display: flex;
+        gap: 8px;
+        
+        .action-btn {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          color: $bg-primary;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.85rem;
+          transition: background 0.3s;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.3);
+          }
+        }
+      }
+    }
+    
+    .module-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      
+      /* Scrollbar personalizado */
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: $gray-light;
+        border-radius: 3px;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: $blue-primary;
+        border-radius: 3px;
+      }
+      
+      &::-webkit-scrollbar-thumb:hover {
+        background: $blue-dark;
+      }
+    }
+  }
+}
+
+
+/* ========================================
+   BOTONES DEL SIDEBAR (Compactos)
+   ======================================== */
+.button {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  margin: 0 auto;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: $gray-medium;
+  font-size: 0.9rem;
+  font-weight: $font-weight-medium;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: left;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+
+  /* Efecto hover simple */
+  &:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: $blue-primary;
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background: $blue-gradient;
+    color: $bg-primary;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transform: translateX(4px);
+  }
+
+  .icon {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+}
+
+/* ========================================
+   CONTENIDO DE MÓDULOS
+   ======================================== */
+.titulo-modulo {
+  font-size: 1.5rem;
+  color: $gray-dark;
+  font-weight: $font-weight-bold;
+  margin: 0 0 20px 0;
+}
+
+.loading-text {
+  text-align: center;
+  padding: 40px;
+  color: $gray-medium;
+}
+
+/* ========================================
+   BOTÓN DE LOGOUT
+   ======================================== */
+.adminButton {
+  background-color: $red-primary;
+  border: none;
+  color: $bg-primary;
+  font-size: 1rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: $red-dark;
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+  .grid-container {
+    grid-template-columns: 200px 1fr;
+    gap: 10px;
+  }
+  
+  .item-1 {
+    padding: 0 16px;
+    
+    .header-content .welcome-text {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .modules-navbar {
+    .module-header {
+      .module-title-with-icon {
+        .module-title-icon {
+          font-size: 2rem; /* Reducir icono en tablets */
+        }
+        
+        .module-title-text {
+          .module-title {
+            font-size: 1.2rem;
+          }
+          
+          .module-subtitle {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+  
+  .button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    
+    .icon {
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .contenedor-principal {
+    padding: 8px;
+  }
+
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px auto 1fr;
+    grid-template-areas: 
+      "header"
+      "sidebar"
+      "content";
+    gap: 8px;
+  }
+
+  .item-1 {
+    padding: 0 12px;
+    
+    .header-content .welcome-text {
+      font-size: 1rem;
+    }
+    
+    .user-details {
+      display: none;
+    }
+  }
+
+  .item-2 {
+    .sidebar-content .buttons-container {
+      flex-direction: row;
+      overflow-x: auto;
+      padding: 8px;
+      gap: 8px;
+      
+      .button {
+        flex-shrink: 0;
+        min-width: 100px;
+        justify-content: center;
+        padding: 8px 12px;
+        
+        span {
+          display: none;
+        }
+        
+        .icon {
+          margin-right: 0;
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+
+  .item-3 {
+    .modules-content {
+      .modules-navbar {
+        padding: 10px 16px;
+        min-height: 60px;
+        
+        .module-header {
+          .module-title-with-icon {
+            gap: 12px;
+            
+            .module-title-icon {
+              font-size: 1.8rem; /* Reducir más en móviles */
+            }
+            
+            .module-title-text {
+              .module-title {
+                font-size: 1.1rem;
+              }
+              
+              .module-subtitle {
+                font-size: 0.8rem;
+              }
+            }
+          }
+        }
+      }
+      
+      .module-container {
+        padding: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .modules-navbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    min-height: auto;
+    padding: 16px;
+    
+    .module-header {
+      width: 100%;
+    }
+    
+    .module-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-container {
+    grid-template-rows: 50px auto 1fr;
+  }
+  
+  .item-1 {
+    padding: 0 10px;
+    
+    .welcome-section .welcome-text {
+      font-size: 0.9rem;
+    }
+    
+    .logo {
+      height: 32px;
+      width: 32px;
+    }
+  }
+  
+  .item-3 {
+    .modules-content {
+      .modules-navbar {
+        padding: 12px;
+        
+        .module-header {
+          .module-title-with-icon {
+            gap: 8px;
+            
+            .module-title-icon {
+              font-size: 1.5rem; /* Icono más pequeño en móviles muy pequeños */
+            }
+            
+            .module-title-text {
+              .module-title {
+                font-size: 1rem;
+              }
+              
+              .module-subtitle {
+                font-size: 0.75rem;
+              }
+            }
+          }
+        }
+      }
+      
+      .module-container {
+        padding: 12px;
+      }
+    }
+  }
+  
+  .modules-navbar {
+    .module-actions {
+      .action-btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
+    }
+  }
+}

@@ -1,0 +1,246 @@
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+/* ========================================
+   GRUPOS DE FORMULARIO
+   ======================================== */
+.input-group {
+  text-align: left;
+  margin-bottom: $spacing-lg;
+
+  label {
+    display: block;
+    font-size: $font-size-sm;
+    color: $primary-color;
+    margin-bottom: $spacing-xs;
+    font-weight: $font-weight-medium;
+  }
+
+  input {
+    @include input-style;
+  }
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+.btn {
+  // Botón de login específico
+  &-login {
+    @include button-primary;
+    margin-top: $spacing-sm;
+  }
+
+  // Variantes base
+  &-primary {
+    @include button-primary;
+  }
+
+  &-secondary {
+    @include button-secondary;
+  }
+
+  &-success {
+    background: $success-color;
+    color: $text-light;
+    border: none;
+    padding: $spacing-md $spacing-lg;
+    border-radius: $border-radius;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all $transition-normal;
+
+    &:hover:not(:disabled) {
+      background: $success-dark;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background: $gray-400;
+      cursor: not-allowed;
+    }
+  }
+
+  &-danger {
+    background: $error-color;
+    color: $text-light;
+    border: none;
+    padding: $spacing-md $spacing-lg;
+    border-radius: $border-radius;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all $transition-normal;
+
+    &:hover:not(:disabled) {
+      background: $error-dark;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background: $gray-400;
+      cursor: not-allowed;
+    }
+  }
+
+  // Tamaños
+  &-sm {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+  }
+
+  &-lg {
+    padding: $spacing-lg $spacing-xl;
+    font-size: $font-size-lg;
+  }
+
+  // Variantes de display
+  &-block {
+    width: 100%;
+  }
+
+  // Estados
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+/* ========================================
+   ESTADOS Y MENSAJES
+   ======================================== */
+.error {
+  color: $error-color;
+  margin-top: $spacing-sm;
+  font-size: $font-size-sm;
+}
+
+.success {
+  color: $success-color;
+  margin-top: $spacing-sm;
+  font-size: $font-size-sm;
+}
+
+.warning {
+  color: $warning-color;
+  margin-top: $spacing-sm;
+  font-size: $font-size-sm;
+}
+
+/* ========================================
+   FORMULARIOS COMPLEJOS (Para módulos como Clientes)
+   ======================================== */
+.form-completo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  .form-fila {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+
+    .form-grupo {
+      flex: 1;
+      min-width: 250px;
+    }
+  }
+
+  .form-grupo {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      margin-bottom: $spacing-xs;
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+      font-size: $font-size-sm;
+    }
+
+    input,
+    select,
+    textarea {
+      @include input-style;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-hint {
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      margin-top: $spacing-xs;
+    }
+  }
+
+  .botones-accion {
+    display: flex;
+    gap: $spacing-md;
+    margin-top: $spacing-lg;
+    flex-wrap: wrap;
+
+    .btn {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+}
+
+/* ========================================
+   BÚSQUEDA Y FILTROS
+   ======================================== */
+.barra-busqueda {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+
+  .input-busqueda {
+    flex: 1;
+    @include input-style;
+  }
+
+  .btn-buscar {
+    flex-shrink: 0;
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@include responsive(md) {
+  .form-completo {
+    .form-fila {
+      flex-direction: column;
+
+      .form-grupo {
+        min-width: 100%;
+      }
+    }
+
+    .botones-accion {
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  .barra-busqueda {
+    flex-direction: column;
+  }
+}
+
+@include responsive(sm) {
+  .input-group {
+    margin-bottom: $spacing-md;
+  }
+
+  .btn {
+    &-login {
+      padding: $spacing-md;
+    }
+  }
+}

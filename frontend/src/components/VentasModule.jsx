@@ -182,10 +182,6 @@ export default function VentasModule({ setActiveButton }) {
     <div className="ventas-module">
       {/* Header */}
       <div className="ventas-header">
-        <div>
-          <h1 className="ventas-title">Módulo de Ventas</h1>
-          <p className="ventas-subtitle">Gestión completa de ventas</p>
-        </div>
         {vistaActual !== 'dashboard' && (
           <button 
             onClick={() => setVistaActual('dashboard')} 

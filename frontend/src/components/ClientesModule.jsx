@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { FaUserPlus, FaSearch, FaTrash, FaIdCard } from 'react-icons/fa';
+import { FaUserPlus, FaSearch, FaTrash, FaIdCard, FaSync, FaUsers, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import axios from "axios";
-import "../styles/ClientesModule.css";
+import "../styles/scss/main.scss";
 
 export default function ClientesModule({ setVistaActual }) {
   const [clientes, setClientes] = useState([]);
@@ -20,6 +20,8 @@ export default function ClientesModule({ setVistaActual }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [clientesPorPagina] = useState(10);
 
   // Ref para el formulario
   const formRef = useRef(null);
@@ -279,6 +281,38 @@ export default function ClientesModule({ setVistaActual }) {
     });
   };
 
+  // Obtener clientes para la página actual
+  const obtenerClientesPagina = () => {
+    const clientesFiltrados = filtrarClientes();
+    const indexUltimoCliente = paginaActual * clientesPorPagina;
+    const indexPrimerCliente = indexUltimoCliente - clientesPorPagina;
+    return clientesFiltrados.slice(indexPrimerCliente, indexUltimoCliente);
+  };
+
+  const cambiarPagina = (numeroPagina) => {
+    setPaginaActual(numeroPagina);
+  };
+
+  // Función para formatear número de identidad con guiones
+  const formatearIdentidad = (identidad) => {
+    if (!identidad) return "N/A";
+    const soloNumeros = identidad.replace(/\D/g, '');
+    if (soloNumeros.length === 13) {
+      return soloNumeros.replace(/(\d{4})(\d{4})(\d{5})/, '$1-$2-$3');
+    }
+    return identidad;
+  };
+
+  // Función para formatear RTN con guiones
+  const formatearRTN = (rtn) => {
+    if (!rtn) return "N/A";
+    const soloNumeros = rtn.replace(/\D/g, '');
+    if (soloNumeros.length === 14) {
+      return soloNumeros.replace(/(\d{4})(\d{4})(\d{5})(\d{1})/, '$1-$2-$3-$4');
+    }
+    return rtn;
+  };
+
   const accionesRapidas = [
     {
       id: 1, 
@@ -312,6 +346,7 @@ export default function ClientesModule({ setVistaActual }) {
         setAccionActiva("buscar"); 
         setError(null); 
         setSuccess(null); 
+        setPaginaActual(1);
       } 
     },
     { 
@@ -324,18 +359,19 @@ export default function ClientesModule({ setVistaActual }) {
         setAccionActiva("eliminar"); 
         setError(null); 
         setSuccess(null); 
+        setPaginaActual(1);
       } 
     },
   ];
+
+  const clientesFiltrados = filtrarClientes();
+  const clientesPagina = obtenerClientesPagina();
+  const totalPaginas = Math.ceil(clientesFiltrados.length / clientesPorPagina);
 
   return (
     <div className="clientes-module">
       {/* Header */}
       <div className="module-header">
-        <div>
-          <h1 className="module-title">Módulo de Clientes</h1>
-          <p className="module-subtitle">Gestión completa de clientes</p>
-        </div>
         <button onClick={() => setVistaActual("dashboard")} className="btn-volver">
           ← Volver al Dashboard
         </button>
@@ -359,7 +395,7 @@ export default function ClientesModule({ setVistaActual }) {
       {/* Acciones rápidas */}
       {!accionActiva && (
         <div className="acciones-section">
-          <h2 className="section-title">Acciones Rápidas</h2>
+          <h2 className="section-title">Gestión de Clientes</h2>
           <div className="acciones-grid">
             {accionesRapidas.map((accion) => {
               const Icon = accion.icon;
@@ -401,7 +437,7 @@ export default function ClientesModule({ setVistaActual }) {
                     value={form.numero_identidad} 
                     onChange={handleChange} 
                     required 
-                    disabled={loading || !!editId} // No permitir editar el número de identidad
+                    disabled={loading || !!editId}
                   />
                   <small className="form-hint">Formato: xxxx-xxxx-xxxxx (13 dígitos)</small>
                 </div>
@@ -414,7 +450,7 @@ export default function ClientesModule({ setVistaActual }) {
                     placeholder="xxxx-xxxx-xxxxx-x" 
                     value={form.rtn} 
                     onChange={handleChange} 
-                    disabled={loading || !!editId} // RTN tampoco se puede editar
+                    disabled={loading || !!editId}
                   />
                   <small className="form-hint">Formato: xxxx-xxxx-xxxxx-x (14 dígitos)</small>
                 </div>
@@ -515,119 +551,210 @@ export default function ClientesModule({ setVistaActual }) {
         </div>
       )}
 
-      {/* Pantalla de buscar/eliminar */}
+      {/* Pantalla de buscar/eliminar - ESTILO MEJORADO */}
       {(accionActiva === "buscar" || accionActiva === "eliminar") && (
-        <div className="pantalla-busqueda">
-          {/* Header con título y botón volver */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0 }}>
-            <h2 className="form-title" style={{ margin: 0 }}>
-              {accionActiva === "buscar" ? "Buscar Cliente" : "Eliminar Cliente"}
-            </h2>
-            <button 
-              className="btn-cancel" 
-              onClick={() => {
-                setAccionActiva(null);
-                setBusqueda("");
-              }} 
-              disabled={loading}
-            >
-              ← Volver
-            </button>
-          </div>
-          
-          {/* Barra de búsqueda horizontal */}
-          <div className="search-bar-horizontal" style={{ flexShrink: 0, marginBottom: '0.8rem' }}>
-            <input 
-              className="input-busqueda"
-              placeholder="Buscar por nombre, identidad, RTN, correo o teléfono..." 
-              value={busqueda} 
-              onChange={(e) => setBusqueda(e.target.value)}
-              disabled={loading} 
-            />
-            <button 
-              className="btn-buscar" 
-              onClick={() => setBusqueda("")}
-              disabled={loading || !busqueda}
-              style={{ minWidth: '100px' }}
-            >
-              Limpiar
-            </button>
-          </div>
-          
-          {/* Contenedor principal con scroll */}
-          <div className="contenido-con-scroll">
-            {/* Lista de clientes */}
-            <div style={{ flex: '1', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              {(() => {
-                const clientesFiltrados = filtrarClientes();
-                return clientesFiltrados.length > 0 ? (
-                  <ul className="clientes-lista">
-                    {clientesFiltrados.map(c => (
-                      <li key={c.id_cliente}>
-                        <div>
-                          <strong>{c.nombre} {c.apellido}</strong>
-                          <div style={{ color: "#6b7280", fontSize: "0.95rem" }}>
-                            <strong>ID:</strong> {c.numero_identidad} 
-                            {c.rtn && <span> • <strong>RTN:</strong> {c.rtn}</span>}
-                          </div>
-                          <div style={{ color: "#6b7280", fontSize: "0.95rem" }}>
-                            {c.correo || "Sin correo"} • {c.telefono ? 
-                            String(c.telefono).replace(/(\d{4})(\d{4})/, '$1-$2') : 
-                            "Sin teléfono"}
-                          </div>
-                          {c.direccion && (
-                            <div style={{ color: "#9ca3af", fontSize: "0.85rem", marginTop: "0.3rem" }}>
-                              {c.direccion}
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          {accionActiva === "buscar" && (
-                            <button onClick={() => handleEdit(c)} className="btn-editar" disabled={loading}>
-                              Editar
-                            </button>
-                          )}
-                          {accionActiva === "eliminar" && (
-                            <button onClick={() => handleDelete(c.id_cliente)} className="btn-eliminar" disabled={loading}>
-                              Eliminar
-                            </button>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div style={{ 
-                    textAlign: 'center', 
-                    padding: '2rem', 
-                    color: '#6b7280',
-                    fontStyle: 'italic',
-                    flexShrink: 0
-                  }}>
-                    {busqueda ? 'No se encontraron clientes que coincidan con la búsqueda' : 'No hay clientes registrados'}
-                  </div>
-                );
-              })()}
+        <div className="pantalla-busqueda-mejorada">
+          {/* Header */}
+          <div className="list-header">
+            <div className="header-left">
+              <h2>
+                {accionActiva === "buscar" ? "Buscar Clientes" : "Eliminar Clientes"}
+              </h2>
+              <p className="subtitle">
+                {accionActiva === "buscar" 
+                  ? "Busca y gestiona clientes registrados" 
+                  : "Elimina clientes del sistema"}
+              </p>
+            </div>
+            <div className="header-actions">
+              <button 
+                onClick={() => setAccionActiva(null)}
+                className="btn-volver"
+              >
+                ← Volver
+              </button>
+              <button 
+                onClick={fetchClientes}
+                className="btn-refresh"
+                disabled={loading}
+              >
+                <FaSync className={loading ? "spin" : ""} />
+                {loading ? "Cargando..." : "Actualizar"}
+              </button>
             </div>
           </div>
 
-          {/* Footer con información */}
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '0.7rem 0', 
-            color: '#6b7280',
-            fontSize: '0.85rem',
-            borderTop: '1px solid #e5e7eb',
-            flexShrink: 0,
-            marginTop: '0.5rem'
-          }}>
-            {(() => {
-              const clientesFiltrados = filtrarClientes();
-              if (busqueda) {
-                return `${clientesFiltrados.length} de ${clientes.length} cliente${clientes.length !== 1 ? 's' : ''}`;
-              }
-              return `Total: ${clientes.length} cliente${clientes.length !== 1 ? 's' : ''}`;
-            })()}
+          {/* Barra de búsqueda y estadísticas */}
+          <div className="filtros-container">
+            <div className="search-section">
+              <div className="search-input-wrapper">
+                <FaSearch className="search-icon" />
+                <input 
+                  type="text"
+                  placeholder="Buscar por nombre, identidad, RTN, correo o teléfono..."
+                  value={busqueda}
+                  onChange={(e) => {
+                    setBusqueda(e.target.value);
+                    setPaginaActual(1);
+                  }}
+                  className="input-busqueda"
+                />
+              </div>
+              {busqueda && (
+                <button 
+                  onClick={() => setBusqueda("")}
+                  className="btn-limpiar"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+
+            <div className="estadisticas-rapidas">
+              <span>Mostrando: {clientesPagina.length} de {clientesFiltrados.length} clientes</span>
+              {busqueda && (
+                <span className="filtro-activo">
+                  Búsqueda: "{busqueda}"
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Lista de clientes - ESTILO TABLA MEJORADA */}
+          {loading ? (
+            <div className="loading-message">Cargando clientes...</div>
+          ) : (
+            <div className="tabla-container">
+              <table className="tabla-clientes">
+                <thead>
+                  <tr>
+                    <th>Información Personal</th>
+                    <th>Documentos</th>
+                    <th>Información de Contacto</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clientesPagina.length > 0 ? (
+                    clientesPagina.map(cliente => (
+                      <tr key={cliente.id_cliente} className="fila-cliente">
+                        <td className="cliente-info-personal">
+                          <div className="nombre-completo">
+                            <strong>{cliente.nombre} {cliente.apellido}</strong>
+                          </div>
+                          <div className="cliente-id">
+                            <small>ID: {cliente.id_cliente}</small>
+                          </div>
+                        </td>
+                        <td className="cliente-documentos">
+                          <div className="documento-item">
+                            <FaIdCard className="documento-icon" />
+                            <span className="documento-label">Identidad:</span>
+                            <span className="documento-valor">{formatearIdentidad(cliente.numero_identidad)}</span>
+                          </div>
+                          <div className="documento-item">
+                            <FaIdCard className="documento-icon" />
+                            <span className="documento-label">RTN:</span>
+                            <span className="documento-valor">{formatearRTN(cliente.rtn)}</span>
+                          </div>
+                        </td>
+                        <td className="cliente-contacto">
+                          <div className="contacto-item">
+                            <FaEnvelope className="contacto-icon" />
+                            <span className="contacto-label">Email:</span>
+                            <span className="contacto-valor">{cliente.correo || "No especificado"}</span>
+                          </div>
+                          <div className="contacto-item">
+                            <FaPhone className="contacto-icon" />
+                            <span className="contacto-label">Teléfono:</span>
+                            <span className="contacto-valor">
+                              {cliente.telefono ? 
+                                String(cliente.telefono).replace(/(\d{4})(\d{4})/, '$1-$2') : 
+                                "No especificado"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="cliente-direccion">
+                          <div className="direccion-item">
+                            <FaMapMarkerAlt className="direccion-icon" />
+                            <span className="direccion-texto">
+                              {cliente.direccion || "No especificada"}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="acciones-tabla">
+                            {accionActiva === "buscar" && (
+                              <button 
+                                onClick={() => handleEdit(cliente)} 
+                                className="btn-editar"
+                                disabled={loading}
+                              >
+                                Editar
+                              </button>
+                            )}
+                            {accionActiva === "eliminar" && (
+                              <button 
+                                onClick={() => handleDelete(cliente.id_cliente)} 
+                                className="btn-eliminar"
+                                disabled={loading}
+                              >
+                                Eliminar
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="sin-resultados">
+                        {busqueda 
+                          ? 'No se encontraron clientes que coincidan con la búsqueda'
+                          : 'No hay clientes registrados'
+                        }
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Paginación */}
+          {totalPaginas > 1 && (
+            <div className="paginacion">
+              <button 
+                onClick={() => cambiarPagina(paginaActual - 1)}
+                disabled={paginaActual === 1}
+                className="btn-paginacion"
+              >
+                Anterior
+              </button>
+              
+              <span className="info-paginacion">
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              
+              <button 
+                onClick={() => cambiarPagina(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+                className="btn-paginacion"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+
+          {/* Resumen final */}
+          <div className="resumen-final">
+            <div className="resumen-stats">
+              <span>
+                Clientes mostrados: <strong>{clientesPagina.length}</strong> | 
+                Total en sistema: <strong>{clientes.length}</strong>
+              </span>
+            </div>
           </div>
         </div>
       )}

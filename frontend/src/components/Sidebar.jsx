@@ -4,7 +4,6 @@ import {
   FaChartLine, FaUserFriends, FaTachometerAlt 
 } from 'react-icons/fa';
 import PropTypes from 'prop-types';
-import "../styles/AdminPanel.css";
 
 export default function Sidebar({ activeButton, setActiveButton }) {
   // Lista de botones del sidebar
@@ -17,11 +16,11 @@ export default function Sidebar({ activeButton, setActiveButton }) {
     { id: "Inventario", icon: FaBoxes, label: "Inventario" },
     { id: "Ordenes", icon: FaListAlt, label: "Órdenes" },
     { id: "Contabilidad", icon: FaChartLine, label: "Contabilidad" },
-    { id: "Usuarios", icon: FaUserFriends, label: "Usuarios" } // Si quieres otro icono distinto, puedes cambiarlo
+    { id: "Usuarios", icon: FaUserFriends, label: "Usuarios" }
   ];
 
   return (
-    <div className="navbarVertical">
+    <div className="buttons-container">
       {menuItems.map((item) => {
         const Icon = item.icon;
         return (

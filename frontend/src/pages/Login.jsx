@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import { useState } from "react";
 import axios from "axios";
-import "../styles/Login.css";
+import "../styles/scss/main.scss";
 import { useNavigate } from "react-router-dom";
 
 function Login({ onLogin }) {

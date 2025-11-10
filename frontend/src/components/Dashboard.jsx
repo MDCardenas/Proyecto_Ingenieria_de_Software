@@ -72,8 +72,6 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1 className="module-title">Dashboard</h1>
-      <h2 className="section-title">Resumen general del sistema</h2>
 
       <div className="kpi-grid">
         <article className="kpi-card" tabIndex={0}>

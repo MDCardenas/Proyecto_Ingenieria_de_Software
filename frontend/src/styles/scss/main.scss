@@ -1,0 +1,108 @@
+/* Agrega esto a tu main.scss */
+
+// Estilos para el módulo de contenido
+.modules-content {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.modules-navbar {
+  background: var(--bg-dark);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.module-header .module-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--text-light);
+}
+
+.module-header .module-subtitle {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+  margin: var(--spacing-xs) 0 0 0;
+  color: var(--text-light);
+}
+
+.module-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--text-light);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+  color: var(--text-light);
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.module-container {
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  min-height: 400px;
+  color: var(--text-primary);
+}
+
+/* Estilos específicos para el contenido de los módulos */
+.titulo-modulo {
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Asegurar que el contenido de los módulos herede los colores correctos */
+.clientes-module,
+.ventas-module,
+.facturacion-module {
+  color: var(--text-primary);
+}
+
+/* Estilos para tablas y listas dentro de los módulos */
+.tabla-clientes,
+.tabla-ventas,
+.clientes-lista {
+  color: var(--text-primary);
+}
+
+.tabla-clientes th,
+.tabla-ventas th {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.tabla-clientes td,
+.tabla-ventas td {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+
+// Abstracts
+@import 'abstracts/_variables';
+@import 'abstracts/_mixins';
+
+// Base
+@import 'base/_reset';
+
+// Components
+@import 'components/_forms';
+
+// Pages
+@import 'pages/_login';
+@import 'pages/_admin';
+@import 'pages/_clientes';
