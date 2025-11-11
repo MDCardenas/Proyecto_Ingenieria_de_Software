@@ -3,13 +3,13 @@ import { FaPlus, FaTrash } from "react-icons/fa";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-import DatosCliente from "../components/facturaComponentes/DatosCliente";
-import Producto from "../components/facturaComponentes/Producto";
-import DatosAdicionales from "../components/facturaComponentes/DatosAdicionales";
-import FormatoFactura from "../components/facturaComponentes/FormatoFactura";
-import ListaFacturas from "../components/facturaComponentes/ListaFacturas";
+import DatosCliente from "./DatosCliente";
+import Producto from "./Producto";
+import DatosAdicionales from "./DatosAdicionales";
+import FormatoFactura from "./FormatoFactura";
+import ListaFacturas from "./ListaFacturas";
 
-import "../styles/Facturacion.css";
+import "../../styles/scss/pages/_facturacion.scss";
 
 export default function Facturacion({ onCancel }) {
   const facturaRef = useRef();
@@ -704,7 +704,7 @@ export default function Facturacion({ onCancel }) {
       {/* Contenido principal */}
       <div className="pantalla-accion">
       {mostrarLista ? (
-        <div className="contenido-con-scroll">
+        <div>
           <ListaFacturas />
         </div> 
       ) : (

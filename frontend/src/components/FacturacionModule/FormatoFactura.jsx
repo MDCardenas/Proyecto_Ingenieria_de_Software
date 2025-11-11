@@ -1,4 +1,6 @@
 import React from "react";
+import '../../styles/scss/components/_formatofactura.scss';
+import '../../styles/scss/components/_modaldetalle.scss';
 
 export default function FormatoFactura({
   tipoFactura,

@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import VentasModule from "../components/VentasModule";
-import ClientesModule from "../components/ClientesModule";
-import FacturacionModule from "../components/FacturacionModule";
-import Dashboard from "../components/Dashboard";
-import Usuarios from "../components/Usuarios";
-import InventarioModule from "../components/InventarioModule";
+import VentasModule from "../components/VentasModule/VentasModule.jsx";
+import ClientesModule from "../components/ClientesModule/ClientesModule.jsx";
+import FacturacionModule from "../components/FacturacionModule/FacturacionModule.jsx";
+import Dashboard from "../components/DashboardModule/Dashboard.jsx";
+import Usuarios from "../components/UsuariosModule/Usuarios.jsx";
+import InventarioModule from "../components/InventarioModule/InventarioModule.jsx";
 import { menuItems } from "../services/menuItems.js";
+import "../styles/scss/main.scss";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -157,12 +158,6 @@ export default function AdminPanel() {
                 </div>
               </div>
               <div className="module-actions">
-                <button className="action-btn">
-                  Exportar
-                </button>
-                <button className="action-btn">
-                  Ayuda
-                </button>
               </div>
             </div>
             <div className="module-container">

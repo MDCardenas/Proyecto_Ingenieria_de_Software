@@ -3,7 +3,7 @@ import { FaFileInvoice, FaCalculator, FaUsers, FaList, FaMoneyBillWave, FaChartL
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import VentasList from './VentasList';
-import "../styles/VentasModule.css";
+import "../../styles/VentasModule.css";
 
 export default function VentasModule({ setActiveButton }) {
   const [ventasMes, setVentasMes] = useState(0);

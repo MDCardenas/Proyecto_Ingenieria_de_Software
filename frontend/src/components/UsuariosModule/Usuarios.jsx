@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import ListaUsuarios from '../components/UsuariosComponentes/ListaUsuarios';
-import FormularioEmpleado from '../components/UsuariosComponentes/FormularioEmpleado';
-import FormularioEditarEmpleado from '../components/UsuariosComponentes/FormularioEditarEmpleado';
-import '../styles/Usuarios.css';
+import ListaUsuarios from './ListaUsuarios';
+import FormularioEmpleado from './FormularioEmpleado';
+import FormularioEditarEmpleado from './FormularioEditarEmpleado';
+import '../../styles/Usuarios.css';
 
 const Usuarios = () => {
   const [empleados, setEmpleados] = useState([]);

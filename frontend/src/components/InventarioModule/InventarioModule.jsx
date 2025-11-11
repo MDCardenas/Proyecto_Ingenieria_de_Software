@@ -1,7 +1,7 @@
 // src/components/InventarioModule.jsx
 import React, { useState, useEffect } from 'react';
 import { Package, Gem, Wrench, Plus, Search, AlertTriangle, Edit, Trash2, X, Save, Filter, TrendingUp, TrendingDown } from 'lucide-react';
-import '../styles/InventarioModule.css';
+import '../../styles/InventarioModule.css';
 
 const API_URL = 'http://localhost:8000/api';
 

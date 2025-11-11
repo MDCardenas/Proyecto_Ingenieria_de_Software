@@ -1,0 +1,546 @@
+// VentasList.scss - Estilos para lista de ventas migrados a SCSS
+@import '../abstracts/_variables';
+@import '../abstracts/_mixins';
+@import '../components/_forms';
+
+.ventas-list-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  background: transparent;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.list-header {
+  @include card-style;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+  padding: $spacing-lg;
+}
+
+.header-left {
+  h2 {
+    margin: 0;
+    color: $gray-800;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.subtitle {
+  margin: $spacing-xs 0 0 0;
+  color: $gray-500;
+  font-size: $font-size-sm;
+}
+
+.text-pagada {
+  color: $success-dark;
+  font-weight: $font-weight-semibold;
+}
+
+.header-actions {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+
+.btn-volver {
+  width: auto;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-sm;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 50px; 
+  
+  &:hover {
+    background: $gray-600;
+  }
+}
+
+.btn-refresh {
+  width: auto;
+  padding: $spacing-md $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  min-height: 30px;
+  background: $blue-gradient;
+
+  &:disabled {
+    background: $gray-400;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+}
+
+/* ========================================
+   RESUMEN DE TOTALES
+   ======================================== */
+.resumen-totales {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+
+  @include responsive(lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.total-card {
+  @include card-style;
+  padding: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  border-left: 4px solid $success-dark;
+  @include card-hover;
+}
+
+.total-icon {
+  font-size: $font-size-3xl;
+  color: $success-dark;
+}
+
+.total-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.total-label {
+  font-size: $font-size-sm;
+  color: $gray-500;
+  font-weight: $font-weight-medium;
+}
+
+.total-value {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $success-dark;
+}
+
+/* ========================================
+   FILTROS
+   ======================================== */
+.filtros-container {
+  @include card-style;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.search-section {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+  margin-bottom: $spacing-md;
+
+  @include responsive(md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: $spacing-md;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $gray-500;
+  pointer-events: none;
+}
+
+.input-busqueda {
+  @include input-style;
+  padding-left: $spacing-2xl;
+}
+
+.btn-limpiar {
+  @include button-secondary;
+  width: auto;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+
+  @include responsive(md) {
+    width: 100%;
+  }
+
+  &:hover {
+    background: $gray-600;
+  }
+}
+
+.filtros-section {
+  display: flex;
+  gap: $spacing-md;
+
+  @include responsive(md) {
+    flex-direction: column;
+  }
+}
+
+.filtro-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  label {
+    font-size: $font-size-sm;
+    color: $gray-700;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.select-filtro {
+  padding: $spacing-md;
+  border: 1px solid $border-color-light;
+  border-radius: $border-radius;
+  font-size: $font-size-sm;
+  background: $bg-primary;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $info-color;
+    box-shadow: 0 0 0 2px rgba($info-color, 0.1);
+  }
+}
+
+/* ========================================
+   RESUMEN DE FILTROS
+   ======================================== */
+.resumen-filtros {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-md;
+  padding: $spacing-md;
+  background: lighten($info-color, 45%);
+  border-radius: $border-radius;
+  border-left: 4px solid $info-color;
+}
+
+.filtro-activo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: $bg-primary;
+  padding: $spacing-xs $spacing-md;
+  border-radius: 20px;
+  font-size: $font-size-sm;
+  color: $gray-700;
+  box-shadow: $shadow-sm;
+}
+
+/* ========================================
+   TABLA
+   ======================================== */
+.tabla-container {
+  @include card-style;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+
+  @include responsive(md) {
+    overflow-x: auto;
+  }
+}
+
+.tabla-ventas {
+  width: 100%;
+  border-collapse: collapse;
+
+  @include responsive(md) {
+    min-width: 900px;
+  }
+
+  th {
+    background: $gray-50;
+    padding: $spacing-md;
+    text-align: left;
+    font-weight: $font-weight-semibold;
+    color: $gray-700;
+    border-bottom: 2px solid $gray-200;
+    font-size: $font-size-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: $spacing-md;
+    border-bottom: 1px solid $gray-100;
+    font-size: $font-size-sm;
+    vertical-align: middle;
+  }
+}
+
+.fila-factura {
+  transition: background-color $transition-fast;
+
+  &:hover {
+    background: $gray-50;
+  }
+}
+
+.numero-factura {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-weight: $font-weight-semibold;
+  color: $gray-800;
+}
+
+.icon-factura {
+  color: $info-color;
+  font-size: $font-size-lg;
+}
+
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  strong {
+    color: $gray-800;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.observacion {
+  color: $gray-500;
+  font-size: $font-size-xs;
+  font-style: italic;
+}
+
+.fecha-factura {
+  color: $gray-500;
+  white-space: nowrap;
+}
+
+.subtotal,
+.isv,
+.descuento {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  color: $gray-500;
+  font-size: $font-size-sm;
+}
+
+.total-factura {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  color: $success-dark;
+  font-size: $font-size-base;
+
+  strong {
+    font-weight: $font-weight-semibold;
+  }
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+.badge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  border-radius: 15px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.badge-venta {
+  background: lighten($info-color, 35%);
+  color: darken($info-color, 20%);
+}
+
+.badge-fabricacion {
+  background: lighten($error-color, 35%);
+  color: darken($error-color, 20%);
+}
+
+.badge-reparacion {
+  background: lighten($warning-color, 35%);
+  color: darken($warning-color, 20%);
+}
+
+.badge-efectivo {
+  background: lighten($success-color, 35%);
+  color: darken($success-color, 20%);
+}
+
+.badge-tarjeta {
+  background: lighten($info-color, 35%);
+  color: darken($info-color, 20%);
+}
+
+.badge-transferencia {
+  background: lighten($primary-color, 35%);
+  color: darken($primary-color, 20%);
+}
+
+.badge-metodo {
+  background: $gray-100;
+  color: $gray-500;
+}
+
+.badge-secondary {
+  background: $gray-100;
+  color: $gray-500;
+}
+
+/* ========================================
+   ACCIONES
+   ======================================== */
+.acciones-tabla {
+  display: flex;
+  gap: $spacing-xs;
+  justify-content: flex-start;
+
+  @include responsive(md) {
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+}
+
+.btn-detalles,
+.btn-anular {
+  padding: $spacing-xs $spacing-md;
+  border: none;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  transition: all $transition-fast;
+
+  @include responsive(md) {
+    width: 100%;
+  }
+}
+
+.btn-detalles {
+  background: $info-color;
+  color: $text-light;
+
+  &:hover {
+    background: $info-dark;
+    transform: translateY(-1px);
+  }
+}
+
+.btn-anular {
+  background: $error-color;
+  color: $text-light;
+
+  &:hover {
+    background: $error-dark;
+    transform: translateY(-1px);
+  }
+}
+
+/* ========================================
+   ESTADOS
+   ======================================== */
+.loading-message,
+.sin-resultados {
+  text-align: center;
+  padding: $spacing-xl $spacing-lg;
+  font-size: $font-size-base;
+}
+
+.loading-message {
+  color: $info-color;
+  font-weight: $font-weight-medium;
+}
+
+.sin-resultados {
+  color: $gray-500;
+  font-style: italic;
+}
+
+/* ========================================
+   RESUMEN FINAL
+   ======================================== */
+.resumen-final {
+  @include card-style;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+
+  @include responsive(md) {
+    flex-direction: column;
+    gap: $spacing-md;
+    text-align: center;
+  }
+}
+
+.resumen-stats {
+  display: flex;
+  gap: $spacing-xl;
+  font-size: $font-size-sm;
+  color: $gray-500;
+
+  @include responsive(md) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  strong {
+    color: $success-dark;
+    font-weight: $font-weight-semibold;
+    margin-left: $spacing-xs;
+  }
+}
+
+.resumen-leyenda {
+  font-size: $font-size-xs;
+  color: $gray-400;
+  font-style: italic;
+}
+
+/* ========================================
+   RESPONSIVE ADICIONAL
+   ======================================== */
+@include responsive(md) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .tabla-ventas {
+    font-size: $font-size-sm;
+    
+    th,
+    td {
+      padding: $spacing-md;
+    }
+  }
+}

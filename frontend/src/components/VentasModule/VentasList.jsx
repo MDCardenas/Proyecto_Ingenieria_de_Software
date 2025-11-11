@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaFileInvoice, FaSearch, FaFilter, FaSync, FaMoneyBillWave } from 'react-icons/fa';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import "../styles/VentasList.css";
+import "../../styles/scss/pages/_ventaslist.scss";
 
 export default function VentasList({ onVolver }) {
   const [facturas, setFacturas] = useState([]);

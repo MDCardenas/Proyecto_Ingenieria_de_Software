@@ -18,7 +18,6 @@ export default function Navegation() {
   }, []);
 
   const handleLogin = (empleadoLogueado) => {
-    console.log("Usuario logueado en Navegation:", empleadoLogueado);
     setEmpleado(empleadoLogueado);
     localStorage.setItem("empleado", JSON.stringify(empleadoLogueado));
   };
@@ -26,25 +25,20 @@ export default function Navegation() {
   // Ruta protegida según rol - MÁS FLEXIBLE
   const ProtectedRoute = ({ children, role }) => {
     if (!empleado) {
-      console.log("No hay empleado, redirigiendo a login");
       return <Navigate to="/login" replace />;
     }
     
-    // DEBUG
-    console.log("=== VERIFICACIÓN DE RUTA PROTEGIDA ===");
-    console.log("Empleado en ProtectedRoute:", empleado);
-    console.log("Rol requerido:", role);
+  
     
     // Determinar el rol del usuario de múltiples formas
     const userRole = empleado.rol || 
                     empleado.perfil_nombre?.toLowerCase() || 
                     (empleado.codigo_perfil && empleado.codigo_perfil.toString());
     
-    console.log("Rol del usuario detectado:", userRole);
+
     
     // Si no se especifica rol, permitir acceso a todos los usuarios autenticados
     if (!role) {
-      console.log("Sin rol específico requerido, permitiendo acceso");
       return children;
     }
     
