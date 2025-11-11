@@ -67,10 +67,22 @@ urlpatterns = [
     path('facturas/<int:numero_factura>/detalles/', views.obtener_detalles_factura, name='obtener-detalles-factura'),
     
     # ========================================
-    # RUTAS DE COTIZACIONES
+    # RUTAS DE COTIZACIONES (ACTUALIZADAS Y COMPLETAS)
     # ========================================
+    
+    # Creación y gestión básica (complementan el ViewSet)
+    path('cotizaciones/crear-completa/', views.crear_cotizacion_completa, name='crear-cotizacion-completa'),
+    path('cotizaciones/<int:numero_cotizacion>/actualizar/', views.actualizar_cotizacion, name='actualizar-cotizacion'),
+    path('cotizaciones/<int:numero_cotizacion>/anular/', views.anular_cotizacion, name='anular-cotizacion'),
     path('cotizaciones/<int:numero_cotizacion>/convertir/', views.convertir_cotizacion_a_factura, name='convertir-cotizacion'),
+    
+    # Consultas y filtros específicos
     path('cotizaciones/vencidas/', views.cotizaciones_vencidas, name='cotizaciones-vencidas'),
+    path('cotizaciones/activas/', views.CotizacionViewSet.as_view({'get': 'activas'}), name='cotizaciones-activas'),
+    path('cotizaciones/por-cliente/', views.CotizacionViewSet.as_view({'get': 'por_cliente'}), name='cotizaciones-por-cliente'),
+    
+    # Dashboard y reportes
+    path('cotizaciones/dashboard/', views.dashboard_cotizaciones, name='dashboard-cotizaciones'),
     
     # ========================================
     # RUTAS DE INVENTARIO

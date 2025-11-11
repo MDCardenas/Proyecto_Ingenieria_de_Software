@@ -235,21 +235,166 @@ class CotizacionSerializer(serializers.ModelSerializer):
     empleado_nombre = serializers.SerializerMethodField()
     tipo_servicio_display = serializers.CharField(source='get_tipo_servicio_display', read_only=True)
     estado_display = serializers.CharField(source='get_estado_display', read_only=True)
+    
+    # Campos para mostrar información completa de relaciones
+    cliente_info = ClienteSerializer(source='id_cliente', read_only=True)
+    empleado_info = EmpleadoSerializer(source='id_empleado', read_only=True)
+    
+    # Campos calculados
+    dias_para_vencimiento = serializers.SerializerMethodField()
+    puede_convertir = serializers.SerializerMethodField()
 
     class Meta:
         model = TblCotizaciones
         fields = [
-            'numero_cotizacion', 'id_cliente', 'cliente_nombre', 'id_empleado', 'empleado_nombre',
-            'fecha_creacion', 'fecha_vencimiento', 'direccion', 'telefono', 'rtn',
-            'subtotal', 'descuento', 'isv', 'total', 'tipo_servicio', 'tipo_servicio_display',
-            'estado', 'estado_display', 'observaciones', 'numero_factura_conversion', 'fecha_conversion'
+            'numero_cotizacion', 'id_cliente', 'cliente_nombre', 'cliente_info',
+            'id_empleado', 'empleado_nombre', 'empleado_info',
+            'fecha_creacion', 'fecha_vencimiento', 'dias_para_vencimiento',
+            'direccion', 'telefono', 'rtn',
+            'subtotal', 'descuento', 'isv', 'total', 
+            'tipo_servicio', 'tipo_servicio_display',
+            'estado', 'estado_display', 'puede_convertir',
+            'observaciones', 'numero_factura_conversion', 'fecha_conversion'
         ]
+        read_only_fields = ['numero_cotizacion', 'fecha_creacion', 'numero_factura_conversion', 'fecha_conversion']
 
     def get_cliente_nombre(self, obj):
         return f"{obj.id_cliente.nombre} {obj.id_cliente.apellido}"
 
     def get_empleado_nombre(self, obj):
         return f"{obj.id_empleado.nombre} {obj.id_empleado.apellido}"
+    
+    def get_dias_para_vencimiento(self, obj):
+        if obj.fecha_vencimiento:
+            from datetime import date
+            hoy = date.today()
+            delta = obj.fecha_vencimiento - hoy
+            return delta.days
+        return None
+    
+    def get_puede_convertir(self, obj):
+        """Determinar si la cotización puede convertirse a factura"""
+        return obj.estado == 'ACTIVA' and obj.numero_factura_conversion is None
+    
+    def validate_fecha_vencimiento(self, value):
+        """Validar que la fecha de vencimiento sea futura"""
+        from datetime import date
+        if value and value < date.today():
+            raise serializers.ValidationError("La fecha de vencimiento no puede ser en el pasado")
+        return value
+    
+    def validate(self, data):
+        """Validaciones personalizadas para la cotización"""
+        # Validar que el total sea positivo
+        total = data.get('total')
+        if total and total <= 0:
+            raise serializers.ValidationError({
+                'total': 'El total debe ser mayor a cero'
+            })
+        
+        # Validar que subtotal - descuento + isv = total
+        subtotal = data.get('subtotal', Decimal('0'))
+        descuento = data.get('descuento', Decimal('0'))
+        isv = data.get('isv', Decimal('0'))
+        total_calculado = subtotal - descuento + isv
+        
+        if total and abs(total - total_calculado) > Decimal('0.01'):
+            raise serializers.ValidationError({
+                'total': f'El total calculado ({total_calculado}) no coincide con el total proporcionado ({total})'
+            })
+        
+        return data
+    
+class CrearCotizacionSerializer(serializers.ModelSerializer):
+    """Serializer para crear nuevas cotizaciones"""
+    
+    class Meta:
+        model = TblCotizaciones
+        fields = [
+            'id_cliente', 'id_empleado', 'fecha_vencimiento',
+            'direccion', 'telefono', 'rtn',
+            'subtotal', 'descuento', 'isv', 'total',
+            'tipo_servicio', 'observaciones'
+        ]
+    
+    def validate(self, data):
+        """Validaciones para creación de cotizaciones"""
+        # Validar que cliente existe
+        try:
+            TblClientes.objects.get(id_cliente=data['id_cliente'].id_cliente)
+        except TblClientes.DoesNotExist:
+            raise serializers.ValidationError({
+                'id_cliente': 'El cliente no existe'
+            })
+        
+        # Validar que empleado existe
+        try:
+            TblEmpleados.objects.get(id_empleado=data['id_empleado'].id_empleado)
+        except TblEmpleados.DoesNotExist:
+            raise serializers.ValidationError({
+                'id_empleado': 'El empleado no existe'
+            })
+        
+        # Validar total positivo
+        if data.get('total', Decimal('0')) <= 0:
+            raise serializers.ValidationError({
+                'total': 'El total debe ser mayor a cero'
+            })
+        
+        return data
+    
+    def create(self, validated_data):
+        """Crear cotización con estado ACTIVA por defecto"""
+        validated_data['estado'] = 'ACTIVA'
+        return super().create(validated_data)
+
+class ActualizarCotizacionSerializer(serializers.ModelSerializer):
+    """Serializer para actualizar cotizaciones existentes"""
+    
+    class Meta:
+        model = TblCotizaciones
+        fields = [
+            'fecha_vencimiento', 'direccion', 'telefono', 'rtn',
+            'subtotal', 'descuento', 'isv', 'total',
+            'tipo_servicio', 'observaciones', 'estado'
+        ]
+        read_only_fields = ['numero_cotizacion', 'id_cliente', 'id_empleado', 'fecha_creacion']
+    
+    def validate_estado(self, value):
+        """Validar cambios de estado"""
+        instance = getattr(self, 'instance', None)
+        
+        if instance and instance.estado == 'CONVERTIDA' and value != 'CONVERTIDA':
+            raise serializers.ValidationError(
+                "No se puede modificar el estado de una cotización ya convertida a factura"
+            )
+        
+        return value
+
+class ConvertirCotizacionSerializer(serializers.Serializer):
+    """Serializer para convertir cotización a factura"""
+    id_empleado = serializers.IntegerField(required=False)
+    observaciones = serializers.CharField(required=False, allow_blank=True)
+    
+    def validate_id_empleado(self, value):
+        """Validar que el empleado existe"""
+        if value:
+            try:
+                TblEmpleados.objects.get(id_empleado=value)
+                return value
+            except TblEmpleados.DoesNotExist:
+                raise serializers.ValidationError("El empleado no existe")
+        return value
+
+class CotizacionEstadisticasSerializer(serializers.Serializer):
+    """Serializer para estadísticas de cotizaciones"""
+    total_cotizaciones = serializers.IntegerField()
+    cotizaciones_activas = serializers.IntegerField()
+    cotizaciones_convertidas = serializers.IntegerField()
+    cotizaciones_mes_actual = serializers.IntegerField()
+    valor_total_mes = serializers.DecimalField(max_digits=18, decimal_places=2)
+    cotizaciones_proximas_vencer = serializers.IntegerField()
+    tasa_conversion = serializers.FloatField()
 
 class OrdenTrabajoSerializer(serializers.ModelSerializer):
     empleado_nombre = serializers.SerializerMethodField()
