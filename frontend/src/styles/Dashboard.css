@@ -208,3 +208,17 @@ body {
   box-shadow: 0 0 0 4px var(--ring), var(--shadow);
   border-color: rgba(124,58,237,.3);
 }
+
+.kpi-card.clickable {
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.kpi-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+.kpi-card.clickable:active { transform: translateY(0); }
+.kpi-card.clickable:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 3px;
+}

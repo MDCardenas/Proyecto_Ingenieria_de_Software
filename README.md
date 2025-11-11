@@ -92,4 +92,19 @@ Después de actualizar el repositorio, ejecuten el siguiente comando para instal
 
 ```bash
 npm install jspdf html2canvas react-icons
+```
 
+## 🧾 Nuevas dependencias agregadas
+
+Se han agregado las siguientes dependencias el Dashboard:
+
+- [`rechart`](https://www.npmjs.com/package/recharts): El objetivo principal de esta biblioteca es ayudarle a escribir gráficos en aplicaciones React sin ningún problema.
+
+```bash
+npm install recharts
+```
+Tambien es necesario instalar dependencia para Django, con el entorno activo ejecutamos el siguiente comando:
+
+```bash
+pip install django-cors-headers
+```

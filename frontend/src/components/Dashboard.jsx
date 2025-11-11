@@ -17,7 +17,7 @@ const COLORS = {
   danger:   "#ef4444", // pendientes
 };
 
-export default function Dashboard() {
+export default function Dashboard({ setActiveButton }) {
   const [kpis, setKpis] = useState({
     ventas_hoy: 0,
     ordenes_pendientes: 0,
@@ -27,6 +27,23 @@ export default function Dashboard() {
   const [ventas, setVentas] = useState([]); // [{label:'Ene', total:123}]
   const [estados, setEstados] = useState({ "COMPLETADA":0, "EN PROCESO":0, "PENDIENTE":0 });
   const [loading, setLoading] = useState(true);
+
+  // Navegación desde las tarjetas (sin cambiar estilos ni iconos)
+  const go = (dest) => {
+    if (typeof setActiveButton !== "function") return;
+    // Normaliza a los ids de tu Sidebar
+    const map = {
+      Ventas: "Ventas",
+      Ordenes: "Ordenes", "Órdenes": "Ordenes",
+      Inventario: "Inventario",
+      Clientes: "Clientes",
+    };
+    setActiveButton(map[dest] || "Dashboard");
+  };
+  const keyAsClick = (e, cb) => {
+    if (e.key === "Enter" || e.key === " ") cb();
+
+  };
 
   // Formateador de moneda HNL
   const fmtHNL = (n) => {
@@ -74,7 +91,15 @@ export default function Dashboard() {
     <div className="dashboard">
 
       <div className="kpi-grid">
-        <article className="kpi-card" tabIndex={0}>
+        {/* Ventas -> Ventas */}
+        <article
+          className="kpi-card"
+          tabIndex={0}
+          role="button"
+          onClick={() => go("Ventas")}
+          onKeyDown={(e) => keyAsClick(e, () => go("Ventas"))}
+          title="Ir a Ventas"
+        >
           <div>
             <p className="kpi-title">Ventas Hoy</p>
             <p className="kpi-value">{fmtHNL(kpis.ventas_hoy)}</p>
@@ -82,7 +107,15 @@ export default function Dashboard() {
           <div className="kpi-icon purple" aria-label="Ventas Hoy">💲</div>
         </article>
 
-        <article className="kpi-card" tabIndex={0}>
+        {/* Órdenes Pendientes -> Ordenes */}
+        <article
+          className="kpi-card"
+          tabIndex={0}
+          role="button"
+          onClick={() => go("Ordenes")}
+          onKeyDown={(e) => keyAsClick(e, () => go("Ordenes"))}
+          title="Ir a Órdenes"
+        >
           <div>
             <p className="kpi-title">Órdenes Pendientes</p>
             <p className="kpi-value">{kpis.ordenes_pendientes}</p>
@@ -90,7 +123,15 @@ export default function Dashboard() {
           <div className="kpi-icon warning" aria-label="Órdenes Pendientes">⏱</div>
         </article>
 
-        <article className="kpi-card" tabIndex={0}>
+        {/* Productos en Stock -> Inventario */}
+        <article
+          className="kpi-card"
+          tabIndex={0}
+          role="button"
+          onClick={() => go("Inventario")}
+          onKeyDown={(e) => keyAsClick(e, () => go("Inventario"))}
+          title="Ir a Inventario"
+        >
           <div>
             <p className="kpi-title">Productos en Stock</p>
             <p className="kpi-value">{Number(kpis.productos_en_stock || 0).toLocaleString("es-HN")}</p>
@@ -98,7 +139,15 @@ export default function Dashboard() {
           <div className="kpi-icon info" aria-label="Productos en Stock">📦</div>
         </article>
 
-        <article className="kpi-card" tabIndex={0}>
+        {/* Clientes Activos -> Clientes */}
+        <article
+          className="kpi-card"
+          tabIndex={0}
+          role="button"
+          onClick={() => go("Clientes")}
+          onKeyDown={(e) => keyAsClick(e, () => go("Clientes"))}
+          title="Ir a Clientes"
+        >
           <div>
             <p className="kpi-title">Clientes Activos</p>
             <p className="kpi-value">{Number(kpis.clientes_activos || 0).toLocaleString("es-HN")}</p>

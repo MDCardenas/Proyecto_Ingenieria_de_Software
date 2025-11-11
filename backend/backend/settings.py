@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'corsheaders',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -82,7 +83,7 @@ DATABASES = {
         'ENGINE': 'mssql',
         'NAME': 'JOYERIA',
         'USER': 'sa',
-        'PASSWORD': '1234',
+        'PASSWORD': '12345678',
         'HOST': 'localhost',
         'PORT': '1433',
 
@@ -122,7 +123,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

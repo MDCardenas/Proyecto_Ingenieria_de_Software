@@ -33,4 +33,5 @@ urlpatterns = [
     # Incluye todas las rutas de tu API principal
     path('api/', include('api.urls')),
     
+    path("api/dashboard/", include("dashboard.urls")),
 ]
