@@ -11,6 +11,7 @@ import Usuarios from "../components/UsuariosModule/Usuarios.jsx";
 import InventarioModule from "../components/InventarioModule/InventarioModule.jsx";
 import { menuItems } from "../services/menuItems.js";
 import "../styles/scss/main.scss";
+import OrdenesModule from "../components/OrdenesModule/OrdenesModule.jsx";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -92,7 +93,7 @@ export default function AdminPanel() {
       case "Inventario":
         return <InventarioModule setActiveButton={setActiveButton} />;
       case "Ordenes":
-        return <h1 className="titulo-modulo">ÓRDENES</h1>;
+        return <OrdenesModule setActiveButton={setActiveButton} />;
       case "Contabilidad":
         return <h1 className="titulo-modulo">CONTABILIDAD</h1>;
       case "Usuarios":

@@ -126,6 +126,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
       backgroundColor: '#f8f9fa',
       outline: 'none',
       transition: 'all 0.3s ease',
+      color: 'black',
     },
     select: {
       padding: '12px',
@@ -134,6 +135,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
       backgroundColor: '#f8f9fa',
       fontSize: '14px',
       outline: 'none',
+      color: 'black',
     },
     errorMsg: {
       backgroundColor: '#f8d7da',

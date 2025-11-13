@@ -10,6 +10,18 @@ from .models import (
     TblOrdenesTrabajo
 )
 
+# Campo reutilizable para estados de órdenes: acepta "EN_PROCESO" y "EN PROCESO"
+class EstadoOrdenChoiceField(serializers.ChoiceField):
+    """
+    ChoiceField para el campo 'estado' de TblOrdenesTrabajo.
+    - Acepta valores con espacios o con guiones bajos (ej. 'EN PROCESO' o 'EN_PROCESO').
+    - Siempre convierte internamente a MAYÚSCULAS con '_' (código del modelo).
+    """
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            data = data.strip().upper().replace(" ", "_")
+        return super().to_internal_value(data)
+
 class ClienteSerializer(serializers.ModelSerializer):
     telefono_display = serializers.CharField(
         source='telefono', 
@@ -398,20 +410,41 @@ class CotizacionEstadisticasSerializer(serializers.Serializer):
 
 class OrdenTrabajoSerializer(serializers.ModelSerializer):
     empleado_nombre = serializers.SerializerMethodField()
-    cliente_nombre = serializers.CharField(source='numero_factura.id_cliente.nombre', read_only=True)
+    # Ahora armamos nombre + apellido
+    cliente_nombre = serializers.SerializerMethodField()
     tipo_orden_display = serializers.CharField(source='get_tipo_orden_display', read_only=True)
     estado_display = serializers.CharField(source='get_estado_display', read_only=True)
 
     class Meta:
         model = TblOrdenesTrabajo
         fields = [
-            'id_orden', 'numero_factura', 'id_empleado', 'empleado_nombre', 'cliente_nombre',
-            'tipo_orden', 'tipo_orden_display', 'descripcion', 'fecha_inicio', 
-            'fecha_estimada', 'estado', 'estado_display', 'costo_mano_obra'
+            'id_orden', 'numero_factura', 'id_empleado',
+            'empleado_nombre', 'cliente_nombre',
+            'tipo_orden', 'tipo_orden_display', 'descripcion',
+            'fecha_inicio', 'fecha_estimada',
+            'estado', 'estado_display', 'costo_mano_obra'
         ]
 
     def get_empleado_nombre(self, obj):
-        return f"{obj.id_empleado.nombre} {obj.id_empleado.apellido}"
+        try:
+            return f"{obj.id_empleado.nombre} {obj.id_empleado.apellido}"
+        except Exception:
+            return ""
+
+    def get_cliente_nombre(self, obj):
+        """
+        Devuelve 'Nombre Apellido' del cliente dueño de la factura.
+        """
+        try:
+            cliente = obj.numero_factura.id_cliente
+        except Exception:
+            cliente = None
+
+        if not cliente:
+            return ""
+        nombre = cliente.nombre or ""
+        apellido = cliente.apellido or ""
+        return (nombre + " " + apellido).strip()
 
 class StockInsumoSerializer(serializers.ModelSerializer):
     provedor_nombre = serializers.CharField(source='codigo_provedor.nombre', read_only=True)
@@ -464,11 +497,31 @@ class CrearDetalleFacturaSerializer(serializers.Serializer):
     descuento = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, default=Decimal('0'))
 
 class CrearOrdenTrabajoSerializer(serializers.Serializer):
-    """Serializer para crear orden de trabajo"""
-    tipo_orden = serializers.ChoiceField(choices=[('FABRICACION', 'Fabricación'), ('REPARACION', 'Reparación')])
-    descripcion = serializers.CharField(max_length=500, required=False, allow_blank=True)
-    fecha_estimada = serializers.DateField(required=False, allow_null=True)
-    costo_mano_obra = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, default=Decimal('0'))
+    """Serializer para crear orden de trabajo (usado dentro de CrearFacturaCompletaSerializer)."""
+    tipo_orden = serializers.ChoiceField(choices=[
+        ('FABRICACION', 'Fabricación'),
+        ('REPARACION', 'Reparación'),
+        ('AJUSTE', 'Ajuste'),
+    ])
+    descripcion = serializers.CharField(
+        max_length=500,
+        required=False,
+        allow_blank=True
+    )
+    fecha_inicio = serializers.DateField(
+        required=False,
+        allow_null=True
+    )
+    fecha_estimada = serializers.DateField(
+        required=False,
+        allow_null=True
+    )
+    costo_mano_obra = serializers.DecimalField(
+        max_digits=18,
+        decimal_places=2,
+        required=False,
+        default=Decimal('0')
+    )
 
 class CrearFacturaCompletaSerializer(serializers.Serializer):
     """
@@ -668,18 +721,19 @@ class ActualizarEstadoPagoSerializer(serializers.Serializer):
         return data
 
 class ActualizarEstadoOrdenSerializer(serializers.Serializer):
-    """Serializer para actualizar el estado de una orden de trabajo"""
-    estado = serializers.ChoiceField(choices=[
+    """Serializer para actualizar el estado de una orden de trabajo."""
+    estado = EstadoOrdenChoiceField(choices=[
         ('PENDIENTE', 'Pendiente'),
-        ('EN_PROCESO', 'En Proceso'), 
+        ('EN_PROCESO', 'En Proceso'),
         ('COMPLETADA', 'Completada'),
-        ('CANCELADA', 'Cancelada')
+        ('CANCELADA', 'Cancelada'),
     ])
-    descripcion = serializers.CharField(max_length=500, required=False, allow_blank=True)
+    descripcion = serializers.CharField(
+        max_length=500,
+        required=False,
+        allow_blank=True
+    )
     
-    
-
-
 class CrearFacturaSimpleSerializer(serializers.Serializer):
     """Serializer simplificado para crear facturas desde el frontend"""
     id_cliente = serializers.IntegerField()
