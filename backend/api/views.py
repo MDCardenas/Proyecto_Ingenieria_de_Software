@@ -785,3 +785,170 @@ def obtener_factura_detalle(request, numero_factura):
 def crear_factura_frontend(request):
     """Crear factura desde frontend (compatibilidad)"""
     return crear_factura_completa(request)
+
+
+
+@api_view(['GET'])
+def lista_empleados(request):
+    """Endpoint para listar empleados con perfil y rol"""
+    try:
+        empleados = TblEmpleados.objects.all().select_related('codigo_perfil')
+
+        data = []
+        for emp in empleados:
+            perfil_obj = getattr(emp, 'codigo_perfil', None)
+
+            data.append({
+                'id_empleado': emp.id_empleado,
+                'nombre_completo': f"{emp.nombre} {emp.apellido}",
+                'correo': emp.correo,
+                'telefono': emp.telefono,
+                'usuario': emp.usuario,
+                'salario': str(emp.salario),
+                'perfil': perfil_obj.perfil if perfil_obj else 'Sin perfil',
+                'rol': perfil_obj.rol if perfil_obj else 'Sin rol',
+                'estado': 'Activo' if emp.correo else 'Inactivo'
+            })
+
+        # ✅ Ahora devuelve lista directa
+        return Response(data, status=200)
+
+    except Exception as e:
+        print(">>> Error al obtener empleados:", str(e))
+        import traceback
+        print(traceback.format_exc())
+        return Response({'error': str(e)}, status=500)
+
+
+#LISTAR PERFILES DE EMPLEADOS
+@api_view(['GET'])
+def lista_perfiles(request):
+    """Endpoint para listar los perfiles disponibles desde Perfiles_Empleados."""
+    try:
+        perfiles = TblPerfilesEmpleado.objects.all().order_by('id')
+        print(f">>> Se encontraron {perfiles.count()} perfiles")
+
+        data = [
+            {
+                'id': perfil.id,
+                'perfil': perfil.perfil,
+                'descripcion': getattr(perfil, 'descripcion', ''),
+            }
+            for perfil in perfiles
+        ]
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f">>> Error al listar perfiles: {str(e)}")
+        return Response(
+            {'error': f'Error al obtener perfiles: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+def empleado_detalle(request, pk):
+    """Obtener un empleado específico por ID"""
+    try:
+        empleado = TblEmpleados.objects.select_related('codigo_perfil').get(pk=pk)
+        
+        data = {
+            'id_empleado': empleado.id_empleado,
+            'nombre': empleado.nombre,
+            'apellido': empleado.apellido,
+            'correo': empleado.correo,
+            'usuario': empleado.usuario,
+            'telefono': empleado.telefono,
+            'salario': str(empleado.salario),
+            'perfil': empleado.codigo_perfil.perfil if empleado.codigo_perfil else 'Sin perfil',
+            'rol': empleado.codigo_perfil.rol if empleado.codigo_perfil else 'Sin rol'
+        }
+
+        return Response(data, status=200)
+    
+    except TblEmpleados.DoesNotExist:
+        return Response({'error': f'Empleado con ID {pk} no existe'}, status=404)
+    
+    except Exception as e:
+        print(">>> Error:", str(e))
+        return Response({'error': str(e)}, status=500)
+
+
+
+
+@api_view(['POST'])
+def crear_empleado(request):
+    try:
+        data = request.data
+        print(">>> Recibido en backend:", data)
+
+        # Validar campos
+        required = ['nombre', 'apellido', 'usuario', 'contrasena', 'correo']
+        for f in required:
+            if f not in data or not data[f]:
+                return Response({'error': f'Campo {f} es obligatorio'}, status=400)
+
+        # Buscar perfil (CORREGIDO)
+        perfil_id = data.get('codigo_perfil')
+        try:
+            perfil = PerfilesEmpleados.objects.get(codigo_perfil=perfil_id)
+        except PerfilesEmpleados.DoesNotExist:
+            return Response({'error': f'Perfil con código {perfil_id} no existe'}, status=400)
+
+        # Crear empleado
+        empleado = TblEmpleados.objects.create(
+            codigo_perfil=perfil,
+            nombre=data['nombre'],
+            apellido=data['apellido'],
+            usuario=data['usuario'],
+            contrasena=data['contrasena'],
+            telefono=data.get('telefono', ''),
+            correo=data['correo'],
+            salario=data.get('salario', 0)
+        )
+
+        return Response({
+            'message': 'Empleado creado exitosamente',
+            'empleado': {
+                'id_empleado': empleado.id_empleado,
+                'nombre': empleado.nombre,
+                'apellido': empleado.apellido,
+                'correo': empleado.correo
+            }
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        print(">>> Error:", str(e))
+        return Response({'error': str(e)}, status=500)
+
+
+@api_view(['PUT'])
+def actualizar_empleado(request, pk):
+    try:
+        empleado = TblEmpleados.objects.get(pk=pk)
+    except TblEmpleados.DoesNotExist:
+        return Response({'error': 'Empleado no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    data = request.data.copy()
+
+    if 'contrasena' in data and (data['contrasena'] is None or data['contrasena'].strip() == ''):
+        data.pop('contrasena')
+
+    serializer = EmpleadoSerializer(empleado, data=data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#ELIMINAR EMPLEADO
+@api_view(['DELETE'])
+def eliminar_empleado(request, pk):
+    try:
+        empleado = TblEmpleados.objects.get(pk=pk)
+        empleado.delete()
+        return Response({'mensaje': 'Empleado eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
+    except TblEmpleados.DoesNotExist:
+        return Response({'error': 'Empleado no encontrado'}, status=status.HTTP_404_NOT_FOUND)

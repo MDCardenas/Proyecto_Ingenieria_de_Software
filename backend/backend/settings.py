@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'mssql',
         'NAME': 'JOYERIA',
         'USER': 'sa',
-        'PASSWORD': '12345678',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '1433',
 

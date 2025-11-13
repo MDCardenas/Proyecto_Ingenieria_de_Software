@@ -1,37 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import ListaUsuarios from '../components/UsuariosComponentes/ListaUsuarios';
-import FormularioEmpleado from '../components/UsuariosComponentes/FormularioEmpleado';
-import FormularioEditarEmpleado from '../components/UsuariosComponentes/FormularioEditarEmpleado';
-import '../styles/Usuarios.css';
+import React, { useState, useEffect } from "react";
+import ListaUsuarios from "../components/UsuariosComponentes/ListaUsuarios";
+import FormularioEmpleado from "../components/UsuariosComponentes/FormularioEmpleado";
+import FormularioEditarEmpleado from "../components/UsuariosComponentes/FormularioEditarEmpleado";
+import "../styles/Usuarios.css";
 
 const Usuarios = () => {
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filtro, setFiltro] = useState('');
-  const [rolFiltro, setRolFiltro] = useState('');
+  const [filtro, setFiltro] = useState("");
+  const [rolFiltro, setRolFiltro] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [mostrarFormularioEditar, setMostrarFormularioEditar] = useState(false);
   const [empleadoEditando, setEmpleadoEditando] = useState(null);
 
+  // =====================================================
+  // 🔹 Cargar empleados desde el backend
+  // =====================================================
   const fetchEmpleados = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/empleados/');
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
+      const response = await fetch("http://127.0.0.1:8000/api/empleados/");
       const data = await response.json();
-      
-      if (data.usuarios && Array.isArray(data.usuarios)) {
+
+      // ✅ Normaliza el formato (array directo o dentro de "usuarios")
+      if (Array.isArray(data)) {
+        setEmpleados(data);
+      } else if (Array.isArray(data.usuarios)) {
         setEmpleados(data.usuarios);
       } else {
-        throw new Error('Formato de datos incorrecto');
+        setEmpleados([]);
       }
-      
     } catch (err) {
-      console.error('Error:', err);
+      console.error("Error cargando empleados:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -42,123 +41,116 @@ const Usuarios = () => {
     fetchEmpleados();
   }, []);
 
-  const empleadosFiltrados = empleados.filter(empleado => {
-    const coincideNombre = empleado.nombre_completo?.toLowerCase().includes(filtro.toLowerCase());
-    const coincideRol = rolFiltro === '' || empleado.rol === rolFiltro;
-    return coincideNombre && coincideRol;
-  });
+  // =====================================================
+  // 🔹 Filtros de búsqueda
+  // =====================================================
+  const empleadosFiltrados = Array.isArray(empleados)
+    ? empleados.filter((empleado) => {
+        const nombre = empleado.nombre_completo
+          ? empleado.nombre_completo.toLowerCase()
+          : "";
+        const correo = empleado.correo ? empleado.correo.toLowerCase() : "";
+        const coincideNombre =
+          nombre.includes(filtro.toLowerCase()) ||
+          correo.includes(filtro.toLowerCase());
+        const coincideRol =
+          rolFiltro === "" ||
+          empleado.rol?.toLowerCase() === rolFiltro.toLowerCase();
+        return coincideNombre && coincideRol;
+      })
+    : [];
 
-  const handleAgregarEmpleado = () => {
-    setMostrarFormulario(true);
-  };
-
-  const handleCerrarFormulario = () => {
-    setMostrarFormulario(false);
-  };
+  // =====================================================
+  // 🔹 Funciones auxiliares
+  // =====================================================
+  const handleAgregarEmpleado = () => setMostrarFormulario(true);
+  const handleCerrarFormulario = () => setMostrarFormulario(false);
 
   const handleEmpleadoAgregado = () => {
-    setLoading(true);
     fetchEmpleados();
     setMostrarFormulario(false);
   };
 
-  const handleEditarEmpleado = (empleado) => {
-    setEmpleadoEditando(empleado);
-    setMostrarFormularioEditar(true);
-  };
-
-  const handleCerrarFormularioEditar = () => {
-    setMostrarFormularioEditar(false);
-    setEmpleadoEditando(null);
-  };
+  const handleEditarEmpleado = (emp) => setEmpleadoEditando(emp);
 
   const handleEmpleadoActualizado = () => {
-    setLoading(true);
     fetchEmpleados();
-    setMostrarFormularioEditar(false);
     setEmpleadoEditando(null);
   };
 
+  const handleEmpleadoEliminado = () => {
+    fetchEmpleados();
+  };
+
+  // =====================================================
+  // 🔹 Renderizado principal
+  // =====================================================
   if (loading) return <div className="loading">Cargando empleados...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="usuarios-page">
       <div className="usuarios-header">
-        <h1>Administración de Empleados</h1>
-        <p>{empleados.length} empleados en el sistema</p>
+        <h1>Gestión de Usuarios</h1>
+        <p>Administración de usuarios y permisos</p>
       </div>
-
-      <div className="separador"></div>
 
       <div className="busqueda-filtros">
         <div className="busqueda-container">
-          <div className="buscador">
-            <input 
-              type="text" 
-              placeholder="Buscar empleados por nombre..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-              className="input-busqueda"
-            />
-          </div>
-          
-          <div className="filtro-roles">
-            <select 
-              value={rolFiltro}
-              onChange={(e) => setRolFiltro(e.target.value)}
-              className="select-roles"
-            >
-              <option value="">Todos los roles</option>
-              <option value="Admin">Admin</option>
-              <option value="Vendedor">Vendedor</option>
-              <option value="Joyero">Joyero</option>
-              <option value="Contador">Contador</option>
-            </select>
-          </div>
+          <input
+            type="text"
+            placeholder="Buscar por nombre o correo..."
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            className="input-busqueda"
+          />
+
+          <select
+            value={rolFiltro}
+            onChange={(e) => setRolFiltro(e.target.value)}
+            className="select-roles"
+          >
+            <option value="">Todos los roles</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Vendedor">Vendedor</option>
+            <option value="Gerente">Gerente</option>
+            <option value="Cajero">Cajero</option>
+            <option value="Contador">Contador</option>
+          </select>
         </div>
 
-        <button 
-          className="btn-agregar-usuario"
-          onClick={handleAgregarEmpleado}
-        >
-          <span className="btn-icono">👤+</span>
-          Agregar Empleado
+        <button className="btn-agregar-usuario" onClick={handleAgregarEmpleado}>
+          <span className="btn-icono">👤+</span> Agregar Empleado
         </button>
       </div>
 
       <div className="usuarios-content">
         <div className="lista-usuarios-container">
-          {empleadosFiltrados.length === 0 && empleados.length > 0 ? (
+          {empleadosFiltrados.length === 0 ? (
             <div className="no-resultados">
-              No se encontraron empleados con "{filtro}" {rolFiltro && `en el rol "${rolFiltro}"`}
-            </div>
-          ) : empleados.length === 0 ? (
-            <div className="no-resultados">
-              No hay empleados registrados en la base de datos
+              No se encontraron empleados con “{filtro}”
             </div>
           ) : (
-            <ListaUsuarios 
-              usuarios={empleadosFiltrados} 
+            <ListaUsuarios
+              usuarios={empleadosFiltrados}
               onEditarEmpleado={handleEditarEmpleado}
+              onEmpleadoEliminado={handleEmpleadoEliminado}
             />
           )}
         </div>
       </div>
 
-      {/* Modal para agregar empleado */}
       {mostrarFormulario && (
-        <FormularioEmpleado 
+        <FormularioEmpleado
           onClose={handleCerrarFormulario}
           onEmpleadoAgregado={handleEmpleadoAgregado}
         />
       )}
 
-      {/* Modal para editar empleado */}
-      {mostrarFormularioEditar && empleadoEditando && (
-        <FormularioEditarEmpleado 
+      {empleadoEditando && (
+        <FormularioEditarEmpleado
           empleado={empleadoEditando}
-          onClose={handleCerrarFormularioEditar}
+          onClose={() => setEmpleadoEditando(null)}
           onEmpleadoActualizado={handleEmpleadoActualizado}
         />
       )}

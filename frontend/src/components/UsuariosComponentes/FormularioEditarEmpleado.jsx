@@ -5,53 +5,49 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
     nombre: '',
     apellido: '',
     usuario: '',
-    contrasena: '',
     telefono: '',
     correo: '',
     salario: '',
-    codigo_perfil: '2'
+    codigo_perfil: ''
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [cargandoDatos, setCargandoDatos] = useState(true);
+  const [perfiles, setPerfiles] = useState([]);
 
-  // Cargar datos del empleado cuando el componente se monta
+  // Cargar datos del empleado y perfiles
   useEffect(() => {
-    const cargarDatosEmpleado = async () => {
+    const cargarDatos = async () => {
       try {
-        console.log('>>> Cargando datos del empleado:', empleado.id);
-        const response = await fetch(`http://127.0.0.1:8000/api/empleados/${empleado.id}/`);
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        
-        const datos = await response.json();
-        console.log('>>> Datos del empleado:', datos);
-        
+        const perfilesRes = await fetch('http://127.0.0.1:8000/api/perfiles/');
+        const perfilesData = await perfilesRes.json();
+        setPerfiles(perfilesData);
+
+        const empleadoRes = await fetch(`http://127.0.0.1:8000/api/empleados/${empleado.id_empleado}/`);
+        const datos = await empleadoRes.json();
+
+        const perfilEncontrado = perfilesData.find(p => p.perfil === datos.perfil);
+
         setFormData({
           nombre: datos.nombre || '',
           apellido: datos.apellido || '',
           usuario: datos.usuario || '',
-          contrasena: '', // No cargar contraseña por seguridad
           telefono: datos.telefono || '',
           correo: datos.correo || '',
           salario: datos.salario || '',
-          codigo_perfil: datos.codigo_perfil?.toString() || '2'
+          codigo_perfil: perfilEncontrado ? perfilEncontrado.codigo_perfil.toString() : ''
         });
-        
       } catch (err) {
-        console.error('>>> Error al cargar datos:', err);
         setError('Error al cargar los datos del empleado');
       } finally {
         setCargandoDatos(false);
       }
     };
+    cargarDatos();
+  }, [empleado.id_empleado]);
 
-    cargarDatosEmpleado();
-  }, [empleado.id]);
-
+  // Cambios de input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -60,57 +56,36 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
     }));
   };
 
+  // Enviar cambios
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      if (!formData.nombre || !formData.apellido || !formData.usuario || !formData.correo) {
-        throw new Error('Por favor complete todos los campos obligatorios');
-      }
-
       const empleadoData = {
         ...formData,
         salario: parseFloat(formData.salario) || 0,
         codigo_perfil: parseInt(formData.codigo_perfil)
       };
 
-      // Si no se cambió la contraseña, no enviarla
-      if (!empleadoData.contrasena) {
-        delete empleadoData.contrasena;
-      }
-
-      console.log('Enviando datos actualizados:', empleadoData);
-
-      const response = await fetch(`http://127.0.0.1:8000/api/empleados/${empleado.id}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/empleados/${empleado.id_empleado}/actualizar/`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(empleadoData)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('>>> Empleado actualizado:', result);
-
+      if (!response.ok) throw new Error('Error al actualizar empleado');
       onEmpleadoActualizado();
       onClose();
-
     } catch (err) {
-      console.error('>>> Error al actualizar empleado:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Estilos inline (mismos que el formulario de agregar)
+  // 🎨 Estilos uniformes y alineados
   const styles = {
     modalOverlay: {
       position: 'fixed',
@@ -118,203 +93,127 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '20px',
     },
     modalContent: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+      backgroundColor: '#fff',
+      borderRadius: '10px',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
       width: '100%',
-      maxWidth: '700px',
-      maxHeight: '90vh',
-      overflowY: 'auto'
+      maxWidth: '900px',
+      overflow: 'hidden',
+      animation: 'fadeIn 0.25s ease',
     },
     modalHeader: {
+      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+      color: '#fff',
+      padding: '25px 35px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '25px 30px',
-      borderBottom: '1px solid #e9ecef',
-      background: 'linear-gradient(135deg, #667eea, #764ba2)',
-      color: 'white',
-      borderRadius: '12px 12px 0 0'
+      fontWeight: '700',
+      fontSize: '1.7em',
+      borderRadius: '10px 10px 0 0',
     },
     btnCerrar: {
       background: 'none',
       border: 'none',
-      color: 'white',
+      color: '#fff',
       fontSize: '24px',
       cursor: 'pointer',
-      padding: 0,
-      width: '40px',
-      height: '40px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: '50%',
-      transition: 'background-color 0.3s ease'
     },
     errorMessage: {
-      backgroundColor: '#f8d7da',
-      color: '#721c24',
-      padding: '15px',
-      borderRadius: '8px',
-      margin: '0 30px 25px 30px',
+      backgroundColor: '#fde2e1',
+      color: '#b71c1c',
+      padding: '15px 20px',
+      borderRadius: '10px',
+      margin: '20px 35px',
       border: '1px solid #f5c6cb',
-      fontWeight: '500'
-    },
-    loadingMessage: {
-      backgroundColor: '#d1ecf1',
-      color: '#0c5460',
-      padding: '15px',
-      borderRadius: '8px',
-      margin: '0 30px 25px 30px',
-      border: '1px solid #bee5eb',
       fontWeight: '500',
-      textAlign: 'center'
     },
     formGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '20px',
-      marginBottom: '30px',
-      padding: '0 30px'
+      gridTemplateColumns: '1fr 1fr',
+      columnGap: '30px',
+      rowGap: '22px',
+      padding: '30px 40px',
+      alignItems: 'center',
     },
     formGroup: {
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      width: '100%',
     },
     formLabel: {
-      marginBottom: '8px',
       fontWeight: '600',
-      color: '#2c3e50',
-      fontSize: '14px'
+      color: '#34495e',
+      marginBottom: '8px',
+      fontSize: '15px',
     },
     formInput: {
+      width: '100%',
       padding: '12px 15px',
-      border: '2px solid #e9ecef',
       borderRadius: '8px',
-      fontSize: '14px',
-      backgroundColor: '#f8f9fa',
+      border: '1.8px solid #e5e7eb',
+      backgroundColor: '#f9fafb',
+      fontSize: '15px',
+      color: '#2c3e50',
       outline: 'none',
-      transition: 'all 0.3s ease'
-    },
-    formInputDisabled: {
-      backgroundColor: '#e9ecef',
-      cursor: 'not-allowed',
-      opacity: 0.7
+      transition: 'all 0.3s ease',
     },
     formActions: {
       display: 'flex',
-      gap: '15px',
       justifyContent: 'flex-end',
-      padding: '20px 30px',
-      borderTop: '1px solid #e9ecef'
+      gap: '15px',
+      padding: '25px 40px',
+      borderTop: '1px solid #e9ecef',
+      backgroundColor: '#fafafa',
     },
     btnCancelar: {
-      padding: '12px 25px',
-      border: 'none',
-      borderRadius: '8px',
-      fontSize: '14px',
-      fontWeight: '600',
-      cursor: 'pointer',
       backgroundColor: '#6c757d',
-      color: 'white',
-      minWidth: '120px',
-      transition: 'all 0.3s ease'
+      color: '#fff',
+      border: 'none',
+      padding: '12px 30px',
+      borderRadius: '8px',
+      fontWeight: '600',
+      fontSize: '15px',
+      cursor: 'pointer',
     },
     btnGuardar: {
-      padding: '12px 25px',
+      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+      color: '#fff',
       border: 'none',
+      padding: '12px 30px',
       borderRadius: '8px',
-      fontSize: '14px',
       fontWeight: '600',
+      fontSize: '15px',
       cursor: 'pointer',
-      background: 'linear-gradient(135deg, #28a745, #20c997)',
-      color: 'white',
-      minWidth: '120px',
-      transition: 'all 0.3s ease'
+      transition: 'all 0.3s ease',
     },
-    btnDisabled: {
-      opacity: 0.6,
-      cursor: 'not-allowed',
-      transform: 'none'
+  };
+
+  const styleSheet = document.styleSheets[0];
+  styleSheet.insertRule(`
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-  };
-
-  const getInputStyle = (isDisabled = false) => {
-    const baseStyle = { ...styles.formInput };
-    if (isDisabled) {
-      return { ...baseStyle, ...styles.formInputDisabled };
-    }
-    return baseStyle;
-  };
-
-  const getButtonStyle = (isDisabled = false, isCancel = false) => {
-    const baseStyle = isCancel ? styles.btnCancelar : styles.btnGuardar;
-    if (isDisabled) {
-      return { ...baseStyle, ...styles.btnDisabled };
-    }
-    return baseStyle;
-  };
-
-  const handleInputFocus = (e, isDisabled) => {
-    if (!isDisabled) {
-      e.target.style.borderColor = '#667eea';
-      e.target.style.backgroundColor = 'white';
-      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-    }
-  };
-
-  const handleInputBlur = (e, isDisabled) => {
-    if (!isDisabled) {
-      e.target.style.borderColor = '#e9ecef';
-      e.target.style.backgroundColor = '#f8f9fa';
-      e.target.style.boxShadow = 'none';
-    }
-  };
-
-  const handleButtonHover = (e, isDisabled) => {
-    if (!isDisabled) {
-      e.target.style.transform = 'translateY(-2px)';
-    }
-  };
-
-  const handleButtonLeave = (e) => {
-    e.target.style.transform = 'none';
-  };
-
-  const handleCloseHover = (e) => {
-    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-  };
-
-  const handleCloseLeave = (e) => {
-    e.target.style.backgroundColor = 'transparent';
-  };
+  `, styleSheet.cssRules.length);
 
   if (cargandoDatos) {
     return (
       <div style={styles.modalOverlay}>
         <div style={styles.modalContent}>
           <div style={styles.modalHeader}>
-            <h2 style={{ margin: 0, fontSize: '1.5em', fontWeight: '600' }}>Editando Empleado</h2>
-            <button 
-              style={styles.btnCerrar} 
-              onClick={onClose}
-              onMouseOver={handleCloseHover}
-              onMouseOut={handleCloseLeave}
-            >
-              ×
-            </button>
+            <h2 style={{ margin: 0 }}>Editando Empleado</h2>
+            <button style={styles.btnCerrar} onClick={onClose}>×</button>
           </div>
-          <div style={styles.loadingMessage}>
-            Cargando datos del empleado...
-          </div>
+          <div style={{ padding: '25px', textAlign: 'center' }}>Cargando datos del empleado...</div>
         </div>
       </div>
     );
@@ -324,182 +223,59 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
     <div style={styles.modalOverlay}>
       <div style={styles.modalContent}>
         <div style={styles.modalHeader}>
-          <h2 style={{ margin: 0, fontSize: '1.5em', fontWeight: '600' }}>Editando Empleado: {empleado.nombre_completo}</h2>
-          <button 
-            style={styles.btnCerrar} 
-            onClick={onClose}
-            onMouseOver={handleCloseHover}
-            onMouseOut={handleCloseLeave}
-          >
-            ×
-          </button>
+          <h2 style={{ margin: 0 }}>Editando Empleado: {empleado.nombre_completo}</h2>
+          <button style={styles.btnCerrar} onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {error && (
-            <div style={styles.errorMessage}>
-              {error}
-            </div>
-          )}
+          {error && <div style={styles.errorMessage}>{error}</div>}
 
           <div style={styles.formGrid}>
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="nombre">Nombre *</label>
-              <input
-                style={getInputStyle(loading)}
-                type="text"
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-                placeholder="Ingrese el nombre"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
+            {[ 
+              ['Nombre *', 'nombre', 'text', formData.nombre],
+              ['Apellido *', 'apellido', 'text', formData.apellido],
+              ['Usuario *', 'usuario', 'text', formData.usuario],
+              ['Teléfono', 'telefono', 'tel', formData.telefono],
+              ['Correo Electrónico *', 'correo', 'email', formData.correo],
+              ['Salario', 'salario', 'number', formData.salario]
+            ].map(([label, name, type, value]) => (
+              <div style={styles.formGroup} key={name}>
+                <label style={styles.formLabel}>{label}</label>
+                <input
+                  style={styles.formInput}
+                  type={type}
+                  name={name}
+                  value={value}
+                  onChange={handleChange}
+                  required={label.includes('*')}
+                />
+              </div>
+            ))}
 
             <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="apellido">Apellido *</label>
-              <input
-                style={getInputStyle(loading)}
-                type="text"
-                id="apellido"
-                name="apellido"
-                value={formData.apellido}
-                onChange={handleChange}
-                required
-                placeholder="Ingrese el apellido"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="usuario">Usuario *</label>
-              <input
-                style={getInputStyle(loading)}
-                type="text"
-                id="usuario"
-                name="usuario"
-                value={formData.usuario}
-                onChange={handleChange}
-                required
-                placeholder="Ingrese el nombre de usuario"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="contrasena">Contraseña</label>
-              <input
-                style={getInputStyle(loading)}
-                type="password"
-                id="contrasena"
-                name="contrasena"
-                value={formData.contrasena}
-                onChange={handleChange}
-                placeholder="Dejar vacío para mantener la actual"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="telefono">Teléfono</label>
-              <input
-                style={getInputStyle(loading)}
-                type="tel"
-                id="telefono"
-                name="telefono"
-                value={formData.telefono}
-                onChange={handleChange}
-                placeholder="Ingrese el teléfono"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="correo">Correo Electrónico *</label>
-              <input
-                style={getInputStyle(loading)}
-                type="email"
-                id="correo"
-                name="correo"
-                value={formData.correo}
-                onChange={handleChange}
-                required
-                placeholder="ejemplo@correo.com"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="salario">Salario</label>
-              <input
-                style={getInputStyle(loading)}
-                type="number"
-                id="salario"
-                name="salario"
-                value={formData.salario}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.formLabel} htmlFor="codigo_perfil">Perfil *</label>
+              <label style={styles.formLabel}>Perfil *</label>
               <select
-                style={getInputStyle(loading)}
-                id="codigo_perfil"
+                style={styles.formInput}
                 name="codigo_perfil"
                 value={formData.codigo_perfil}
                 onChange={handleChange}
                 required
-                disabled={loading}
-                onFocus={(e) => handleInputFocus(e, loading)}
-                onBlur={(e) => handleInputBlur(e, loading)}
               >
-                <option value="1">Administrador</option>
-                <option value="2">Contador</option>
-                <option value="3">Vendedor</option>
-                <option value="4">Joyero</option>
+                <option value="">Seleccione un perfil</option>
+                {perfiles.map((perfil) => (
+                  <option key={perfil.codigo_perfil} value={perfil.codigo_perfil}>
+                    {perfil.perfil}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           <div style={styles.formActions}>
-            <button 
-              type="button" 
-              style={getButtonStyle(loading, true)}
-              onClick={onClose}
-              disabled={loading}
-              onMouseOver={(e) => handleButtonHover(e, loading)}
-              onMouseOut={handleButtonLeave}
-            >
+            <button type="button" style={styles.btnCancelar} onClick={onClose}>
               Cancelar
             </button>
-            <button 
-              type="submit" 
-              style={getButtonStyle(loading, false)}
-              disabled={loading}
-              onMouseOver={(e) => handleButtonHover(e, loading)}
-              onMouseOut={handleButtonLeave}
-            >
+            <button type="submit" style={styles.btnGuardar} disabled={loading}>
               {loading ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>

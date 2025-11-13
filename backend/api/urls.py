@@ -22,6 +22,17 @@ router.register(r'proveedores', views.ProvedorViewSet, basename='proveedores')
 router.register(r'perfiles', views.PerfilEmpleadoViewSet, basename='perfiles')
 
 urlpatterns = [
+
+    path('empleados/<int:pk>/eliminar/', views.eliminar_empleado, name='eliminar_empleado'),
+    path('empleados/<int:pk>/actualizar/', views.actualizar_empleado, name='actualizar_empleado'),
+    path('empleados/nuevo/', views.crear_empleado, name='crear_empleado'),
+    path('empleados/<int:pk>/', views.empleado_detalle, name='empleado_detalle'),
+    path('empleados/', views.lista_empleados, name='lista_empleados'),
+    
+    # POST para crear empleados
+   
+
+    path('empleados/<int:pk>/', views.empleado_detalle, name='empleado_detalle'),
     # ========================================
     # RUTAS DE FACTURAS (DEBEN IR ANTES DEL ROUTER)
     # ========================================
@@ -95,6 +106,19 @@ urlpatterns = [
     path('detalles-factura/crear/', views.crear_detalle_factura, name='crear-detalle-factura'),
     path('detalles-factura/<int:id_detalle>/actualizar/', views.actualizar_detalle_factura, name='actualizar-detalle-factura'),
     path('detalles-factura/<int:id_detalle>/eliminar/', views.eliminar_detalle_factura, name='eliminar-detalle-factura'),
+
+
+# ========================================
+    # RUTAS DE EMPLEADOS
+    # ========================================
+
+
+   
+
+  #  path('empleados/eliminar/<int:pk>/', views.empleado_eliminar, name='empleado_eliminar'),
+
+  path('perfiles/', views.lista_perfiles, name='lista_perfiles'),
+
 ]
 
 # Configuración para el nombre de la app
