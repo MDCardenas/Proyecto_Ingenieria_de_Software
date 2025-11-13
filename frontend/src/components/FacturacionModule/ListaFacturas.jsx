@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react"; 
 import { 
   FaSearch, FaFileInvoice, FaCheck, FaClock, FaEye, 
   FaBox, FaTools, FaSync, FaMoneyBillWave, FaReceipt,
   FaFilter, FaTimes, FaExclamationTriangle
 } from "react-icons/fa";
+import ModalDetalleFactura from "./ModalDetalleFactura";
 
 export default function ListaFacturas() {
   const [facturas, setFacturas] = useState([]);
@@ -13,6 +14,10 @@ export default function ListaFacturas() {
   const [cargando, setCargando] = useState(true);
   const [actualizando, setActualizando] = useState({});
   const [error, setError] = useState(null);
+  
+  // Estados para el modal
+  const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
 
   // Cargar facturas al montar el componente
   useEffect(() => {
@@ -60,7 +65,6 @@ export default function ListaFacturas() {
       console.log('📤 Enviando PATCH a:', `http://localhost:8000/api/facturas/${numeroFactura}/`);
       console.log('📦 Payload:', payload);
 
-      // URL CORREGIDA - sin /estado-pago/
       const response = await fetch(`http://localhost:8000/api/facturas/${numeroFactura}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -81,7 +85,7 @@ export default function ListaFacturas() {
       // Actualizar estado local
       setFacturas(prev => prev.map(f => 
         f.numero_factura === numeroFactura 
-          ? { ...f, ...resultado }  // Usar resultado directamente
+          ? { ...f, ...resultado }
           : f
       ));
       
@@ -95,12 +99,17 @@ export default function ListaFacturas() {
     }
   };
 
-  // Función para ver detalles de factura
+  // Función para ver detalles de factura (ABRIR MODAL)
   const verDetallesFactura = (factura) => {
-    console.log('Ver detalles de factura:', factura);
-    // Aquí puedes implementar la navegación a la vista de detalles
-    // o mostrar un modal con la información completa
-    alert(`Detalles de Factura #${factura.numero_factura}\nCliente: ${factura.cliente_nombre}\nTotal: L. ${factura.total}`);
+    console.log('Abriendo modal para factura:', factura);
+    setFacturaSeleccionada(factura);
+    setModalAbierto(true);
+  };
+
+  // Función para cerrar el modal
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setFacturaSeleccionada(null);
   };
 
   // Filtrar facturas con useMemo para optimización
@@ -185,7 +194,7 @@ export default function ListaFacturas() {
   }
 
   return (
-    <div className="lista-facturas-container">
+    <div className="lista-facturas-container" style={{ overflow: 'visible', minHeight: 'auto' }}>
       {/* Header con estadísticas */}
       <div className="header-lista-facturas">
         <div className="estadisticas-rapidas">
@@ -322,7 +331,7 @@ export default function ListaFacturas() {
       </div>
 
       {/* Grid de facturas */}
-      <div className="grid-facturas">
+      <div className="grid-facturas" style={{ overflow: 'visible' }}>
         {facturasFiltradas.length > 0 ? (
           facturasFiltradas.map((factura) => (
             <div 
@@ -461,6 +470,14 @@ export default function ListaFacturas() {
           </div>
         )}
       </div>
+
+      {/* Modal de detalles de factura */}
+      {modalAbierto && facturaSeleccionada && (
+        <ModalDetalleFactura 
+          factura={facturaSeleccionada}
+          onCerrar={cerrarModal}
+        />
+      )}
     </div>
   );
 }

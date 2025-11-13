@@ -564,3 +564,179 @@
     padding: 1rem;
   }
 }
+
+
+/* ========================================
+   TABLA DE CLIENTES SIMPLIFICADA
+   ======================================== */
+
+   
+.tabla-clientes-simple {
+  width: 100%;
+  border-collapse: collapse;
+  
+  @include responsive(md) {
+    min-width: 700px;
+  }
+
+  th {
+    background: $gray-50;
+    padding: $spacing-md;
+    text-align: left;
+    font-weight: $font-weight-semibold;
+    color: $gray-700;
+    border-bottom: 2px solid $gray-200;
+    font-size: $font-size-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: $spacing-md;
+    border-bottom: 1px solid $gray-100;
+    font-size: $font-size-sm;
+    vertical-align: middle;
+  }
+}
+
+.cliente-nombre {
+  .nombre-completo {
+    font-weight: $font-weight-semibold;
+    color: $gray-800;
+    margin-bottom: $spacing-xs;
+  }
+  
+  .cliente-id {
+    small {
+      color: $gray-500;
+      font-size: $font-size-xs;
+    }
+  }
+}
+
+.cliente-identidad {
+  .identidad-valor {
+    font-family: 'Courier New', monospace;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+  }
+}
+
+.cliente-correo,
+.cliente-telefono {
+  .correo-item,
+  .telefono-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+  
+  .correo-icon,
+  .telefono-icon {
+    color: $gray-500;
+    font-size: $font-size-sm;
+    flex-shrink: 0;
+  }
+  
+  .correo-valor,
+  .telefono-valor {
+    color: $gray-700;
+    word-break: break-all;
+  }
+}
+
+/* Estados para valores no especificados */
+.correo-valor:empty::before,
+.telefono-valor:empty::before {
+  content: "No especificado";
+  color: $gray-400;
+  font-style: italic;
+}
+
+/* Botones de acción mejorados */
+.acciones-tabla {
+  display: flex;
+  justify-content: center;
+  
+  .btn-editar,
+  .btn-eliminar {
+    padding: $spacing-xs $spacing-md;
+    border: none;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    transition: all $transition-fast;
+    min-width: 80px;
+    justify-content: center;
+    
+    @include responsive(md) {
+      min-width: 60px;
+      padding: $spacing-xs;
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+  
+  .btn-editar {
+    background: $info-color;
+    color: $text-light;
+    
+    &:hover:not(:disabled) {
+      background: $info-dark;
+      transform: translateY(-1px);
+    }
+  }
+  
+  .btn-eliminar {
+    background: $error-color;
+    color: $text-light;
+    
+    &:hover:not(:disabled) {
+      background: $error-dark;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* Responsive para tabla simplificada */
+@include responsive(md) {
+  .tabla-clientes-simple {
+    th, td {
+      padding: $spacing-sm;
+    }
+    
+    .cliente-correo,
+    .cliente-telefono {
+      .correo-item,
+      .telefono-item {
+        flex-direction: column;
+        gap: $spacing-xs;
+        align-items: flex-start;
+      }
+    }
+    
+    .acciones-tabla {
+      .btn-editar,
+      .btn-eliminar {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@include responsive(sm) {
+  .tabla-clientes-simple {
+    font-size: $font-size-xs;
+    
+    th, td {
+      padding: $spacing-xs $spacing-sm;
+    }
+  }
+}

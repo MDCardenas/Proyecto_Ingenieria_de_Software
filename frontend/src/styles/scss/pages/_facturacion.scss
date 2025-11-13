@@ -1,0 +1,304 @@
+// _FacturacionModule.scss
+@import '../abstracts/_variables';
+@import '../abstracts/_mixins';
+
+/* ============ MÓDULO PRINCIPAL - SIN SCROLL ============ */
+.facturacion-module {
+  height: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+}
+
+/* ============ HEADER ============ */
+.facturacion-header {
+  flex-shrink: 0;
+  background: white;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.texto-header {
+  flex: 1;
+}
+
+.facturacion-title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.facturacion-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0.25rem 0 0 0;
+}
+
+/* ============ BOTÓN NUEVA FACTURA ============ */
+.boton-nueva-factura {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgb(185, 25, 238);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.icono-plus {
+  font-size: 16px;
+}
+
+.boton-nueva-factura:hover {
+  background-color: rgb(200, 90, 245);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(185, 25, 238, 0.3);
+}
+
+/* ============ PANTALLA DE ACCIÓN - SIN SCROLL ============ */
+.pantalla-accion {
+  flex: 1;
+  overflow: visible !important;
+  padding: 20px;
+  min-height: auto;
+}
+
+/* ============ PLACEHOLDER CENTRADO ============ */
+.placeholder-factura {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* ============ BOTONES DE OPCIONES ============ */
+.opciones-factura {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeIn 0.4s ease-in-out;
+  margin-bottom: 2rem;
+}
+
+.btn-opcion {
+  background-color: rgb(185, 25, 238);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.btn-opcion:hover {
+  background-color: rgb(200, 90, 245);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(185, 25, 238, 0.3);
+}
+
+/* ============ CONTENIDO DE FACTURA - SIN SCROLL ============ */
+.factura-contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: auto;
+  overflow: visible !important;
+}
+
+.form-title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ============ ELIMINADO CONTENIDO CON SCROLL ============ */
+/* SE ELIMINA COMPLETAMENTE .contenido-con-scroll */
+
+/* ============ FORMULARIO DE FACTURA - SIN SCROLL ============ */
+.form-factura {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-height: auto;
+  overflow: visible !important;
+}
+
+.form-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  flex: 1;
+  overflow: visible !important;
+}
+
+.form-campos h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0.5rem 0;
+}
+
+/* ============ BOTONES FIJOS ============ */
+.botones-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.9rem 0;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin: 20px 0 0 0;
+  background: transparent;
+  border: none;
+}
+
+.btn-submit,
+.btn-cancel {
+  flex: 0 0 auto;
+  padding: 0.5rem 1.1rem;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.12s, background-color 0.12s, box-shadow 0.2s;
+  min-width: 110px;
+  max-width: 180px;
+}
+
+.btn-submit {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-submit:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-submit:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-cancel {
+  background-color: #6b7280;
+  color: #ffffff;
+}
+
+.btn-cancel:hover {
+  background-color: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.btn-cancel:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============ ANIMACIONES ============ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============ RESPONSIVE ============ */
+@include responsive(md) {
+  .botones-container {
+    max-width: 100%;
+  }
+  
+  .facturacion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  
+  .boton-nueva-factura {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .opciones-factura {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-opcion {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .botones-container {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.9rem 0;
+    gap: 0.75rem;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
+    max-width: none;
+    width: 100%;
+    min-width: auto;
+  }
+
+  .pantalla-accion {
+    padding: 1rem;
+  }
+  
+  .form-title {
+    font-size: 1.2rem;
+  }
+  
+  .form-campos h3 {
+    font-size: 1.1rem;
+  }
+}
+
+@include responsive(sm) {
+  .botones-container {
+    max-width: 100%;
+    padding: 0.75rem 0;
+  }
+  
+  .pantalla-accion {
+    padding: 0.75rem;
+  }
+  
+  .facturacion-title {
+    font-size: 1.5rem;
+  }
+  
+  .facturacion-subtitle {
+    font-size: 0.875rem;
+  }
+}

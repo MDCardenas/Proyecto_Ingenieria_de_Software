@@ -1,0 +1,191 @@
+@import '../abstracts/_variables';
+@import '../abstracts/_mixins';
+
+/* ============ ESTILOS ESPECÍFICOS PARA EL MODAL ============ */
+.modal-overlay-factura {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 9999 !important;
+  padding: 20px !important;
+}
+
+.modal-contenido-factura {
+  background: white !important;
+  border-radius: 12px !important;
+  width: 95% !important;
+  max-width: 1000px !important;
+  max-height: 95vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  z-index: 10000 !important;
+}
+
+.modal-header-factura {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 20px 30px !important;
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.modal-header-factura h2 {
+  margin: 0 !important;
+  color: #2c3e50 !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.btn-cerrar {
+  background: none !important;
+  border: none !important;
+  font-size: 1.25rem !important;
+  color: #6b7280 !important;
+  cursor: pointer !important;
+  padding: 5px !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-cerrar:hover {
+  color: #374151 !important;
+  background: #e5e7eb !important;
+}
+
+.modal-body-factura {
+  flex: 1 !important;
+  overflow: auto !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.modal-footer-factura {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 1rem !important;
+  padding: 20px 30px !important;
+  background: #f8f9fa !important;
+  border-top: 1px solid #dee2e6 !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+/* Botones del footer */
+.btn-descargar, .btn-imprimir, .btn-cerrar-footer {
+  padding: 10px 20px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-descargar {
+  background: #10b981 !important;
+  color: white !important;
+}
+
+.btn-descargar:hover {
+  background: #059669 !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-imprimir {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.btn-imprimir:hover {
+  background: #2563eb !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-cerrar-footer {
+  background: #6b7280 !important;
+  color: white !important;
+}
+
+.btn-cerrar-footer:hover {
+  background: #4b5563 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* VISTA PREVIA DE LA FACTURA EN EL MODAL */
+.vista-previa-factura {
+  padding: 20px !important;
+  background: white !important;
+  overflow: auto !important;
+  max-height: calc(95vh - 200px) !important;
+}
+
+/* ESTILOS PARA EL FORMATO DE FACTURA DENTRO DEL MODAL */
+.modal-body-factura .formato-factura-pdf {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  background: white !important;
+  color: black !important;
+  padding: 20px !important;
+  transform: scale(0.9) !important;
+  transform-origin: top center !important;
+  min-height: auto !important;
+  margin: 0 auto !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Reset para elementos dentro del formato de factura */
+.modal-body-factura .formato-factura-pdf * {
+  box-sizing: border-box !important;
+  color: inherit !important;
+  font-family: inherit !important;
+}
+
+/* ============ RESPONSIVE ============ */
+@include responsive(md) {
+  .modal-overlay-factura {
+    padding: 10px !important;
+  }
+  
+  .modal-contenido-factura {
+    width: 98% !important;
+    max-height: 98vh !important;
+  }
+  
+  .modal-header-factura,
+  .modal-footer-factura {
+    padding: 15px 20px !important;
+  }
+  
+  .modal-body-factura .formato-factura-pdf {
+    padding: 15px !important;
+    transform: scale(0.95) !important;
+  }
+  
+  .modal-footer-factura {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .btn-descargar, .btn-imprimir, .btn-cerrar-footer {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

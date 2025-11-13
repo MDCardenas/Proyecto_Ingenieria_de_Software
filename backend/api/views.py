@@ -48,6 +48,99 @@ class CotizacionViewSet(viewsets.ModelViewSet):
     queryset = TblCotizaciones.objects.all()
     serializer_class = CotizacionSerializer
 
+
+    # Metodos Personalizados
+
+    def get_queryset(self):
+        """Filtrar cotizaciones por estado si se proporciona"""
+        queryset = TblCotizaciones.objects.all()
+        estado = self.request.query_params.get('estado', None)
+        
+        if estado:
+            queryset = queryset.filter(estado=estado)
+        
+        return queryset.order_by('-fecha_creacion')
+    
+    @action(detail=True, methods=['post'])
+    def convertir_a_factura(self, request, pk=None):
+        """Convertir cotización a factura - acción personalizada"""
+        cotizacion = self.get_object()
+        
+        try:
+            # Crear factura a partir de la cotización
+            factura = TblFacturas.objects.create(
+                id_cliente=cotizacion.id_cliente,
+                id_empleado=cotizacion.id_empleado,
+                fecha=datetime.now(),
+                direccion=cotizacion.direccion,
+                telefono=cotizacion.telefono,
+                rtn=cotizacion.rtn,
+                subtotal=cotizacion.subtotal,
+                descuento=cotizacion.descuento,
+                isv=cotizacion.isv,
+                total=cotizacion.total,
+                tipo_venta=cotizacion.tipo_servicio,
+                observaciones=cotizacion.observaciones,
+                estado_pago='PENDIENTE'
+            )
+            
+            # Actualizar cotización
+            cotizacion.numero_factura_conversion = factura
+            cotizacion.fecha_conversion = datetime.now()
+            cotizacion.estado = 'CONVERTIDA'
+            cotizacion.save()
+            
+            return Response({
+                'success': True,
+                'message': 'Cotización convertida a factura exitosamente',
+                'factura': FacturaSerializer(factura).data,
+                'numero_factura': factura.numero_factura
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': f'Error al convertir cotización: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=False, methods=['get'])
+    def activas(self, request):
+        """Obtener solo cotizaciones activas"""
+        cotizaciones = TblCotizaciones.objects.filter(estado='ACTIVA').order_by('-fecha_creacion')
+        serializer = self.get_serializer(cotizaciones, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def vencidas(self, request):
+        """Obtener cotizaciones vencidas"""
+        hoy = datetime.now().date()
+        cotizaciones = TblCotizaciones.objects.filter(
+            fecha_vencimiento__lt=hoy,
+            estado='ACTIVA'
+        ).order_by('-fecha_creacion')
+        serializer = self.get_serializer(cotizaciones, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def por_cliente(self, request):
+        """Obtener cotizaciones por cliente"""
+        id_cliente = request.query_params.get('cliente_id')
+        if not id_cliente:
+            return Response({
+                'error': 'Parámetro cliente_id es requerido'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        cotizaciones = TblCotizaciones.objects.filter(id_cliente=id_cliente)
+        serializer = self.get_serializer(cotizaciones, many=True)
+        return Response(serializer.data)
+
+
+
+
+
+
+
+
 class OrdenTrabajoViewSet(viewsets.ModelViewSet):
     queryset = TblOrdenesTrabajo.objects.all()
     serializer_class = OrdenTrabajoSerializer
@@ -459,7 +552,7 @@ def obtener_detalles_factura(request, numero_factura):
     return Response(serializer.data)
 
 # ========================================
-# COTIZACIONES
+# COTIZACIONES - ENDPOINTS ADICIONALES
 # ========================================
 
 @api_view(['POST'])
@@ -512,6 +605,150 @@ def cotizaciones_vencidas(request):
     )
     serializer = CotizacionSerializer(cotizaciones, many=True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+def crear_cotizacion_completa(request):
+    """Crear cotización completa con validación"""
+    try:
+        # Validar datos requeridos
+        required_fields = ['id_cliente', 'id_empleado', 'subtotal', 'isv', 'total']
+        for field in required_fields:
+            if field not in request.data:
+                return Response({
+                    'success': False,
+                    'error': f'Campo requerido faltante: {field}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Crear cotización
+        cotizacion_data = {
+            'id_cliente_id': request.data['id_cliente'],
+            'id_empleado_id': request.data['id_empleado'],
+            'fecha_vencimiento': request.data.get('fecha_vencimiento'),
+            'direccion': request.data.get('direccion', ''),
+            'telefono': request.data.get('telefono', ''),
+            'rtn': request.data.get('rtn', ''),
+            'subtotal': Decimal(str(request.data['subtotal'])),
+            'descuento': Decimal(str(request.data.get('descuento', 0))),
+            'isv': Decimal(str(request.data['isv'])),
+            'total': Decimal(str(request.data['total'])),
+            'tipo_servicio': request.data.get('tipo_servicio', 'REPARACIÓN'),
+            'observaciones': request.data.get('observaciones', '')
+        }
+        
+        cotizacion = TblCotizaciones.objects.create(**cotizacion_data)
+        
+        return Response({
+            'success': True,
+            'message': 'Cotización creada exitosamente',
+            'cotizacion': CotizacionSerializer(cotizacion).data,
+            'numero_cotizacion': cotizacion.numero_cotizacion
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Error al crear cotización: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['PUT'])
+def actualizar_cotizacion(request, numero_cotizacion):
+    """Actualizar una cotización existente"""
+    try:
+        cotizacion = TblCotizaciones.objects.get(numero_cotizacion=numero_cotizacion)
+    except TblCotizaciones.DoesNotExist:
+        return Response({
+            'error': 'Cotización no encontrada'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = CotizacionSerializer(cotizacion, data=request.data, partial=True)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            'success': True,
+            'message': 'Cotización actualizada exitosamente',
+            'cotizacion': serializer.data
+        })
+    
+    return Response({
+        'success': False,
+        'errors': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def anular_cotizacion(request, numero_cotizacion):
+    """Anular una cotización"""
+    try:
+        cotizacion = TblCotizaciones.objects.get(numero_cotizacion=numero_cotizacion)
+        
+        if cotizacion.estado == 'CONVERTIDA':
+            return Response({
+                'success': False,
+                'error': 'No se puede anular una cotización ya convertida a factura'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        cotizacion.estado = 'ANULADA'
+        cotizacion.observaciones = request.data.get('observaciones', 'Cotización anulada')
+        cotizacion.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Cotización anulada exitosamente'
+        })
+        
+    except TblCotizaciones.DoesNotExist:
+        return Response({
+            'error': 'Cotización no encontrada'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def dashboard_cotizaciones(request):
+    """Dashboard específico para cotizaciones"""
+    try:
+        # Estadísticas generales
+        total_cotizaciones = TblCotizaciones.objects.count()
+        cotizaciones_activas = TblCotizaciones.objects.filter(estado='ACTIVA').count()
+        cotizaciones_convertidas = TblCotizaciones.objects.filter(estado='CONVERTIDA').count()
+        
+        # Cotizaciones del mes actual
+        hoy = datetime.now()
+        primer_dia_mes = hoy.replace(day=1)
+        cotizaciones_mes = TblCotizaciones.objects.filter(
+            fecha_creacion__gte=primer_dia_mes
+        ).aggregate(
+            total=Count('numero_cotizacion'),
+            valor_total=Sum('total')
+        )
+        
+        # Cotizaciones próximas a vencer (próximos 7 días)
+        fecha_limite = hoy.date() + timedelta(days=7)
+        cotizaciones_proximas_vencer = TblCotizaciones.objects.filter(
+            fecha_vencimiento__gte=hoy.date(),
+            fecha_vencimiento__lte=fecha_limite,
+            estado='ACTIVA'
+        ).count()
+        
+        # Tasa de conversión (cotizaciones convertidas vs total)
+        tasa_conversion = 0
+        if total_cotizaciones > 0:
+            tasa_conversion = (cotizaciones_convertidas / total_cotizaciones) * 100
+        
+        return Response({
+            'estadisticas': {
+                'total_cotizaciones': total_cotizaciones,
+                'cotizaciones_activas': cotizaciones_activas,
+                'cotizaciones_convertidas': cotizaciones_convertidas,
+                'cotizaciones_mes_actual': cotizaciones_mes['total'] or 0,
+                'valor_total_mes': float(cotizaciones_mes['valor_total'] or 0),
+                'cotizaciones_proximas_vencer': cotizaciones_proximas_vencer,
+                'tasa_conversion': round(tasa_conversion, 2)
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'error': f'Error al generar dashboard: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # ========================================
 # INVENTARIO

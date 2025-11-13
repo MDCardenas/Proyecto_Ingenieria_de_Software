@@ -1,8 +1,8 @@
 // src/pages/Login.jsx
 import { useState } from "react";
 import axios from "axios";
-import "../styles/scss/main.scss";
 import { useNavigate } from "react-router-dom";
+import "../styles/scss/main.scss";
 
 function Login({ onLogin }) {
   const [usuarioOCorreo, setUsuarioOCorreo] = useState("");
@@ -11,45 +11,93 @@ function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Regex corregidos para validar campos y prevenir inyección SQL
+  const validarCampo = (valor) => {
+    // Permite letras, números, @, ., -, _ y espacios (solo para nombres)
+    // Bloquea caracteres peligrosos para SQL
+    const regex = /^[a-zA-Z0-9@._\-\sáéíóúÁÉÍÓÚñÑüÜ]+$/;
+    return regex.test(valor);
+  };
+
+  const validarLongitud = (valor) => {
+    return valor.length >= 1 && valor.length <= 100;
+  };
+
+  const sanitizarInput = (valor) => {
+    // Elimina caracteres peligrosos: ; ' " -- /* */ = ( ) < > | & \
+    return valor.trim().replace(/[;'"\\=<>()&|*\/\-]/g, '');
+  };
+
+  const detectarInyeccionSQL = (valor) => {
+    // Patrones comunes de inyección SQL
+    const patronesPeligrosos = [
+      /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|OR|AND|EXEC|CREATE|ALTER)\b)/i,
+      /('|"|;|--|\/\*|\*\/|=|\(|\)|<|>|\|)/,
+      /(\b(1=1|0=0|OR\s+'1'='1'|AND\s+'1'='1')\b)/i
+    ];
+    
+    return patronesPeligrosos.some(patron => patron.test(valor));
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
+    // Validar campos vacíos
     if (!usuarioOCorreo || !contrasena) {
       setError("Debes ingresar usuario/correo y contraseña");
       setLoading(false);
       return;
     }
 
+    // Validar longitud
+    if (!validarLongitud(usuarioOCorreo) || !validarLongitud(contrasena)) {
+      setError("Los campos deben tener entre 1 y 100 caracteres");
+      setLoading(false);
+      return;
+    }
+
+    // Validar con regex
+    if (!validarCampo(usuarioOCorreo)) {
+      setError("El usuario/correo contiene caracteres no permitidos");
+      setLoading(false);
+      return;
+    }
+
+    if (!validarCampo(contrasena)) {
+      setError("La contraseña contiene caracteres no permitidos");
+      setLoading(false);
+      return;
+    }
+
+    // Detectar patrones de inyección SQL
+    if (detectarInyeccionSQL(usuarioOCorreo) || detectarInyeccionSQL(contrasena)) {
+      setError("Se detectaron patrones de seguridad no permitidos");
+      setLoading(false);
+      return;
+    }
+
     try {
+      // Sanitizar inputs (como capa adicional de seguridad)
+      const usuarioSanitizado = sanitizarInput(usuarioOCorreo);
+      const contrasenaSanitizada = sanitizarInput(contrasena);
+      
       // Determinar si es correo o usuario
-      const esCorreo = usuarioOCorreo.includes("@");
+      const esCorreo = usuarioSanitizado.includes("@");
       
       const payload = {
-        usuario: esCorreo ? "" : usuarioOCorreo,
-        correo: esCorreo ? usuarioOCorreo : "",
-        contrasena: contrasena
+        usuario: esCorreo ? "" : usuarioSanitizado,
+        correo: esCorreo ? usuarioSanitizado : "",
+        contrasena: contrasenaSanitizada
       };
 
-      console.log("Enviando datos de login:", payload);
 
       const res = await axios.post("http://127.0.0.1:8000/api/login/", payload);
-      console.log("Respuesta completa del servidor:", res);
+      
 
       if (res.data.success) {
         const empleado = res.data.empleado;
-        
-        // DEBUG: Mostrar estructura completa
-        console.log("=== DATOS DEL EMPLEADO ===");
-        console.log("Empleado completo:", empleado);
-        console.log("Keys del objeto:", Object.keys(empleado));
-        console.log("perfil_nombre:", empleado.perfil_nombre);
-        console.log("codigo_perfil:", empleado.codigo_perfil);
-        console.log("rol:", empleado.rol);
-        console.log("nombre:", empleado.nombre);
-        console.log("==========================");
-        
         // Guardar en localStorage
         localStorage.setItem("empleado", JSON.stringify(empleado));
         localStorage.setItem("token", "authenticated");
@@ -58,12 +106,7 @@ function Login({ onLogin }) {
         onLogin(empleado);
 
         // DEBUG: Mostrar todos los datos disponibles para determinar el perfil
-        console.log("=== DATOS COMPLETOS DEL EMPLEADO ===");
-        console.log("Empleado:", empleado);
-        console.log("codigo_perfil:", empleado.codigo_perfil);
-        console.log("perfil_nombre:", empleado.perfil_nombre);
-        console.log("rol:", empleado.rol);
-        console.log("==========================");
+      
 
         // Determinar la ruta basada en el código de perfil o nombre
         let redirectPath = "/admin"; // Por defecto
@@ -71,7 +114,7 @@ function Login({ onLogin }) {
         // Opción 1: Basado en codigo_perfil (numérico)
         if (empleado.codigo_perfil === 1) {
           redirectPath = "/admin";
-        } else if (empleado.codigo_perfil === 1) {
+        } else if (empleado.codigo_perfil === 2) {
           redirectPath = "/gerente";
         } else if (empleado.codigo_perfil === 3) {
           redirectPath = "/empleado";
@@ -99,7 +142,6 @@ function Login({ onLogin }) {
           }
         }
 
-        console.log("Redirigiendo a:", redirectPath);
         navigate(redirectPath, { replace: true });
       } else {
         setError(res.data.error || "Usuario/correo o contraseña incorrectos");
