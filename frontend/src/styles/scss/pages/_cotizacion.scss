@@ -1,0 +1,195 @@
+// styles/scss/components/_cotizacionesModule.scss
+@import '../abstracts/_variables';
+@import '../abstracts/_mixins';
+
+.cotizaciones-module {
+  padding: $spacing-xl;
+  background-color: $gray-50;
+  min-height: 100vh;
+
+  @include responsive(md) {
+    padding: $spacing-md;
+  }
+
+  @include responsive(sm) {
+    padding: $spacing-sm;
+  }
+}
+
+.module-header {
+  background: $bg-primary;
+  padding: $spacing-xl;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $gray-800;
+    margin: 0 0 $spacing-xs 0;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+  }
+
+  p {
+    color: $gray-600;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+
+  @include responsive(md) {
+    padding: $spacing-lg;
+    
+    h1 {
+      font-size: $font-size-xl;
+    }
+  }
+}
+
+// Estados de cotizaciones
+.estado-activa {
+  background-color: lighten($success-color, 40%); // ✅ CORREGIDO: $success-light → lighten($success-color, 40%)
+  color: $success-dark;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-convertida {
+  background-color: lighten($info-color, 40%); // ✅ CORREGIDO: $info-light → lighten($info-color, 40%)
+  color: $info-dark;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-anulada {
+  background-color: lighten($error-color, 40%); // ✅ CORREGIDO: $danger-light → lighten($error-color, 40%)
+  color: $error-dark;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-vencida {
+  background-color: lighten($warning-color, 40%); // ✅ CORREGIDO: $warning-light → lighten($warning-color, 40%)
+  color: $warning-dark;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Botones de acción específicos
+.btn-convertir {
+  background-color: $success-color !important;
+  border-color: $success-color !important;
+  color: $text-light !important;
+
+  &:hover {
+    background-color: $success-dark !important;
+    border-color: $success-dark !important;
+  }
+}
+
+.btn-anular {
+  background-color: $error-color !important; // ✅ CORREGIDO: $danger-color → $error-color
+  border-color: $error-color !important;
+  color: $text-light !important;
+
+  &:hover {
+    background-color: $error-dark !important; // ✅ CORREGIDO: $danger-dark → $error-dark
+    border-color: $error-dark !important;
+  }
+}
+
+.btn-editar {
+  background-color: $warning-color !important;
+  border-color: $warning-color !important;
+  color: $text-light !important;
+
+  &:hover {
+    background-color: $warning-dark !important;
+    border-color: $warning-dark !important;
+  }
+}
+
+.btn-ver {
+  background-color: $info-color !important;
+  border-color: $info-color !important;
+  color: $text-light !important;
+
+  &:hover {
+    background-color: $info-dark !important;
+    border-color: $info-dark !important;
+  }
+}
+
+
+/* ------------ BOTON DE VER COTIZACION ---------------- */
+.acciones-cotizaciones {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-accion {
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+
+  &:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-ver {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-editar {
+  background-color: #ffc107;
+  color: white;
+}
+
+.btn-factura {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-anular {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.btn-eliminar {
+  background-color: #dc3545;
+  color: white;
+}

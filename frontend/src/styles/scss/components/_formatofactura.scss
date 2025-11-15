@@ -686,3 +686,82 @@
     justify-content: center !important;
   }
 }
+
+
+// Estilos para versión compacta
+.compacto {
+  .contenido-seccion {
+    padding: 6px 0 !important;
+  }
+  
+  .grid-cliente {
+    gap: 8px !important;
+  }
+  
+  .campo-cliente {
+    min-height: auto !important;
+    padding: 4px 0 !important;
+  }
+}
+
+// Tablas compactas
+.tabla-moderna.compacta {
+  th, td {
+    padding: 3px 5px !important;
+    font-size: 0.85em !important;
+  }
+}
+
+// Términos compactos
+.terminos-compactos {
+  .linea-termino {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 0.9em;
+    
+    .icono {
+      font-size: 0.8em;
+    }
+  }
+}
+
+// Firmas más compactas
+.seccion-final.compacto {
+  margin-top: 15px;
+  
+  .firmas {
+    margin-top: 20px;
+    gap: 40px;
+  }
+  
+  .linea-firma {
+    margin-bottom: 5px;
+  }
+}
+
+// Pie de página compacto
+.pie-pagina.compacto {
+  margin-top: 15px;
+  padding: 8px 0;
+  font-size: 0.8em;
+  
+  p {
+    margin: 2px 0;
+  }
+}
+
+// Mejor manejo de saltos de página para PDF
+@media print {
+  .formato-factura-pdf {
+    .seccion-final {
+      page-break-inside: avoid;
+    }
+    
+    .pie-pagina {
+      position: relative;
+      bottom: 0;
+    }
+  }
+}

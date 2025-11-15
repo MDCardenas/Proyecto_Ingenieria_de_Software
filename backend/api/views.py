@@ -677,29 +677,65 @@ def actualizar_cotizacion(request, numero_cotizacion):
 
 @api_view(['POST'])
 def anular_cotizacion(request, numero_cotizacion):
-    """Anular una cotización"""
+    """Anular una cotización - VERSIÓN CON DEBUG"""
     try:
-        cotizacion = TblCotizaciones.objects.get(numero_cotizacion=numero_cotizacion)
+        print(f"🔍 DEBUG: Iniciando anulación para cotización {numero_cotizacion}")
+        print(f"🔍 DEBUG: request.data = {request.data}")
+        print(f"🔍 DEBUG: request.method = {request.method}")
         
+        # Buscar la cotización
+        cotizacion = TblCotizaciones.objects.get(numero_cotizacion=numero_cotizacion)
+        print(f"✅ DEBUG: Cotización encontrada - ID: {cotizacion.id_cotizacion}, Estado: {cotizacion.estado}")
+        
+        # Verificar que se puede anular
         if cotizacion.estado == 'CONVERTIDA':
             return Response({
                 'success': False,
                 'error': 'No se puede anular una cotización ya convertida a factura'
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        if cotizacion.estado == 'ANULADA':
+            return Response({
+                'success': False,
+                'error': 'La cotización ya está anulada'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Cambiar estado a ANULADA
         cotizacion.estado = 'ANULADA'
-        cotizacion.observaciones = request.data.get('observaciones', 'Cotización anulada')
+        
+        # Manejar observaciones de forma segura
+        observaciones = 'Cotización anulada'
+        if request.data and isinstance(request.data, dict):
+            observaciones = request.data.get('observaciones', 'Cotización anulada')
+        
+        cotizacion.observaciones = observaciones
+        
+        print(f"🔍 DEBUG: Guardando cambios...")
         cotizacion.save()
+        print(f"✅ DEBUG: Cambios guardados exitosamente")
         
         return Response({
             'success': True,
-            'message': 'Cotización anulada exitosamente'
+            'message': 'Cotización anulada exitosamente',
+            'numero_cotizacion': cotizacion.numero_cotizacion,
+            'nuevo_estado': cotizacion.estado
         })
         
     except TblCotizaciones.DoesNotExist:
+        print(f"❌ DEBUG: Cotización no encontrada: {numero_cotizacion}")
         return Response({
+            'success': False,
             'error': 'Cotización no encontrada'
         }, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        print(f"❌ DEBUG: Error inesperado: {str(e)}")
+        import traceback
+        print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
+        return Response({
+            'success': False,
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def dashboard_cotizaciones(request):

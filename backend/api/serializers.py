@@ -305,15 +305,15 @@ class CotizacionSerializer(serializers.ModelSerializer):
             })
         
         # Validar que subtotal - descuento + isv = total
-        subtotal = data.get('subtotal', Decimal('0'))
-        descuento = data.get('descuento', Decimal('0'))
-        isv = data.get('isv', Decimal('0'))
-        total_calculado = subtotal - descuento + isv
+        # subtotal = data.get('subtotal', Decimal('0'))
+        # descuento = data.get('descuento', Decimal('0'))
+        # isv = data.get('isv', Decimal('0'))
+        # total_calculado = subtotal - descuento + isv
         
-        if total and abs(total - total_calculado) > Decimal('0.01'):
-            raise serializers.ValidationError({
-                'total': f'El total calculado ({total_calculado}) no coincide con el total proporcionado ({total})'
-            })
+        # if total and abs(total - total_calculado) > Decimal('0.01'):
+        #     raise serializers.ValidationError({
+        #         'total': f'El total calculado ({total_calculado}) no coincide con el total proporcionado ({total})'
+        #     })
         
         return data
     

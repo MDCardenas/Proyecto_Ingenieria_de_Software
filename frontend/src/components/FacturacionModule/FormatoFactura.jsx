@@ -31,13 +31,13 @@ export default function FormatoFactura({
       <div className="encabezado-moderno">
         <div className="membrete-empresa">
           <div className="logo-empresa">
-            <h1>JOYERÍA LA ELEGANCIA</h1>
+            <h1>JOYAS CHARLY'S</h1>
             <div className="linea-decorativa"></div>
           </div>
           <div className="info-empresa">
             <p><strong>Especialistas en Joyería Fina</strong></p>
-            <p>Centro Comercial Galerías, Tegucigalpa</p>
-            <p>Tel: +504 2233-4455 | Email: info@joyerialaelegancia.com</p>
+            <p>Bo. El Centro, Ave Máximo Jerez, Casa 820, Tegucigalpa. </p>
+            <p>Tel: +504 9971-7820 y +504 9833-2595 | Email: joyascharlys@gmail.com</p>
             <p>RTN: 0801-1990-12345</p>
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function FormatoFactura({
           </div>
           <div className="firma-empresa">
             <div className="linea-firma"></div>
-            <p>JOYERÍA LA ELEGANCIA</p>
+            <p>JOYAS CHARLY'S</p>
           </div>
         </div>
       </div>
@@ -286,7 +286,7 @@ export default function FormatoFactura({
       {/* Pie de página */}
       <div className="pie-pagina">
         <p><strong><em>"Gracias por su preferencia. Joyas que cuentan historias, elegancia que perdura."</em></strong></p>
-        <p>Para consultas o aclaraciones contactar al: +504 2233-4455</p>
+        <p>Para consultas o aclaraciones contactar al: +504 9971-7820</p>
       </div>
     </div>
   );
