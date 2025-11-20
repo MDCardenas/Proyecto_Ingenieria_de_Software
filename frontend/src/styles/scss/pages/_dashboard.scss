@@ -1,0 +1,170 @@
+// _dashboard.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+/* ===========================
+   Dashboard Styles
+   Estilos para el módulo Dashboard usando sistema de diseño
+   =========================== */
+
+.dashboard {
+  padding: $spacing-xl;
+  background: $bg-tertiary;
+
+  .section-title {
+    margin: 0 0 $spacing-md;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-muted;
+  }
+}
+
+/* ---------- Tarjetas KPI (fila superior) ---------- */
+
+.kpi-grid {
+  @include grid-responsive(4, $spacing-lg);
+  margin-bottom: $spacing-xl;
+}
+
+.kpi-card {
+  @include card-interactive;
+  padding: $spacing-lg;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.kpi-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-muted;
+  margin: 0 0 $spacing-xs;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin: 0;
+  color: $text-primary;
+
+  @include responsive(sm) {
+    font-size: $font-size-2xl;
+  }
+}
+
+.kpi-icon {
+  @include kpi-icon;
+}
+
+/* ---------- Tarjetas de gráficas (fila inferior) ---------- */
+
+.chart-grid {
+  @include split-layout;
+}
+
+.chart-card {
+  @include card-base;
+  padding: $spacing-lg;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+
+  @include responsive(lg) {
+    min-height: 360px;
+  }
+
+  @include responsive(sm) {
+    padding: $spacing-md;
+  }
+}
+
+.chart-header {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  margin: 0 0 $spacing-md;
+  color: $text-primary;
+}
+
+.chart-body {
+  @include chart-container;
+}
+
+/* ---------- Leyenda (debajo del donut) ---------- */
+
+.legend {
+  @include legend;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: $font-weight-semibold;
+}
+
+.legend-dot {
+  @include legend-dot;
+}
+
+/* ---------- Utilidades específicas del Dashboard ---------- */
+
+.dashboard-hr {
+  height: 1px;
+  background: $border-color-light;
+  border: 0;
+  margin: $spacing-md 0;
+}
+
+/* ---------- Responsivo específico del Dashboard ---------- */
+
+@include responsive(sm) {
+  .dashboard {
+    padding: $spacing-md;
+  }
+  
+  .kpi-card {
+    padding: $spacing-md;
+  }
+}
+
+/* ---------- Estados interactivos mejorados ---------- */
+
+.kpi-card,
+.chart-card {
+  &:focus-visible {
+    outline: 2px solid $accent-color;
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Variantes de tema ---------- */
+
+.dashboard-theme-accent {
+  .kpi-card,
+  .chart-card {
+    &:focus-within {
+      border-color: rgba($accent-color, 0.3);
+    }
+  }
+}
+
+.dashboard-theme-primary {
+  .kpi-card,
+  .chart-card {
+    &:focus-within {
+      border-color: rgba($primary-color, 0.3);
+    }
+  }
+  
+  .kpi-icon.accent {
+    background: rgba($primary-color, 0.14);
+    color: $primary-color;
+  }
+  
+  .legend-dot.accent {
+    background: $primary-color;
+  }
+}

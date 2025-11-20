@@ -1,14 +1,7 @@
-// src/components/InventarioModule/components/TabNavigation.jsx
 import React from 'react';
 import { Gem, Package, Wrench } from 'lucide-react';
 
-const TabNavigation = ({ activeTab, onTabChange, counts }) => {
-  const tabs = [
-    { id: 'joyas', label: 'Joyas', icon: Gem, count: counts.joyas },
-    { id: 'materiales', label: 'Materiales', icon: Package, count: counts.materiales },
-    { id: 'insumos', label: 'Insumos', icon: Wrench, count: counts.insumos }
-  ];
-
+const TabNavigation = ({ activeTab, onTabChange, tabs }) => {
   return (
     <div className="tab-navigation">
       <div className="tab-list">
@@ -20,7 +13,7 @@ const TabNavigation = ({ activeTab, onTabChange, counts }) => {
               onClick={() => onTabChange(tab.id)}
               className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
             >
-              <Icon className="tab-icon" />
+              <Icon className="tab-icon" size={20} />
               <span className="tab-label">{tab.label}</span>
               <span className="tab-count">{tab.count}</span>
             </button>

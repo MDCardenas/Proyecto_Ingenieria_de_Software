@@ -1,0 +1,182 @@
+// _action-bar.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+.action-bar {
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color-light;
+  padding: $spacing-lg $spacing-xl;
+
+  @include responsive(md) {
+    padding: $spacing-md $spacing-lg;
+  }
+
+  @include responsive(sm) {
+    padding: $spacing-md;
+  }
+
+  .action-bar-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    @include responsive(lg) {
+      gap: $spacing-md;
+    }
+
+    @include responsive(md) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .search-container {
+    display: flex;
+    align-items: center;
+    background: $bg-primary;
+    border-radius: $border-radius-pill;
+    padding: $spacing-md $spacing-lg;
+    border: 1px solid $border-color-light;
+    transition: all $transition-normal;
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+    gap: $spacing-md;
+
+    @include responsive(md) {
+      max-width: none;
+      min-width: auto;
+    }
+
+    &:focus-within {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+
+    .search-icon {
+      color: $text-muted;
+      min-width: 20px;
+      min-height: 20px;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .search-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      color: $text-primary;
+      font-size: $font-size-base;
+      font-family: $font-family;
+      min-width: 0;
+
+      &::placeholder {
+        color: $text-muted;
+        font-weight: $font-weight-normal;
+      }
+
+      &::-webkit-search-cancel-button {
+        display: none;
+      }
+
+      &::-webkit-autofill,
+      &::-webkit-autofill:hover,
+      &::-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px $bg-primary inset !important;
+        -webkit-text-fill-color: $text-primary !important;
+      }
+    }
+  }
+
+  .filter-container {
+    display: flex;
+    align-items: center;
+    background: $bg-primary;
+    border-radius: $border-radius-pill;
+    padding: $spacing-md $spacing-lg;
+    border: 1px solid $border-color-light;
+    transition: all $transition-normal;
+    gap: $spacing-md;
+
+    @include responsive(md) {
+      width: auto;
+    }
+
+    &:focus-within {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+
+    .filter-icon {
+      color: $text-muted;
+      min-width: 20px;
+      min-height: 20px;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .filter-select {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: $text-primary;
+      font-size: $font-size-base;
+      cursor: pointer;
+      font-family: $font-family;
+      font-weight: $font-weight-medium;
+      padding: 0;
+      min-width: 0;
+      flex: 1;
+
+      option {
+        color: $text-primary;
+        background: $bg-primary;
+        padding: $spacing-md;
+      }
+
+      &:hover {
+        color: $primary-color;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .btn-add {
+    @include button-pill-primary;
+    min-width: 180px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+
+    @include responsive(md) {
+      min-width: auto;
+      width: 100%;
+    }
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      min-height: 20px;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}

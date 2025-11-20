@@ -1,0 +1,111 @@
+// _alertas-banner.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+.alertas-banner {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-xl;
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color-light;
+  flex-wrap: wrap;
+
+  @include responsive(md) {
+    padding: $spacing-md $spacing-lg;
+  }
+
+  @include responsive(sm) {
+    flex-direction: column;
+  }
+}
+
+.alerta-item {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $border-radius-pill;
+  background: $bg-primary;
+  box-shadow: $shadow-sm;
+  border: 1px solid transparent;
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  .alerta-icon-wrapper {
+    @include flex-center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: $spacing-md;
+  }
+
+  .alerta-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  .alerta-count {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba($text-light, 0.9);
+  }
+
+  .alerta-text {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+
+  &.alerta-danger {
+    border-color: rgba($error-color, 0.3);
+    
+    .alerta-icon-wrapper {
+      background: rgba($error-color, 0.1);
+    }
+    
+    .alerta-icon {
+      color: $error-color;
+    }
+    
+    .alerta-count {
+      color: $error-dark;
+    }
+  }
+
+  &.alerta-warning {
+    border-color: rgba($warning-color, 0.3);
+    
+    .alerta-icon-wrapper {
+      background: rgba($warning-color, 0.1);
+    }
+    
+    .alerta-icon {
+      color: $warning-color;
+    }
+    
+    .alerta-count {
+      color: $warning-dark;
+    }
+  }
+
+  &.alerta-info {
+    border-color: rgba($info-color, 0.3);
+    
+    .alerta-icon-wrapper {
+      background: rgba($info-color, 0.1);
+    }
+    
+    .alerta-icon {
+      color: $info-color;
+    }
+    
+    .alerta-count {
+      color: $info-dark;
+    }
+  }
+}

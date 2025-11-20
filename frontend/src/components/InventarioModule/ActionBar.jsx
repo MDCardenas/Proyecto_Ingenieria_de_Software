@@ -15,7 +15,7 @@ const ActionBar = ({
       <div className="action-bar-content">
         {/* Búsqueda */}
         <div className="search-container">
-          <Search className="search-icon" />
+          <Search className="search-icon" size={20} />
           <input
             type="text"
             placeholder="Buscar por nombre o descripción..."
@@ -27,7 +27,7 @@ const ActionBar = ({
         
         {/* Filtro */}
         <div className="filter-container">
-          <Filter className="filter-icon" />
+          <Filter className="filter-icon" size={20} />
           <select
             value={filterType}
             onChange={(e) => onFilterChange(e.target.value)}
@@ -42,7 +42,7 @@ const ActionBar = ({
         
         {/* Botón agregar */}
         <button onClick={onCreateClick} className="btn-add">
-          <Plus className="btn-icon" />
+          <Plus className="btn-icon" size={20} />
           <span>Agregar Nuevo</span>
         </button>
       </div>

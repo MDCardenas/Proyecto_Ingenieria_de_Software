@@ -1,0 +1,31 @@
+// _inventario-module.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+.inventario-module {
+  padding: $spacing-lg;
+  background: $bg-gradient;
+  min-height: 100vh;
+
+  .inventario-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: $bg-primary;
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-card;
+    overflow: hidden;
+  }
+}
+
+.inventario-content {
+  padding: $spacing-xl;
+  min-height: 600px;
+
+  @include responsive(md) {
+    padding: $spacing-lg;
+  }
+
+  @include responsive(sm) {
+    padding: $spacing-md;
+  }
+}

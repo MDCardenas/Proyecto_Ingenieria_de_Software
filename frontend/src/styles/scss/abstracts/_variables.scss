@@ -8,19 +8,19 @@ $primary-dark: #a88c5f;
 $primary-light: #e9e6df;
 
 // Colores de texto
-$text-primary: #333333;
+$text-primary: #111827; 
 $text-secondary: #666666;
 $text-light: #ffffff;
-$text-muted: #888888;
+$text-muted: #6b7280; 
 
 // Colores de fondo
 $bg-primary: #ffffff;
 $bg-secondary: #f7f5f2;
-$bg-tertiary: #f1f5f9;
+$bg-tertiary: #f6f7fb;   
 $bg-dark: #1a1a1a;
 
 // Colores de estado
-$success-color: #10b981;
+$success-color: #22c55e;
 $success-dark: #059669;
 $info-color: #3b82f6;
 $info-dark: #2563eb;
@@ -35,6 +35,10 @@ $blue-primary: #667eea;
 $blue-dark: #764ba2;
 $red-primary: #ef4444;
 $red-dark: #dc2626;
+$dark-color: #1a1a1a;
+$accent-color: #7c3aed;   
+$accent-dark: #6d28d9;
+$accent-light: #8b5cf6;
 
 // Colores neutros
 $gray-50: #f9fafb;
@@ -61,6 +65,7 @@ $bg-gradient: linear-gradient(135deg, #f7f5f2 0%, #e9e6df 100%);
 $button-gradient: linear-gradient(90deg, #bfa36f 60%, #e9e6df 100%);
 $blue-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 $success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+$accent-gradient: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); 
 
 // Nuevos gradientes para botones pill
 $pill-gradient: linear-gradient(135deg, #bfa36f 0%, #d4b77f 100%);
@@ -117,7 +122,7 @@ $border-radius-xl: 16px;
 $border-radius-pill: 50px;
 
 $border-color: #d6cfc0;
-$border-color-light: #e5e7eb;
+$border-color-light: #e7e9f3;
 $border-color-dark: #374151;
 
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -129,6 +134,11 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
 // Sombras específicas
 $shadow-primary-sm: 0 2px 8px rgba(191, 163, 111, 0.08);
 $shadow-primary-lg: 0 8px 32px rgba(191, 163, 111, 0.12);
+$shadow-card: 0 10px 24px rgba(17, 24, 39, 0.06); // Nueva - para tarjetas
+$shadow-card-hover: 0 14px 28px rgba(17, 24, 39, 0.08); // Nueva
+
+// Efectos de focus
+$ring-color: rgba(124, 58, 237, 0.15); // Nuevo - para efectos de focus
 
 // ========================================
 // BREAKPOINTS
@@ -200,12 +210,11 @@ $pulse-animation: pulse 2s infinite;
   --error-color: #{$error-color};
   --error-dark: #{$error-dark};
 
-  // Colores del sistema
-  --blue-primary: #{$blue-primary};
-  --blue-dark: #{$blue-dark};
-  --red-primary: #{$red-primary};
-  --red-dark: #{$red-dark};
-
+  // Colores acento
+  --accent-color: #{$accent-color};
+  --accent-dark: #{$accent-dark};
+  --accent-light: #{$accent-light};
+  
   // Colores neutros
   --gray-50: #{$gray-50};
   --gray-100: #{$gray-100};
@@ -283,4 +292,10 @@ $pulse-animation: pulse 2s infinite;
   --z-index-modal: #{$z-index-modal};
   --z-index-popover: #{$z-index-popover};
   --z-index-tooltip: #{$z-index-tooltip};
+
+    // Nuevas variables
+  --shadow-card: #{$shadow-card};
+  --shadow-card-hover: #{$shadow-card-hover};
+  --ring-color: #{$ring-color};
+
 }

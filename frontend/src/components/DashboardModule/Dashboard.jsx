@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import "../../styles/Dashboard.css";
+import "../../styles/scss/pages/_dashboard.scss";
 
 // Recharts
 import {

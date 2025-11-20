@@ -1,0 +1,299 @@
+// _inventario-form.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+.inventario-form {
+  .form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-lg $spacing-xl;
+    border-bottom: 1px solid $border-color-light;
+    background: $bg-secondary;
+
+    @include responsive(md) {
+      padding: $spacing-md $spacing-lg;
+    }
+
+    .btn-back {
+      @include flex-center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid $border-color-light;
+      border-radius: $border-radius;
+      background: $bg-primary;
+      color: $text-secondary;
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      &:hover:not(:disabled) {
+        border-color: $primary-color;
+        color: $primary-color;
+        transform: translateX(-2px);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-icon {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .form-title {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+      text-align: center;
+      flex: 1;
+      margin: 0 $spacing-lg;
+    }
+
+    .form-header-spacer {
+      width: 40px;
+    }
+  }
+
+  .form-content {
+    padding: $spacing-xl;
+
+    @include responsive(md) {
+      padding: $spacing-lg;
+    }
+
+    @include responsive(sm) {
+      padding: $spacing-md;
+    }
+  }
+
+  .form-section {
+    margin-bottom: $spacing-2xl;
+    padding: $spacing-xl;
+    background: $bg-secondary;
+    border-radius: $border-radius-lg;
+    border: 1px solid $border-color-light;
+
+    @include responsive(md) {
+      padding: $spacing-lg;
+      margin-bottom: $spacing-xl;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin-bottom: $spacing-lg;
+      padding-bottom: $spacing-sm;
+      border-bottom: 2px solid $primary-light;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: $spacing-lg;
+
+    &.form-row-3 {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    @include responsive(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
+  }
+
+  .form-group {
+    margin-bottom: $spacing-lg;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+      margin-bottom: $spacing-sm;
+    }
+
+    .required {
+      color: $error-color;
+      margin-left: 2px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      @include input-style;
+      width: 100%;
+
+      &.error {
+        border-color: $error-color;
+        box-shadow: 0 0 0 2px rgba($error-color, 0.1);
+      }
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .error-message {
+      display: block;
+      color: $error-color;
+      font-size: $font-size-sm;
+      margin-top: $spacing-xs;
+    }
+  }
+
+  .checkbox-group {
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      .form-checkbox {
+        margin-right: $spacing-sm;
+        width: 18px;
+        height: 18px;
+        border-radius: $border-radius-sm;
+        border: 2px solid $border-color;
+        background: $bg-primary;
+        cursor: pointer;
+
+        &:checked {
+          background: $primary-color;
+          border-color: $primary-color;
+        }
+      }
+
+      .checkbox-text {
+        font-size: $font-size-base;
+        color: $text-primary;
+      }
+    }
+  }
+
+  .file-upload {
+    .file-input {
+      display: none;
+    }
+
+    .file-upload-content {
+      border: 2px dashed $border-color;
+      border-radius: $border-radius-lg;
+      padding: $spacing-xl;
+      text-align: center;
+      cursor: pointer;
+      transition: all $transition-normal;
+
+      &:hover {
+        border-color: $primary-color;
+        background: rgba($primary-color, 0.02);
+      }
+    }
+
+    .image-preview {
+      position: relative;
+      display: inline-block;
+
+      img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: $border-radius;
+        box-shadow: $shadow-md;
+      }
+
+      span {
+        display: block;
+        margin-top: $spacing-sm;
+        color: $primary-color;
+        font-weight: $font-weight-medium;
+      }
+    }
+
+    .file-upload-placeholder {
+      @include flex-center;
+      flex-direction: column;
+      color: $text-muted;
+
+      .upload-icon {
+        width: 48px;
+        height: 48px;
+        margin-bottom: $spacing-md;
+        color: $gray-400;
+      }
+
+      span {
+        font-size: $font-size-base;
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: $spacing-md;
+    justify-content: flex-end;
+    padding-top: $spacing-xl;
+    border-top: 1px solid $border-color-light;
+    margin-top: $spacing-2xl;
+
+    @include responsive(sm) {
+      flex-direction: column;
+    }
+
+    .btn-cancel {
+      @include button-pill-secondary;
+      min-width: 140px;
+
+      @include responsive(sm) {
+        min-width: auto;
+      }
+
+      .btn-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: $spacing-sm;
+      }
+    }
+
+    .btn-submit {
+      @include button-pill-primary;
+      min-width: 160px;
+
+      @include responsive(sm) {
+        min-width: auto;
+      }
+
+      .btn-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: $spacing-sm;
+      }
+
+      .loading-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid transparent;
+        border-top: 2px solid $text-light;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: $spacing-sm;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

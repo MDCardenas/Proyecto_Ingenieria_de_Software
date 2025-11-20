@@ -1,0 +1,157 @@
+// _tab-navigation.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+.tab-navigation {
+  background: $bg-primary;
+  border-bottom: 1px solid $border-color-light;
+  position: relative;
+  padding: 0 $spacing-xl;
+
+  @include responsive(md) {
+    padding: 0 $spacing-lg;
+  }
+
+  @include responsive(sm) {
+    padding: 0 $spacing-md;
+  }
+
+  .tab-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: $spacing-lg;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: $spacing-md 0;
+    position: relative;
+
+    @include responsive(md) {
+      gap: $spacing-md;
+      padding: $spacing-sm 0;
+    }
+
+    @include responsive(sm) {
+      gap: $spacing-sm;
+      flex-wrap: wrap;
+      padding: $spacing-sm 0;
+    }
+  }
+
+  .tab-item {
+    @include flex-center;
+    gap: $spacing-sm;
+    background: $gray-100;
+    color: $text-secondary;
+    border: none;
+    padding: $spacing-md $spacing-lg;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    cursor: pointer;
+    transition: all $transition-normal;
+    border-radius: $border-radius-pill;
+    position: relative;
+    white-space: nowrap;
+
+    @include responsive(md) {
+      padding: $spacing-md;
+      gap: $spacing-sm;
+      font-size: $font-size-sm;
+    }
+
+    &:hover {
+      background: $gray-200;
+      color: $text-primary;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: $pill-gradient;
+      color: $text-light;
+      animation: slideDown 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba($primary-color, 0.2);
+
+      .tab-count {
+        background: rgba($text-light, 0.3);
+        color: $text-light;
+        animation: pulse 0.4s ease-out;
+      }
+    }
+
+    .tab-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: all $transition-normal;
+    }
+
+    .tab-label {
+      font-weight: $font-weight-semibold;
+      transition: all $transition-normal;
+    }
+
+    .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba($text-secondary, 0.2);
+      color: $text-secondary;
+      padding: 4px 8px;
+      border-radius: $border-radius-pill;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-bold;
+      min-width: 20px;
+      transition: all $transition-fast;
+    }
+  }
+
+  .tab-indicator {
+    height: 3px;
+    background: $primary-color;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    transition: all $transition-normal ease-out;
+    display: block;
+    border-radius: 2px;
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+// ========================================
+// ANIMACIONES
+// ========================================
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

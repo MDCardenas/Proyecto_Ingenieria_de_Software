@@ -1,279 +1,115 @@
-// src/components/InventarioModule/InventarioModule.jsx
 import React, { useState, useEffect } from 'react';
-import { Gem, Package, Wrench, AlertTriangle } from 'lucide-react';
-import JoyasView from './JoyasView';
-import MaterialesView from './MaterialesView';
-import InsumosView from './InsumosView';
-import InventarioForm from './InventarioForm';
+import { Gem, Package, Wrench } from 'lucide-react';
+import ActionBar from './ActionBar';
 import AlertasBanner from './AlertasBanner';
 import TabNavigation from './TabNavigation';
-import ActionBar from './ActionBar';
+import ItemsGrid from './ItemsGrid';
+import InventarioForm from './InventarioForm';
+import useInventario from './Hooks/useinventario';
 import '../../styles/scss/main.scss';
-
-const API_URL = 'http://localhost:8000/api';
 
 const InventarioModule = () => {
   const [activeTab, setActiveTab] = useState('joyas');
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState('create');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  
-  // Estados para datos
-  const [joyas, setJoyas] = useState([]);
-  const [materiales, setMateriales] = useState([]);
-  const [insumos, setInsumos] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
-  
-  // Estado para alertas
-  const [alertas, setAlertas] = useState({ 
-    materiales_stock_bajo: [], 
-    insumos_stock_bajo: [], 
-    insumos_proximos_vencer: [] 
-  });
-  
-  // Estado del formulario
-  const [formData, setFormData] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
 
+  const {
+    data,
+    alertas,
+    proveedores,
+    searchTerm,
+    setSearchTerm,
+    filterType,
+    setFilterType,
+    loading,
+    cargarDatos,
+    handleDelete,
+    handleFormSubmit
+  } = useInventario(activeTab);
+
+  // Agregar estados separados para los contadores de cada pestaña
+  const [counts, setCounts] = useState({
+    joyas: 0,
+    materiales: 0,
+    insumos: 0
+  });
+
+  const tabs = [
+    { id: 'joyas', label: 'Joyas', icon: Gem, count: counts.joyas },
+    { id: 'materiales', label: 'Materiales', icon: Package, count: counts.materiales },
+    { id: 'insumos', label: 'Insumos', icon: Wrench, count: counts.insumos }
+  ];
+
+  // Efecto para actualizar los contadores cuando cambian los datos
   useEffect(() => {
-    cargarDatos();
-    cargarAlertas();
-    cargarProveedores();
-  }, [activeTab]);
+    // Aquí deberías cargar los contadores reales de cada categoría
+    // Por ahora, usaremos data.length como ejemplo
+    setCounts({
+      joyas: activeTab === 'joyas' ? data.length : counts.joyas,
+      materiales: activeTab === 'materiales' ? data.length : counts.materiales,
+      insumos: activeTab === 'insumos' ? data.length : counts.insumos
+    });
+  }, [data, activeTab]);
 
-  const cargarDatos = async () => {
-    try {
-      let endpoint = '';
-      let setter = null;
-      
-      switch(activeTab) {
-        case 'joyas':
-          endpoint = `${API_URL}/joyas/`;
-          setter = setJoyas;
-          break;
-        case 'materiales':
-          endpoint = `${API_URL}/materiales/`;
-          setter = setMateriales;
-          break;
-        case 'insumos':
-          endpoint = `${API_URL}/insumos/`;
-          setter = setInsumos;
-          break;
-      }
-      
-      const response = await fetch(endpoint);
-      const data = await response.json();
-      setter(data);
-    } catch (error) {
-      console.error('Error cargando datos:', error);
-    }
-  };
-
-  const cargarAlertas = async () => {
-    try {
-      const response = await fetch(`${API_URL}/inventario/alertas/`);
-      const data = await response.json();
-      setAlertas(data);
-    } catch (error) {
-      console.error('Error cargando alertas:', error);
-    }
-  };
-
-  const cargarProveedores = async () => {
-    try {
-      const response = await fetch(`${API_URL}/proveedores/`);
-      const data = await response.json();
-      setProveedores(data);
-    } catch (error) {
-      console.error('Error cargando proveedores:', error);
-    }
-  };
-
-  const handleCreate = () => {
-    setFormMode('create');
-    setSelectedItem(null);
-    setFormData({});
-    setShowForm(true);
-  };
-
-  const handleEdit = (item) => {
-    setFormMode('edit');
+  const openForm = (mode, item = null) => {
+    setFormMode(mode);
     setSelectedItem(item);
-    setFormData(item);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Está seguro de eliminar este elemento?')) return;
-    
-    try {
-      let endpoint = '';
-      switch(activeTab) {
-        case 'joyas':
-          endpoint = `${API_URL}/joyas/${id}/`;
-          break;
-        case 'materiales':
-          endpoint = `${API_URL}/materiales/${id}/`;
-          break;
-        case 'insumos':
-          endpoint = `${API_URL}/insumos/${id}/`;
-          break;
-      }
-      
-      await fetch(endpoint, { method: 'DELETE' });
-      cargarDatos();
-    } catch (error) {
-      console.error('Error eliminando:', error);
-    }
-  };
-
-  const handleFormSubmit = async (data) => {
-    try {
-      let endpoint = '';
-      let method = formMode === 'create' ? 'POST' : 'PUT';
-      
-      switch(activeTab) {
-        case 'joyas':
-          endpoint = formMode === 'create' 
-            ? `${API_URL}/joyas/`
-            : `${API_URL}/joyas/${selectedItem.codigo_joya}/`;
-          break;
-        case 'materiales':
-          endpoint = formMode === 'create'
-            ? `${API_URL}/materiales/`
-            : `${API_URL}/materiales/${selectedItem.codigo_material}/`;
-          break;
-        case 'insumos':
-          endpoint = formMode === 'create'
-            ? `${API_URL}/insumos/`
-            : `${API_URL}/insumos/${selectedItem.codigo_insumo}/`;
-          break;
-      }
-      
-      await fetch(endpoint, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      
-      setShowForm(false);
-      cargarDatos();
-    } catch (error) {
-      console.error('Error guardando:', error);
-    }
-  };
-
-  const handleFormCancel = () => {
+  const closeForm = () => {
     setShowForm(false);
     setSelectedItem(null);
-    setFormData({});
   };
 
-  const filteredData = () => {
-    let data = [];
-    switch(activeTab) {
-      case 'joyas': data = joyas; break;
-      case 'materiales': data = materiales; break;
-      case 'insumos': data = insumos; break;
-    }
-    
-    if (searchTerm) {
-      data = data.filter(item => 
-        item.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    if (filterType !== 'all') {
-      if (activeTab === 'joyas') {
-        data = data.filter(item => item.tipo === filterType);
-      } else if (activeTab === 'materiales') {
-        data = data.filter(item => item.tipo_material === filterType);
-      } else if (activeTab === 'insumos') {
-        data = data.filter(item => item.categoria === filterType);
-      }
-    }
-    
-    return data;
+  const handleSubmit = async (formData) => {
+    await handleFormSubmit(formData, formMode, selectedItem);
+    closeForm();
   };
-
-  const getUniqueTypes = () => {
-    switch(activeTab) {
-      case 'joyas': return [...new Set(joyas.map(j => j.tipo))].filter(Boolean);
-      case 'materiales': return [...new Set(materiales.map(m => m.tipo_material))].filter(Boolean);
-      case 'insumos': return [...new Set(insumos.map(i => i.categoria))].filter(Boolean);
-      default: return [];
-    }
-  };
-
-  const getCounts = () => ({
-    joyas: joyas.length,
-    materiales: materiales.length,
-    insumos: insumos.length
-  });
 
   return (
     <div className="inventario-module">
       <div className="inventario-container">
-        {/* Banner de alertas */}
         <AlertasBanner alertas={alertas} />
-
-        {/* Navegación por tabs */}
+        
         <TabNavigation 
+          tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          counts={getCounts()}
+          counts={counts} // Pasar los contadores
         />
 
-        {/* Barra de acciones */}
         {!showForm && (
           <ActionBar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             filterType={filterType}
             onFilterChange={setFilterType}
-            filterOptions={getUniqueTypes()}
-            onCreateClick={handleCreate}
+            filterOptions={[...new Set(data.map(item => item.tipo || item.categoria).filter(Boolean))]}
+            onCreateClick={() => openForm('create')}
           />
         )}
 
-        {/* Contenido principal */}
         <div className="inventario-content">
           {showForm ? (
             <InventarioForm
               mode={formMode}
-              activeTab={activeTab}
-              formData={formData}
-              onSubmit={handleFormSubmit}
-              onCancel={handleFormCancel}
+              type={activeTab}
+              initialData={selectedItem || {}}
+              onSubmit={handleSubmit}
+              onCancel={closeForm}
               proveedores={proveedores}
             />
           ) : (
-            <>
-              {activeTab === 'joyas' && (
-                <JoyasView 
-                  data={filteredData()} 
-                  onEdit={handleEdit} 
-                  onDelete={handleDelete} 
-                />
-              )}
-              {activeTab === 'materiales' && (
-                <MaterialesView 
-                  data={filteredData()} 
-                  onEdit={handleEdit} 
-                  onDelete={handleDelete} 
-                />
-              )}
-              {activeTab === 'insumos' && (
-                <InsumosView 
-                  data={filteredData()} 
-                  onEdit={handleEdit} 
-                  onDelete={handleDelete}
-                  alertas={alertas}
-                />
-              )}
-            </>
+            <ItemsGrid
+              type={activeTab}
+              data={data}
+              alertas={alertas}
+              onEdit={(item) => openForm('edit', item)}
+              onDelete={handleDelete}
+              loading={loading}
+            />
           )}
         </div>
       </div>
