@@ -123,13 +123,14 @@ urlpatterns = [
 # ========================================
     # RUTAS DE EMPLEADOS
     # ========================================
-
-
-   
-
   #  path('empleados/eliminar/<int:pk>/', views.empleado_eliminar, name='empleado_eliminar'),
-
   path('perfiles/', views.lista_perfiles, name='lista_perfiles'),
+
+  # ========================================
+    # RUTAS DE CONTABILIDAD
+    # ========================================
+path('contabilidad/resumen/', views.contabilidad_resumen, name='contabilidad-resumen'),
+path('gastos/mes/', views.gastos_mes, name='gastos-mes'),
 
 ]
 

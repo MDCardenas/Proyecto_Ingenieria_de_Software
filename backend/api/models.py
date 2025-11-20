@@ -266,6 +266,28 @@ class TblOrdenesTrabajo(models.Model):
         return f"Orden #{self.id_orden} - {self.tipo_orden}"
 
 
+
+
+#AQUI AGREGUE EL MODELO DE GASTOS PARA CONTABILIDAD
+class TblGastos(models.Model):
+    id_gasto = models.AutoField(primary_key=True)
+    fecha_gasto = models.DateField()
+    tipo_gasto = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=300)
+    monto = models.DecimalField(max_digits=18, decimal_places=2)
+    proveedor = models.CharField(max_length=100, null=True, blank=True)
+    id_empleado = models.IntegerField(null=True, blank=True)
+    observaciones = models.CharField(max_length=500, null=True, blank=True)
+
+    class Meta:
+        db_table = 'Tbl_Gastos'
+
+    def __str__(self):
+        return f"Gasto #{self.id_gasto} - {self.tipo_gasto}"
+
+
+
+
 # =============================================
 # MODELOS ELIMINADOS (porque ya no existen en la BD)
 # =============================================

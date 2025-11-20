@@ -9,9 +9,11 @@ import FacturacionModule from "../components/FacturacionModule/FacturacionModule
 import Dashboard from "../components/DashboardModule/Dashboard.jsx";
 import Usuarios from "../components/UsuariosModule/Usuarios.jsx";
 import InventarioModule from "../components/InventarioModule/InventarioModule.jsx";
+
 import { menuItems } from "../services/menuItems.js";
 import "../styles/scss/main.scss";
 import OrdenesModule from "../components/OrdenesModule/OrdenesModule.jsx";
+import Contabilidad from "../components/ContabilidadModule/Contabilidad.jsx";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -95,7 +97,7 @@ export default function AdminPanel() {
       case "Ordenes":
         return <OrdenesModule setActiveButton={setActiveButton} />;
       case "Contabilidad":
-        return <h1 className="titulo-modulo">CONTABILIDAD</h1>;
+        return <Contabilidad setActiveButton={setActiveButton} />;
       case "Usuarios":
         return <Usuarios setActiveButton={setActiveButton} />;
       default:

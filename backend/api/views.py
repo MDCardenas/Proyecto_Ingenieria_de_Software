@@ -1,15 +1,20 @@
 # backend/api/views.py
+#DAVID: AQUI LE IMPORTE MODELS
+from django.db.models.functions import TruncDate
+from django.db import models
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from django.db.models import Sum, Count, Q, F, Avg
-from datetime import datetime, timedelta
+from datetime import date,datetime, timedelta
 from decimal import Decimal
+from django.db.models import Value, CharField, DecimalField,F, ExpressionWrapper
+from django.db.models.functions import Coalesce
 from .models import (
     TblClientes, TblEmpleados, TblStockJoyas, TblServicios,
     TblFacturas, TblCotizaciones, TblStockInsumos, 
     TblStockMateriales, TblProvedores, PerfilesEmpleados,
-    TblOrdenesTrabajo, TblDetallesFactura
+    TblOrdenesTrabajo, TblDetallesFactura,TblGastos
 )
 from .serializers import (
     ClienteSerializer, EmpleadoSerializer, StockJoyaSerializer,
@@ -1189,3 +1194,95 @@ def eliminar_empleado(request, pk):
         return Response({'mensaje': 'Empleado eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
     except TblEmpleados.DoesNotExist:
         return Response({'error': 'Empleado no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+#PARA TRAER LOS GASTOS
+@api_view(['GET'])
+def gastos_mes(request):
+    try:
+        hoy = datetime.now()
+        inicio_mes = hoy.replace(day=1)
+
+        gastos = TblGastos.objects.filter(
+            fecha_gasto__gte=inicio_mes
+        ).values(
+            'id_gasto',
+            'fecha_gasto',
+            'tipo_gasto',
+            'descripcion',
+            'monto',
+            'proveedor',
+            'id_empleado',
+            'observaciones'
+        )
+
+        total_gastos = TblGastos.objects.filter(
+            fecha_gasto__gte=inicio_mes
+        ).aggregate(
+            total=Sum('monto')
+        )['total'] or 0
+
+        return Response({
+            "total_gastos_mes": total_gastos,
+            "gastos": list(gastos)
+        })
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+#RESUMEN CONTABILIDAD - REPORTES
+
+@api_view(['GET'])
+def contabilidad_resumen(request):
+    """Resumen contable: ingresos, gastos y movimientos recientes."""
+
+    hoy = datetime.now().date()
+    inicio_mes = hoy.replace(day=1)
+
+    # ========== INGRESOS DEL MES ==========
+    ingresos_mes = TblFacturas.objects.filter(
+        fecha__date__gte=inicio_mes
+    ).aggregate(
+        suma=Sum('total')
+    )['suma'] or 0
+
+    # ========== GASTOS DEL MES ==========
+    gastos_mes = TblGastos.objects.filter(
+        fecha_gasto__gte=inicio_mes
+    ).aggregate(
+        suma=Sum('monto')
+    )['suma'] or 0
+
+    # ========== MOVIMIENTOS ==========
+    # ÚLTIMAS 10 FACTURAS (INGRESOS)
+    ingresos_movs = TblFacturas.objects.order_by('-fecha').values(
+        'numero_factura',
+        'fecha',
+        'total',
+        'tipo_venta',
+        'estado_pago',
+        'metodo_pago'
+    )[:10]
+
+    # ÚLTIMOS 10 GASTOS
+    gastos_movs = TblGastos.objects.order_by('-fecha_gasto').values(
+        'id_gasto',
+        'fecha_gasto',
+        'tipo_gasto',
+        'descripcion',
+        'monto',
+        'proveedor',
+        'observaciones'
+    )[:10]
+
+    return Response({
+        "ingresos_mes": ingresos_mes,
+        "gastos_mes": gastos_mes,
+        "utilidad_neta": ingresos_mes - gastos_mes,
+        "ingresos_movimientos": list(ingresos_movs),
+        "gastos_movimientos": list(gastos_movs)
+    })

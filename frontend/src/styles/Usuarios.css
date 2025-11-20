@@ -62,13 +62,13 @@
 }
 
 .buscador {
-  flex: 1;
-  min-width: 200px;
-  max-width: 300px;
+  flex: 0 0 auto;
+  width: 250px;   
 }
 
 .input-busqueda {
-  width: 100%;
+  width: 250px;  /* Tamaño fijo */
+  max-width: 250px;
   padding: 10px 15px;
   border: 2px solid #e9ecef;
   border-radius: 8px;

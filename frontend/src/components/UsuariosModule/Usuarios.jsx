@@ -9,7 +9,6 @@ const Usuarios = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtro, setFiltro] = useState("");
-  const [rolFiltro, setRolFiltro] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [empleadoEditando, setEmpleadoEditando] = useState(null);
 
@@ -21,7 +20,7 @@ const Usuarios = () => {
       const response = await fetch("http://127.0.0.1:8000/api/empleados/");
       const data = await response.json();
 
-      // ✅ Normaliza el formato (array directo o dentro de "usuarios")
+      // Normaliza si viene como array o dentro de "usuarios"
       if (Array.isArray(data)) {
         setEmpleados(data);
       } else if (Array.isArray(data.usuarios)) {
@@ -42,7 +41,7 @@ const Usuarios = () => {
   }, []);
 
   // =====================================================
-  // 🔹 Filtros de búsqueda
+  // 🔹 Filtro solo por nombre o correo (sin roles)
   // =====================================================
   const empleadosFiltrados = Array.isArray(empleados)
     ? empleados.filter((empleado) => {
@@ -50,13 +49,11 @@ const Usuarios = () => {
           ? empleado.nombre_completo.toLowerCase()
           : "";
         const correo = empleado.correo ? empleado.correo.toLowerCase() : "";
-        const coincideNombre =
+
+        return (
           nombre.includes(filtro.toLowerCase()) ||
-          correo.includes(filtro.toLowerCase());
-        const coincideRol =
-          rolFiltro === "" ||
-          empleado.rol?.toLowerCase() === rolFiltro.toLowerCase();
-        return coincideNombre && coincideRol;
+          correo.includes(filtro.toLowerCase())
+        );
       })
     : [];
 
@@ -83,7 +80,7 @@ const Usuarios = () => {
   };
 
   // =====================================================
-  // 🔹 Renderizado principal
+  // 🔹 Render
   // =====================================================
   if (loading) return <div className="loading">Cargando empleados...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -104,19 +101,6 @@ const Usuarios = () => {
             onChange={(e) => setFiltro(e.target.value)}
             className="input-busqueda"
           />
-
-          <select
-            value={rolFiltro}
-            onChange={(e) => setRolFiltro(e.target.value)}
-            className="select-roles"
-          >
-            <option value="">Todos los roles</option>
-            <option value="Administrador">Administrador</option>
-            <option value="Vendedor">Vendedor</option>
-            <option value="Gerente">Gerente</option>
-            <option value="Cajero">Cajero</option>
-            <option value="Contador">Contador</option>
-          </select>
         </div>
 
         <button className="btn-agregar-usuario" onClick={handleAgregarEmpleado}>
