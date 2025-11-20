@@ -5,17 +5,19 @@ import HeaderCotizaciones from './HeaderCotizaciones';
 import FiltrosCotizaciones from './FiltrosCotizaciones';
 import ListaCotizaciones from './ListaCotizaciones';
 import FormatoCotizacionFabricacion from '../cotizacionesComponentes/FormatoCotizacionFabricacion';
-import FormatoCotizacionReparacion from '../cotizacionesComponentes/FormatoCotizacionReparacion'; // NUEVO IMPORT
+import FormatoCotizacionReparacion from '../cotizacionesComponentes/FormatoCotizacionReparacion';
 import ModalSeleccionTipo from '../cotizacionesComponentes/ModalSeleccionTipo';
 
 import "../../styles/scss/pages/_cotizacion.scss";
 
 export default function CotizacionesModule() {
     const [cotizaciones, setCotizaciones] = useState([]);
+    const [cotizacionesOriginales, setCotizacionesOriginales] = useState([]);
     const [estadisticas, setEstadisticas] = useState({
         total: 0,
         activas: 0,
-        vencidas: 0
+        vencidas: 0,
+        convertidas: 0
     });
     const [loading, setLoading] = useState(true);
     const [filtros, setFiltros] = useState({
@@ -26,128 +28,144 @@ export default function CotizacionesModule() {
         tipoServicio: ''
     });
     const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
-    const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [modoEdicion, setModoEdicion] = useState(false);
     
-    // Estados para el modal de selección y formatos
     const [mostrarModalTipo, setMostrarModalTipo] = useState(false);
     const [mostrarFormularioFabricacion, setMostrarFormularioFabricacion] = useState(false);
-    const [mostrarFormularioReparacion, setMostrarFormularioReparacion] = useState(false); // NUEVO ESTADO
+    const [mostrarFormularioReparacion, setMostrarFormularioReparacion] = useState(false);
 
+    // Cargar todas las cotizaciones al inicio
     useEffect(() => {
-        cargarDatos();
-    }, [filtros]);
+        cargarTodasLasCotizaciones();
+    }, []);
 
-    const cargarDatos = async () => {
+    // Aplicar filtros cuando cambien
+    useEffect(() => {
+        aplicarFiltros();
+    }, [filtros, cotizacionesOriginales]);
+
+    const cargarTodasLasCotizaciones = async () => {
         try {
             setLoading(true);
-            
-            const params = new URLSearchParams();
-            if (filtros.estado) params.append('estado', filtros.estado);
-            if (filtros.cliente) params.append('cliente_id', filtros.cliente);
-            if (filtros.fechaInicio) params.append('fecha_inicio', filtros.fechaInicio);
-            if (filtros.fechaFin) params.append('fecha_fin', filtros.fechaFin);
-            if (filtros.tipoServicio) params.append('tipo_servicio', filtros.tipoServicio);
-
-            const cotizacionesRes = await axios.get(`/api/cotizaciones/?${params}`);
+            const cotizacionesRes = await axios.get('/api/cotizaciones/');
             const cotizacionesData = cotizacionesRes.data;
             
-            setCotizaciones(cotizacionesData);
-
-            const hoy = new Date().toISOString().split('T')[0];
-            
-            const total = cotizacionesData.length;
-            const activas = cotizacionesData.filter(c => c.estado === 'ACTIVA').length;
-            const vencidas = cotizacionesData.filter(c => 
-                c.estado === 'ACTIVA' && c.fecha_vencimiento && c.fecha_vencimiento < hoy
-            ).length;
-
-            setEstadisticas({
-                total,
-                activas,
-                vencidas
-            });
+            setCotizacionesOriginales(cotizacionesData);
+            calcularEstadisticas(cotizacionesData);
             
         } catch (error) {
-            console.error('Error cargando datos:', error);
+            console.error('Error cargando cotizaciones:', error);
             alert('Error al cargar las cotizaciones');
-            
-            setEstadisticas({
-                total: 0,
-                activas: 0,
-                vencidas: 0
-            });
+            setEstadisticas({ total: 0, activas: 0, vencidas: 0, convertidas: 0 });
         } finally {
             setLoading(false);
         }
     };
 
+    const aplicarFiltros = () => {
+        let cotizacionesFiltradas = [...cotizacionesOriginales];
+
+        // Filtro por estado - MANEJAR VENCIDAS EN FRONTEND
+        if (filtros.estado) {
+            if (filtros.estado === 'VENCIDA') {
+                // Filtrar cotizaciones ACTIVAS con fecha vencida
+                const hoy = new Date().toISOString().split('T')[0];
+                cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                    cot.estado === 'ACTIVA' && 
+                    cot.fecha_vencimiento && 
+                    cot.fecha_vencimiento < hoy
+                );
+            } else {
+                // Para ACTIVA y CONVERTIDA, usar filtro normal
+                cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                    cot.estado === filtros.estado
+                );
+            }
+        }
+
+        // Los demás filtros los manejamos en frontend también para consistencia
+        if (filtros.cliente) {
+            cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                cot.id_cliente == filtros.cliente
+            );
+        }
+
+        if (filtros.tipoServicio) {
+            cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                cot.tipo_servicio === filtros.tipoServicio
+            );
+        }
+
+        if (filtros.fechaInicio) {
+            cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                cot.fecha_creacion >= filtros.fechaInicio
+            );
+        }
+
+        if (filtros.fechaFin) {
+            cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                cot.fecha_creacion <= filtros.fechaFin
+            );
+        }
+
+        setCotizaciones(cotizacionesFiltradas);
+        calcularEstadisticas(cotizacionesFiltradas);
+    };
+
+    const calcularEstadisticas = (cotizacionesData) => {
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        const total = cotizacionesData.length;
+        const activas = cotizacionesData.filter(c => c.estado === 'ACTIVA').length;
+        const convertidas = cotizacionesData.filter(c => c.estado === 'CONVERTIDA').length;
+        const vencidas = cotizacionesData.filter(c => 
+            c.estado === 'ACTIVA' && c.fecha_vencimiento && c.fecha_vencimiento < hoy
+        ).length;
+
+        setEstadisticas({ total, activas, vencidas, convertidas });
+    };
+
     const handleFiltrosChange = (nuevosFiltros) => {
+        console.log('Nuevos filtros aplicados:', nuevosFiltros);
         setFiltros(nuevosFiltros);
+    };
+
+    const handleLimpiarFiltros = () => {
+        setFiltros({
+            estado: '',
+            cliente: '',
+            fechaInicio: '',
+            fechaFin: '',
+            tipoServicio: ''
+        });
     };
 
     const handleCrearCotizacion = () => {
         setMostrarModalTipo(true);
     };
 
-    // MODIFICAR ESTA FUNCIÓN para manejar ambos tipos
     const handleSeleccionarTipo = (tipo) => {
-        console.log(`Tipo de cotización seleccionado: ${tipo}`);
-        
         if (tipo === 'FABRICACION') {
-            // Abrir formato de fabricación
             setCotizacionSeleccionada(null);
             setModoEdicion(false);
             setMostrarFormularioFabricacion(true);
         } else if (tipo === 'REPARACION') {
-            // Abrir formato de reparación
             setCotizacionSeleccionada(null);
             setModoEdicion(false);
             setMostrarFormularioReparacion(true);
-        }
-    };
-
-    const handleEditarCotizacion = (cotizacion) => {
-        setCotizacionSeleccionada(cotizacion);
-        setModoEdicion(true);
-        
-        // Determinar qué formulario mostrar basado en el tipo de servicio
-        if (cotizacion.tipo_servicio === 'FABRICACION') {
-            setMostrarFormularioFabricacion(true);
-        } else if (cotizacion.tipo_servicio === 'REPARACION') {
-            setMostrarFormularioReparacion(true);
-        } else {
-            // Por defecto mostrar fabricación
-            setMostrarFormularioFabricacion(true);
-        }
-    };
-
-    const handleVerDetalle = (cotizacion) => {
-        setCotizacionSeleccionada(cotizacion);
-        setModoEdicion(false);
-        
-        // Determinar qué formulario mostrar basado en el tipo de servicio
-        if (cotizacion.tipo_servicio === 'FABRICACION') {
-            setMostrarFormularioFabricacion(true);
-        } else if (cotizacion.tipo_servicio === 'REPARACION') {
-            setMostrarFormularioReparacion(true);
-        } else {
-            // Por defecto mostrar fabricación
-            setMostrarFormularioFabricacion(true);
         }
     };
 
     const handleCerrarFormularioFabricacion = () => {
         setMostrarFormularioFabricacion(false);
         setCotizacionSeleccionada(null);
-        cargarDatos();
+        cargarTodasLasCotizaciones();
     };
 
-    // NUEVA FUNCIÓN para cerrar formulario de reparación
     const handleCerrarFormularioReparacion = () => {
         setMostrarFormularioReparacion(false);
         setCotizacionSeleccionada(null);
-        cargarDatos();
+        cargarTodasLasCotizaciones();
     };
 
     const handleEliminarCotizacion = async (cotizacion) => {
@@ -158,7 +176,7 @@ export default function CotizacionesModule() {
         try {
             await axios.delete(`/api/cotizaciones/${cotizacion.numero_cotizacion}/`);
             alert('Cotización eliminada exitosamente');
-            cargarDatos();
+            cargarTodasLasCotizaciones();
         } catch (error) {
             console.error('Error eliminando cotización:', error);
             alert('Error al eliminar la cotización');
@@ -173,26 +191,12 @@ export default function CotizacionesModule() {
         try {
             const response = await axios.post(`/api/cotizaciones/${cotizacion.numero_cotizacion}/convertir_a_factura/`);
             alert('Cotización convertida a factura exitosamente');
-            console.log('Factura creada:', response.data.factura);
-            cargarDatos();
+            cargarTodasLasCotizaciones();
         } catch (error) {
             console.error('Error convirtiendo cotización:', error);
             alert('Error al convertir la cotización a factura');
         }
     };
-
-
-    // REMOVER este bloque ya que no se usa FormatoCotizacion genérico
-    // if (mostrarFormulario) {
-    //     return (
-    //         <FormatoCotizacion
-    //             cotizacion={cotizacionSeleccionada}
-    //             modoEdicion={modoEdicion}
-    //             onClose={handleCerrarFormulario}
-    //             onSave={handleCerrarFormulario}
-    //         />
-    //     );
-    // }
 
     if (mostrarFormularioFabricacion) {
         return (
@@ -205,7 +209,6 @@ export default function CotizacionesModule() {
         );
     }
 
-    // NUEVO BLOQUE para mostrar formulario de reparación
     if (mostrarFormularioReparacion) {
         return (
             <FormatoCotizacionReparacion
@@ -219,8 +222,6 @@ export default function CotizacionesModule() {
 
     return (
         <div className="cotizaciones-module">
-            
-            {/* Modal de selección de tipo */}
             <ModalSeleccionTipo
                 isOpen={mostrarModalTipo}
                 onClose={() => setMostrarModalTipo(false)}
@@ -236,20 +237,12 @@ export default function CotizacionesModule() {
             <FiltrosCotizaciones
                 filtros={filtros}
                 onFiltrosChange={handleFiltrosChange}
-                onLimpiarFiltros={() => setFiltros({
-                    estado: '',
-                    cliente: '',
-                    fechaInicio: '',
-                    fechaFin: '',
-                    tipoServicio: ''
-                })}
+                onLimpiarFiltros={handleLimpiarFiltros}
             />
 
             <ListaCotizaciones
                 cotizaciones={cotizaciones}
                 loading={loading}
-                onEditar={handleEditarCotizacion}
-                onVerDetalle={handleVerDetalle}
                 onEliminar={handleEliminarCotizacion}
                 onConvertirAFactura={handleConvertirAFactura}
             />

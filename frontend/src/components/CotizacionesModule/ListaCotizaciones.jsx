@@ -1,13 +1,12 @@
 // ListaCotizaciones.jsx
 import React from 'react';
-import { FaEye, FaTrash, FaFileInvoiceDollar, FaClock, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
-
+import { FaClock, FaCheckCircle, FaExclamationTriangle, FaBan } from 'react-icons/fa';
+import AccionesCotizaciones from '../cotizacionesComponentes/AccionesCotizaciones';
 import '../../styles/scss/components/_listaCotizaciones.scss';
 
 export default function ListaCotizaciones({ 
     cotizaciones, 
     loading, 
-    onVerDetalle, 
     onEliminar, 
     onConvertirAFactura 
 }) {
@@ -167,39 +166,11 @@ export default function ListaCotizaciones({
                                 </td>
 
                                 <td className="acciones-cell" data-label="Acciones">
-                                    {/* Botón Ver - Siempre visible */}
-                                    <button
-                                        className="btn-accion btn-ver"
-                                        onClick={() => onVerDetalle(cotizacion)}
-                                        title="Ver detalle"
-                                    >
-                                        <FaEye />
-                                        Ver
-                                    </button>
-
-                                    {/* Botón Factura - Solo para cotizaciones ACTIVAS */}
-                                    {cotizacion.estado === 'ACTIVA' && (
-                                        <button
-                                            className="btn-accion btn-convertir"
-                                            onClick={() => onConvertirAFactura(cotizacion)}
-                                            title="Convertir a factura"
-                                        >
-                                            <FaFileInvoiceDollar />
-                                            Factura
-                                        </button>
-                                    )}
-
-                                    {/* Botón Eliminar - Solo para cotizaciones NO CONVERTIDAS */}
-                                    {cotizacion.estado !== 'CONVERTIDA' && (
-                                        <button
-                                            className="btn-accion btn-eliminar"
-                                            onClick={() => onEliminar(cotizacion)}
-                                            title="Eliminar cotización"
-                                        >
-                                            <FaTrash />
-                                            Eliminar
-                                        </button>
-                                    )}
+                                    <AccionesCotizaciones
+                                        cotizacion={cotizacion}
+                                        onFactura={onConvertirAFactura}
+                                        onEliminar={onEliminar}
+                                    />
                                 </td>
                             </tr>
                         ))}

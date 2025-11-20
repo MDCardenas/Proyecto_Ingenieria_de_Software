@@ -284,6 +284,77 @@
   }
 }
 
+// -------------- Método de Pago -----------------
+.metodo-pago-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+  h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+  }
+}
+
+.metodo-pago-options {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.metodo-pago-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background: #e9ecef;
+  }
+
+  input[type="radio"] {
+    display: none;
+    
+    &:checked + .radio-custom {
+      background: #007bff;
+      border-color: #007bff;
+      
+      &::after {
+        content: '';
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+        margin: 3px;
+      }
+    }
+  }
+
+  .radio-custom {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #6c757d;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .metodo-pago-options {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
 @include responsive(sm) {
   .botones-container {
     max-width: 100%;

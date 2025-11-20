@@ -60,6 +60,16 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
         return Object.values(filtrosLocales).some(valor => valor !== '');
     };
 
+    // Función para formatear el texto del estado para mostrar
+    const formatearEstadoTexto = (estado) => {
+        const estados = {
+            'ACTIVA': 'Activas',
+            'CONVERTIDA': 'Convertidas', 
+            'VENCIDA': 'Vencidas'
+        };
+        return estados[estado] || estado;
+    };
+
     return (
         <div className="filtros-cotizaciones">
             <div className="filtros-header">
@@ -88,7 +98,7 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
                     >
                         <option value="">Todos los estados</option>
                         <option value="ACTIVA">Activas</option>
-                        <option value="ANULADA">Anuladas</option>
+                        <option value="CONVERTIDA">Convertidas</option>
                         <option value="VENCIDA">Vencidas</option>
                     </select>
                 </div>
@@ -188,7 +198,7 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
                                 fontSize: '12px',
                                 color: '#1976d2'
                             }}>
-                                Estado: {filtrosLocales.estado}
+                                Estado: {formatearEstadoTexto(filtrosLocales.estado)}
                             </span>
                         )}
                         {filtrosLocales.cliente && (
@@ -210,7 +220,7 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
                                 fontSize: '12px',
                                 color: '#f57c00'
                             }}>
-                                Servicio: {filtrosLocales.tipoServicio}
+                                Servicio: {filtrosLocales.tipoServicio === 'REPARACION' ? 'Reparación' : 'Fabricación'}
                             </span>
                         )}
                         {filtrosLocales.fechaInicio && (

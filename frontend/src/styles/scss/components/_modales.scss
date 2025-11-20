@@ -1,193 +1,626 @@
-// styles/scss/components/_modales.scss (o crea este archivo si no existe)
-
-.modal-ver-cotizacion {
-  max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e0e0e0;
-    background: #f8f9fa;
-
-    h2 {
-      margin: 0;
-      color: #333;
-    }
-
-    .btn-cerrar {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #6c757d;
-      
-      &:hover {
-        color: #dc3545;
-      }
-    }
-  }
-
-  .modal-body {
-    padding: 20px;
-    max-height: calc(90vh - 140px);
-    overflow-y: auto;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid #e0e0e0;
-    background: #f8f9fa;
-  }
-}
-
-.seccion-info {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-
-  h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #333;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 5px;
-    font-size: 1.1rem;
-  }
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 10px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  strong {
-    color: #555;
-  }
-
-  span {
-    color: #333;
-    font-weight: 500;
-  }
-}
-
-.resumen-financiero {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.linea-resumen {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-
-  &.total {
-    border-top: 2px solid #333;
-    font-weight: bold;
-    font-size: 1.1em;
-    margin-top: 10px;
-    padding-top: 12px;
-  }
-}
-
-.estado {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.85em;
-  font-weight: bold;
-  text-transform: uppercase;
-
-  &.activa {
-    background-color: #d4edda;
-    color: #155724;
-  }
-
-  &.anulada {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
-
-  &.facturada {
-    background-color: #d1ecf1;
-    color: #0c5460;
-  }
-
-  &.vencida {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-}
-
-.vista-previa-pdf {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 15px;
-  background: white;
-  max-height: 400px;
-  overflow-y: auto;
-  background-color: #f8f9fa;
-}
-
-.observaciones {
-  background: white;
-  padding: 15px;
-  border-radius: 4px;
-  border-left: 4px solid #007bff;
-  
-  p {
-    margin: 0;
-    line-height: 1.5;
-    color: #555;
-  }
-}
-
-// En el mismo _modales.scss
-
+// En tu _modales.scss - Agrega estos estilos
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    
+    &.active {
+        display: flex;
+    }
 }
 
-.modal-contenido {
-  background: white;
-  border-radius: 8px;
-  position: relative;
-
-  &.grande {
-    max-width: 95%;
-    max-height: 95vh;
-    width: 1200px;
+.modal-ver-cotizacion-compacto {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
     overflow: hidden;
-  }
+    display: flex;
+    flex-direction: column;
+    
+    .modal-header {
+        background: #2c3e50;
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .header-principal {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            
+            h2 {
+                margin: 0;
+                color: white;
+                font-size: 1.5rem;
+            }
+        }
+        
+        .btn-cerrar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+    }
+    
+    .modal-body-compacto {
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .grid-principal {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .tarjeta-info {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        border-left: 4px solid #3498db;
+        
+        &.tarjeta-financiera {
+            border-left-color: #27ae60;
+            grid-column: 1 / -1;
+            
+            @media (max-width: 768px) {
+                grid-column: 1;
+            }
+        }
+        
+        .tarjeta-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            
+            h3 {
+                margin: 0;
+                font-size: 1rem;
+                color: #2c3e50;
+            }
+            
+            .icono {
+                color: #7f8c8d;
+            }
+        }
+        
+        .tarjeta-contenido {
+            .dato-principal {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 0.5rem;
+            }
+            
+            .datos-secundarios {
+                font-size: 0.9rem;
+                color: #7f8c8d;
+                
+                div {
+                    margin-bottom: 0.25rem;
+                }
+            }
+            
+            .fecha-item {
+                margin-bottom: 0.5rem;
+                
+                strong {
+                    display: inline-block;
+                    width: 100px;
+                    color: #7f8c8d;
+                }
+            }
+            
+            .linea-financiera {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.25rem 0;
+                border-bottom: 1px solid #ecf0f1;
+                
+                &.total {
+                    border-top: 2px solid #bdc3c7;
+                    border-bottom: none;
+                    padding-top: 0.5rem;
+                    margin-top: 0.5rem;
+                    font-size: 1.1rem;
+                }
+            }
+        }
+    }
+    
+    .seccion-productos {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        
+        .seccion-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            
+            h3 {
+                margin: 0;
+                font-size: 1rem;
+                color: #2c3e50;
+            }
+            
+            .icono {
+                color: #7f8c8d;
+            }
+        }
+        
+        .tabla-productos {
+            overflow-x: auto;
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                
+                th {
+                    background: #e9ecef;
+                    padding: 0.75rem;
+                    text-align: left;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    border-bottom: 2px solid #dee2e6;
+                }
+                
+                td {
+                    padding: 0.75rem;
+                    border-bottom: 1px solid #dee2e6;
+                    
+                    &.text-center {
+                        text-align: center;
+                    }
+                    
+                    &.text-right {
+                        text-align: right;
+                    }
+                }
+                
+                tr:last-child td {
+                    border-bottom: none;
+                }
+            }
+            
+            .producto-info {
+                .producto-nombre {
+                    font-weight: 600;
+                    color: #2c3e50;
+                }
+                
+                .producto-descripcion {
+                    font-size: 0.85rem;
+                    color: #7f8c8d;
+                    margin-top: 0.25rem;
+                }
+            }
+        }
+    }
+    
+    .seccion-adicional {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        
+        .info-adicional {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ecf0f1;
+            
+            &:last-child {
+                border-bottom: none;
+            }
+            
+            &.observaciones {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                
+                .observaciones-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                
+                p {
+                    margin: 0;
+                    color: #7f8c8d;
+                    line-height: 1.4;
+                }
+            }
+        }
+    }
+    
+    .badge-estado {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        
+        &.estado-activa {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        &.estado-anulada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        &.estado-facturada {
+            background: #cce7ff;
+            color: #004085;
+        }
+        
+        &.estado-vencida {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        &.estado-convertida {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        &.estado-default {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+    }
+    
+    .modal-footer {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #dee2e6;
+        
+        .acciones-pdf {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            
+            &.btn-secondary {
+                background: #6c757d;
+                color: white;
+                
+                &:hover {
+                    background: #5a6268;
+                }
+            }
+            
+            &.btn-primary {
+                background: #007bff;
+                color: white;
+                
+                &:hover {
+                    background: #0056b3;
+                }
+            }
+        }
+    }
+}
+
+// En tu _modales.scss - Agrega estos estilos para la versión completa
+.modal-ver-cotizacion-completa {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 1200px;
+    width: 95%;
+    max-height: 95vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    .modal-body-completo {
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .seccion-informacion {
+        margin-bottom: 2rem;
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #3498db;
+            
+            .info-card-header {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                
+                h3 {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    color: #2c3e50;
+                }
+                
+                .icono {
+                    color: #7f8c8d;
+                }
+            }
+            
+            .info-card-body {
+                .info-line {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 0.5rem;
+                    padding-bottom: 0.5rem;
+                    border-bottom: 1px solid #e9ecef;
+                    
+                    &:last-child {
+                        border-bottom: none;
+                        margin-bottom: 0;
+                    }
+                    
+                    strong {
+                        color: #495057;
+                    }
+                    
+                    span {
+                        color: #6c757d;
+                    }
+                }
+            }
+        }
+    }
+    
+    .seccion-detalles {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        
+        .seccion-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            
+            h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                color: #2c3e50;
+            }
+            
+            .icono {
+                color: #7f8c8d;
+            }
+        }
+        
+        .tabla-detalles {
+            overflow-x: auto;
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+                border-radius: 6px;
+                overflow: hidden;
+                
+                th {
+                    background: #2c3e50;
+                    color: white;
+                    padding: 0.75rem;
+                    text-align: left;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                }
+                
+                td {
+                    padding: 0.75rem;
+                    border-bottom: 1px solid #dee2e6;
+                    
+                    &.text-center {
+                        text-align: center;
+                    }
+                    
+                    &.text-right {
+                        text-align: right;
+                    }
+                }
+                
+                tr:last-child td {
+                    border-bottom: none;
+                }
+                
+                tr:nth-child(even) {
+                    background: #f8f9fa;
+                }
+                
+                .producto-nombre {
+                    font-weight: 600;
+                    color: #2c3e50;
+                }
+                
+                .producto-descripcion {
+                    font-size: 0.85rem;
+                    color: #6c757d;
+                    margin-top: 0.25rem;
+                }
+            }
+        }
+    }
+    
+    .seccion-resumen {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        
+        .seccion-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            
+            h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                color: #2c3e50;
+            }
+        }
+        
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .resumen-col {
+                .resumen-line {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 0.5rem 0;
+                    border-bottom: 1px solid #dee2e6;
+                    
+                    &.subtotal {
+                        border-top: 2px solid #bdc3c7;
+                        border-bottom: none;
+                        font-weight: 600;
+                        color: #2c3e50;
+                    }
+                    
+                    &.descuento {
+                        color: #dc3545;
+                    }
+                    
+                    &.total {
+                        border-top: 2px solid #28a745;
+                        border-bottom: none;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: #28a745;
+                    }
+                }
+            }
+        }
+    }
+    
+    .seccion-observaciones {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        
+        .seccion-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            
+            h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                color: #2c3e50;
+            }
+        }
+        
+        .observaciones-content {
+            .observacion-item {
+                margin-bottom: 1rem;
+                
+                &:last-child {
+                    margin-bottom: 0;
+                }
+                
+                strong {
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    color: #495057;
+                }
+                
+                p {
+                    margin: 0;
+                    padding: 0.75rem;
+                    background: white;
+                    border-radius: 4px;
+                    border-left: 4px solid #17a2b8;
+                    color: #6c757d;
+                    line-height: 1.5;
+                }
+            }
+        }
+    }
+}
+
+// Mantén los estilos del header, footer y badges del código anterior
+
+// Responsive
+@media (max-width: 768px) {
+    .modal-ver-cotizacion-compacto {
+        width: 98%;
+        margin: 1rem;
+        
+        .modal-footer {
+            flex-direction: column;
+            gap: 1rem;
+            
+            .acciones-pdf {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    }
 }

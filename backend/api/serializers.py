@@ -248,7 +248,8 @@ class FacturaCreateSerializer(serializers.ModelSerializer):
         model = TblFacturas
         fields = [
             'id_cliente', 'id_empleado', 'fecha', 'direccion', 'telefono', 'rtn',
-            'subtotal', 'descuento', 'isv', 'total', 'tipo_venta', 'observaciones'
+            'subtotal', 'descuento', 'isv', 'total', 'tipo_venta', 'observaciones',
+            'metodo_pago'
         ]
 
 class FacturaEstadoSerializer(serializers.ModelSerializer):

@@ -250,8 +250,10 @@ export default function Facturacion({ onCancel }) {
 
       const descuento = parseFloat(descuentos) || 0;
       const subtotalConDescuento = subtotalProductos - descuento;
-      const isv = subtotalConDescuento * 0.15;
-      const total = subtotalConDescuento + isv;
+      
+      // CORREGIR: Asegurar máximo 2 decimales
+      const isv = parseFloat((subtotalConDescuento * 0.15).toFixed(2));
+      const total = parseFloat((subtotalConDescuento + isv).toFixed(2));
 
       const facturaData = {
         id_cliente: parseInt(datosFactura.id_cliente),
@@ -260,8 +262,8 @@ export default function Facturacion({ onCancel }) {
         direccion: datosFactura.direccion || "No especificada",
         telefono: datosFactura.telefono || "No especificado",
         rtn: datosFactura.rtn || "",
-        subtotal: subtotalConDescuento,
-        descuento: descuento,
+        subtotal: parseFloat(subtotalConDescuento.toFixed(2)), // También asegurar 2 decimales
+        descuento: parseFloat(descuento.toFixed(2)),
         isv: isv,
         total: total,
         tipo_venta: tipoFactura,
@@ -270,17 +272,18 @@ export default function Facturacion({ onCancel }) {
           codigo: p.codigo || 1,
           producto: p.producto || 'Producto sin nombre',
           cantidad: parseInt(p.cantidad) || 1,
-          precio: parseFloat(p.precio) || 0,
+          precio: parseFloat((parseFloat(p.precio) || 0).toFixed(2)), // Asegurar 2 decimales
           descripcion: p.descripcion || 'Sin descripción'
         })),
         materiales: materiales.filter(m => m.tipo && m.peso && m.precio).map(m => ({
           tipo: m.tipo,
-          peso: parseFloat(m.peso) || 0,
-          precio: parseFloat(m.precio) || 0
+          peso: parseFloat((parseFloat(m.peso) || 0).toFixed(2)),
+          precio: parseFloat((parseFloat(m.precio) || 0).toFixed(2)),
+          costo: parseFloat((parseFloat(m.costo) || 0).toFixed(2))
         }))
       };
 
-      console.log("Enviando datos de factura:", facturaData);
+      console.log("Enviando datos de factura:", JSON.stringify(facturaData, null, 2));
 
       const endpoint = 'http://localhost:8000/api/facturas/crear-simple/';
       
@@ -295,6 +298,15 @@ export default function Facturacion({ onCancel }) {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error del servidor:", response.status, errorText);
+        
+        // Intentar parsear como JSON para ver el error detallado
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.error("Error detallado del backend:", errorJson);
+        } catch {
+          console.error("Error en texto plano:", errorText);
+        }
+        
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
@@ -523,11 +535,11 @@ export default function Facturacion({ onCancel }) {
     );
 
     const totalConDescuento = subtotalProductos - (parseFloat(descuentos) || 0);
-    const isv = totalConDescuento * 0.15;
-    const total = totalConDescuento + isv;
+    const isv = parseFloat((totalConDescuento * 0.15).toFixed(2));
+    const total = parseFloat((totalConDescuento + isv).toFixed(2));
 
     return {
-      subtotal: totalConDescuento,
+      subtotal: parseFloat(totalConDescuento.toFixed(2)),
       isv,
       total,
       anticipo: 0,
@@ -536,7 +548,7 @@ export default function Facturacion({ onCancel }) {
   };
 
   const calcularResultadosFabricacion = () => {
-    const precioCalculado = calcularPrecioAutomatico();
+    const precioCalculado = parseFloat(calcularPrecioAutomatico().toFixed(2));
     
     const subtotalProductos = productos.reduce(
       (acc, p) => acc + (parseFloat(p.cantidad) || 0) * precioCalculado,
@@ -544,10 +556,10 @@ export default function Facturacion({ onCancel }) {
     );
 
     const totalConDescuento = subtotalProductos - (parseFloat(descuentos) || 0);
-    const isv = totalConDescuento * 0.15;
-    const total = totalConDescuento + isv;
-    const anticipo = total * 0.5;
-    const pagoPendiente = total - anticipo;
+    const isv = parseFloat((totalConDescuento * 0.15).toFixed(2));
+    const total = parseFloat((totalConDescuento + isv).toFixed(2));
+    const anticipo = parseFloat((total * 0.5).toFixed(2));
+    const pagoPendiente = parseFloat((total - anticipo).toFixed(2));
 
     setProductos(prev => prev.map(p => ({
       ...p,
@@ -555,12 +567,12 @@ export default function Facturacion({ onCancel }) {
     })));
 
     return {
-      subtotal: totalConDescuento,
+      subtotal: parseFloat(totalConDescuento.toFixed(2)),
       isv,
       total,
       anticipo,
       pagoPendiente,
-      subtotalProductos
+      subtotalProductos: parseFloat(subtotalProductos.toFixed(2))
     };
   };
 
@@ -575,13 +587,13 @@ export default function Facturacion({ onCancel }) {
                         (parseFloat(manoObra) || 0);
 
     const totalConDescuento = totalParcial - (parseFloat(descuentos) || 0);
-    const isv = totalConDescuento * 0.15;
-    const total = totalConDescuento + isv;
-    const anticipo = total * 0.5;
-    const pagoPendiente = total - anticipo;
+    const isv = parseFloat((totalConDescuento * 0.15).toFixed(2));
+    const total = parseFloat((totalConDescuento + isv).toFixed(2));
+    const anticipo = parseFloat((total * 0.5).toFixed(2));
+    const pagoPendiente = parseFloat((total - anticipo).toFixed(2));
 
     return {
-      subtotal: totalConDescuento,
+      subtotal: parseFloat(totalConDescuento.toFixed(2)),
       isv,
       total,
       anticipo,
@@ -644,7 +656,7 @@ export default function Facturacion({ onCancel }) {
                           (parseFloat(costoInsumos) || 0) + 
                           (parseFloat(manoObra) || 0);
     
-    return precioCalculado;
+    return parseFloat(precioCalculado.toFixed(2));
   };
 
   const handleCancelar = () => {

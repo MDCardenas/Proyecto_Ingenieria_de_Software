@@ -14,6 +14,7 @@ export default function ListaFacturas() {
   const [cargando, setCargando] = useState(true);
   const [actualizando, setActualizando] = useState({});
   const [error, setError] = useState(null);
+  const [metodoPagoSeleccionado, setMetodoPagoSeleccionado] = useState({});
   
   // Estados para el modal
   const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
@@ -57,7 +58,7 @@ export default function ListaFacturas() {
       const payload = {
         estado_pago: nuevoEstado,
         ...(nuevoEstado === 'PAGADA' && {
-          metodo_pago: 'EFECTIVO',
+          metodo_pago: metodoPagoSeleccionado[numeroFactura] || 'EFECTIVO', // Usar el seleccionado o por defecto
           fecha_pago: new Date().toISOString()
         })
       };
@@ -407,10 +408,32 @@ export default function ListaFacturas() {
                 </button>
 
                 {factura.estado_pago === 'PENDIENTE' && (
+                <div className="selector-metodo-pago" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
+                  <select 
+                    value={metodoPagoSeleccionado[factura.numero_factura] || 'EFECTIVO'}
+                    onChange={(e) => setMetodoPagoSeleccionado(prev => ({
+                      ...prev, 
+                      [factura.numero_factura]: e.target.value
+                    }))}
+                    style={{ 
+                      padding: '6px 8px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px', 
+                      fontSize: '0.85rem', 
+                      background: 'white',
+                      minWidth: '100px',
+                      color: 'black'
+                    }}
+                  >
+                    <option value="EFECTIVO">Efectivo</option>
+                    <option value="TARJETA">Tarjeta</option>
+                  </select>
+                  
                   <button
                     className="btn-marcar-pagada"
                     onClick={() => cambiarEstadoPago(factura.numero_factura, 'PAGADA')}
                     disabled={actualizando[factura.numero_factura]}
+                    style={{ whiteSpace: 'nowrap', minWidth: '80px' }}
                   >
                     {actualizando[factura.numero_factura] ? (
                       <FaSync className="girando" />
@@ -419,7 +442,9 @@ export default function ListaFacturas() {
                     )}
                     {actualizando[factura.numero_factura] ? 'Procesando...' : 'Pagar'}
                   </button>
-                )}
+                </div>
+              )}
+
 
                 {factura.estado_pago === 'PAGADA' && (
                   <button

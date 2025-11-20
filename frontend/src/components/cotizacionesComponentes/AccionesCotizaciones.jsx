@@ -1,15 +1,12 @@
 // components/cotizacionesComponentes/AccionesCotizaciones.jsx
 import React, { useState } from 'react';
-import { FaEye, FaEdit, FaFileInvoice, FaBan, FaTrash } from 'react-icons/fa';
+import { FaEye, FaFileInvoice, FaTrash } from 'react-icons/fa';
 import ModalVerCotizacion from './ModalVerCotizacion.jsx';
-
 import "../../styles/scss/pages/_cotizacion.scss";
 
 export default function AccionesCotizaciones({ 
     cotizacion, 
-    onEditar, 
     onFactura, 
-    onAnular, 
     onEliminar 
 }) {
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -18,27 +15,11 @@ export default function AccionesCotizaciones({
         setMostrarModal(true);
     };
 
-    const handleEditar = () => {
-        if (onEditar) {
-            onEditar(cotizacion);
-        }
-    };
-
     const handleFactura = () => {
         if (onFactura) {
             onFactura(cotizacion);
         } else {
             alert('Funcionalidad de factura en desarrollo');
-        }
-    };
-
-    const handleAnular = () => {
-        if (onAnular) {
-            onAnular(cotizacion);
-        } else {
-            if (confirm(`¿Está seguro que desea anular la cotización ${cotizacion.numero_cotizacion}?`)) {
-                alert('Funcionalidad de anular en desarrollo');
-            }
         }
     };
 
@@ -52,10 +33,15 @@ export default function AccionesCotizaciones({
         }
     };
 
+    // Determinar qué botones mostrar según el estado
+    const esConvertida = cotizacion.estado === 'CONVERTIDA' || cotizacion.estado === 'FACTURADA';
+    const esActiva = cotizacion.estado === 'ACTIVA';
+    const puedeEliminar = !esConvertida && cotizacion.estado !== 'ANULADA';
+
     return (
         <>
             <div className="acciones-cotizaciones">
-                {/* Botón Ver */}
+                {/* Botón Ver - Siempre visible */}
                 <button 
                     className="btn-accion btn-ver"
                     onClick={handleVer}
@@ -64,44 +50,30 @@ export default function AccionesCotizaciones({
                     <FaEye />
                 </button>
 
-                {/* Botón Editar */}
-                <button 
-                    className="btn-accion btn-editar"
-                    onClick={handleEditar}
-                    title="Editar cotización"
-                >
-                    <FaEdit />
-                </button>
+                {/* Botón Factura - Solo para cotizaciones ACTIVAS */}
+                {esActiva && (
+                    <button 
+                        className="btn-accion btn-factura"
+                        onClick={handleFactura}
+                        title="Generar factura"
+                    >
+                        <FaFileInvoice />
+                    </button>
+                )}
 
-                {/* Botón Factura */}
-                <button 
-                    className="btn-accion btn-factura"
-                    onClick={handleFactura}
-                    title="Generar factura"
-                >
-                    <FaFileInvoice />
-                </button>
-
-                {/* Botón Anular */}
-                <button 
-                    className="btn-accion btn-anular"
-                    onClick={handleAnular}
-                    title="Anular cotización"
-                >
-                    <FaBan />
-                </button>
-
-                {/* Botón Eliminar */}
-                <button 
-                    className="btn-accion btn-eliminar"
-                    onClick={handleEliminar}
-                    title="Eliminar cotización"
-                >
-                    <FaTrash />
-                </button>
+                {/* Botón Eliminar - Solo para cotizaciones NO CONVERTIDAS y NO ANULADAS */}
+                {puedeEliminar && (
+                    <button 
+                        className="btn-accion btn-eliminar"
+                        onClick={handleEliminar}
+                        title="Eliminar cotización"
+                    >
+                        <FaTrash />
+                    </button>
+                )}
             </div>
 
-            {/* Modal para Ver */}
+            {/* Modal para Ver - Este es el modal nuevo y mejorado */}
             {mostrarModal && (
                 <ModalVerCotizacion
                     cotizacion={cotizacion}
