@@ -3,7 +3,7 @@
 @import '../abstracts/_mixins';
 
 .filtros-cotizaciones {
-  background: $bg-primary;
+  background: $white; // ✅ Cambiado a blanco
   border-radius: $border-radius-lg;
   padding: $spacing-xl;
   box-shadow: $shadow-sm;
@@ -52,10 +52,12 @@
 
     select,
     input {
+      background: $white; // ✅ Fondo blanco para inputs
       padding: $spacing-sm;
       border: 1px solid $gray-300;
       border-radius: $border-radius;
       font-size: $font-size-sm;
+      color: $gray-800; // ✅ Texto oscuro
       transition: all $transition-fast;
 
       &:focus {
@@ -68,6 +70,11 @@
         background-color: $gray-100;
         color: $gray-500;
         cursor: not-allowed;
+      }
+
+      // ✅ Placeholder con color claro
+      &::placeholder {
+        color: $gray-500;
       }
     }
   }
@@ -85,9 +92,9 @@
     }
 
     .btn-limpiar {
-      background: $gray-500;
-      color: $text-light;
-      border: none;
+      background: $gray-200; // ✅ Gris claro
+      color: $gray-700; // ✅ Texto oscuro
+      border: 1px solid $gray-300;
       padding: $spacing-sm $spacing-lg;
       border-radius: $border-radius;
       font-weight: $font-weight-semibold;
@@ -95,18 +102,20 @@
       transition: all $transition-fast;
 
       &:hover {
-        background: $gray-600;
+        background: $gray-300;
+        border-color: $gray-400;
       }
 
       &:disabled {
-        background: $gray-400;
+        background: $gray-100;
+        color: $gray-400;
         cursor: not-allowed;
       }
     }
 
     .btn-aplicar {
       background: $blue-primary;
-      color: $text-light;
+      color: $white;
       border: none;
       padding: $spacing-sm $spacing-lg;
       border-radius: $border-radius;
@@ -119,7 +128,7 @@
       }
 
       &:disabled {
-        background: $gray-400; // ✅ CORREGIDO: $blue-light → $gray-400
+        background: $gray-400;
         cursor: not-allowed;
       }
     }

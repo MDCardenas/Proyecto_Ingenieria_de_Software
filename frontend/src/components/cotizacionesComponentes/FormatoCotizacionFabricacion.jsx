@@ -1,7 +1,7 @@
 // components/cotizacionesComponentes/FormatoCotizacionFabricacion.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { FaPlus, FaTrash, FaSearch, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaSearch, FaTimes, FaCalculator, FaFilePdf, FaTimesCircle } from 'react-icons/fa';
 import { normalizeText } from '../../utils/normalize.js';
 import DatosCliente from '../FacturacionModule/DatosCliente.jsx';
 import Producto from '../FacturacionModule/Producto.jsx';
@@ -49,7 +49,6 @@ export default function FormatoCotizacionFabricacion({
         observaciones: ''
     });
 
-    // AÑADIR ESTADO PARA RESULTADOS
     const [resultados, setResultados] = useState({
         subtotal: 0,
         isv: 0,
@@ -65,14 +64,12 @@ export default function FormatoCotizacionFabricacion({
     const [loading, setLoading] = useState(true);
     const [errores, setErrores] = useState({});
 
-    // Cargar datos iniciales
     useEffect(() => {
         cargarDatosIniciales();
     }, []);
 
     const cotizacionRef = useRef();
 
-    // Si estamos editando, cargar los datos de la cotización
     useEffect(() => {
         if (cotizacion) {
             setDatosCotizacion({
@@ -126,7 +123,6 @@ export default function FormatoCotizacionFabricacion({
         try {
             setLoading(true);
             
-            // Cargar solo las APIs que existen
             const [clientesRes, empleadosRes, materialesRes] = await Promise.all([
                 axios.get('http://localhost:8000/api/clientes/'),
                 axios.get('http://localhost:8000/api/empleados/'),
@@ -141,10 +137,8 @@ export default function FormatoCotizacionFabricacion({
             console.log("✅ Empleados cargados:", empleadosRes.data.length);
             console.log("✅ Materiales cargados:", materialesRes.data.length);
             
-            // ELIMINAR LA CARGA DE PRODUCTOS O USAR ENDPOINT CORRECTO
-            // Si necesitas productos, usa el endpoint correcto:
             try {
-                const productosRes = await axios.get('http://localhost:8000/api/joyas/'); // o el endpoint correcto
+                const productosRes = await axios.get('http://localhost:8000/api/joyas/');
                 setProductosStock(productosRes.data);
                 console.log("✅ Productos cargados:", productosRes.data.length);
             } catch (productosError) {
@@ -161,30 +155,24 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // CALCULOS AUTOMATICOS
     const calcularCostos = useCallback(() => {
-        // Calcular costo total de cada material
         const materialesActualizados = datosCotizacion.materiales.map(material => ({
             ...material,
             costo_total: (parseFloat(material.peso_gramos) || 0) * (parseFloat(material.precio_por_gramo) || 0)
         }));
 
-        // Calcular total de materiales
         const totalMateriales = materialesActualizados.reduce((sum, material) => sum + material.costo_total, 0);
         
-        // Calcular subtotal (total materiales + insumos + mano obra - descuentos)
         const subtotal = totalMateriales + 
                         (parseFloat(datosCotizacion.costo_insumos) || 0) + 
                         (parseFloat(datosCotizacion.mano_obra) || 0) - 
                         (parseFloat(datosCotizacion.descuentos) || 0);
 
-        // Actualizar precio de los productos con el subtotal
         const productosActualizados = datosCotizacion.productos.map(producto => ({
             ...producto,
             precio: Math.max(0, subtotal)
         }));
 
-        // Solo actualizar si hay cambios reales
         const materialesCambiaron = JSON.stringify(materialesActualizados) !== JSON.stringify(datosCotizacion.materiales);
         const productosCambiaron = JSON.stringify(productosActualizados) !== JSON.stringify(datosCotizacion.productos);
 
@@ -201,13 +189,9 @@ export default function FormatoCotizacionFabricacion({
         calcularCostos();
     }, [calcularCostos]);
 
-    // AÑADIR FUNCIÓN PARA CALCULAR RESULTADOS (SIMILAR A FACTURACION)
-    // FUNCIÓN MEJORADA CON CÁLCULOS DETALLADOS
-    // FUNCIÓN CORREGIDA - ENVIAR LOS VALORES EXACTOS QUE CALCULA EL FRONTEND
     const calcularResultadosFabricacion = () => {
         console.log("=== CÁLCULO PARA COTIZACIÓN ===");
         
-        // 1. CALCULAR COSTO TOTAL DE PRODUCCIÓN
         const costoMateriales = datosCotizacion.materiales.reduce((acc, m) => {
             const peso = parseFloat(m.peso_gramos) || 0;
             const precioGramo = parseFloat(m.precio_por_gramo) || 0;
@@ -221,34 +205,28 @@ export default function FormatoCotizacionFabricacion({
         console.log("Costo materiales:", costoMateriales);
         console.log("Costo total producción:", costoTotalProduccion);
 
-        // 2. CALCULAR SUBTOTAL (suma de todos los productos)
         const subtotalProductos = datosCotizacion.productos.reduce((acc, p) => {
             const cantidad = parseInt(p.cantidad) || 0;
-            // Para cotización de fabricación, el precio unitario es el costo total de producción
             const precioUnitario = costoTotalProduccion;
             return acc + (cantidad * precioUnitario);
         }, 0);
 
         console.log("Subtotal productos:", subtotalProductos);
 
-        // 3. APLICAR DESCUENTOS AL SUBTOTAL
         const descuentos = parseFloat(datosCotizacion.descuentos) || 0;
         const subtotalConDescuento = subtotalProductos - descuentos;
 
         console.log("Descuentos aplicados:", descuentos);
         console.log("Subtotal con descuento:", subtotalConDescuento);
 
-        // 4. CALCULAR ISV (15%) sobre el subtotal con descuento
         const isv = subtotalConDescuento * 0.15;
 
         console.log("ISV (15%):", isv);
 
-        // 5. CALCULAR TOTAL según fórmula del backend: subtotal - descuento + isv
         const total = subtotalConDescuento + isv;
 
         console.log("Total calculado:", total);
 
-        // 6. REDONDEAR SOLO AL FINAL - IMPORTANTE: usar la misma lógica
         const redondear = (valor) => Math.round(valor * 100) / 100;
 
         const resultadosFinales = {
@@ -266,21 +244,9 @@ export default function FormatoCotizacionFabricacion({
         console.log("ISV:", resultadosFinales.isv);
         console.log("Total:", resultadosFinales.total);
 
-        // VERIFICACIÓN CRÍTICA: Esto debe ser TRUE
-        const verificacionBackend = redondear(resultadosFinales.subtotal - descuentos + resultadosFinales.isv);
-        console.log("VERIFICACIÓN BACKEND:");
-        console.log("Fórmula: subtotal - descuento + isv = total");
-        console.log(`${resultadosFinales.subtotal} - ${descuentos} + ${resultadosFinales.isv} = ${verificacionBackend}`);
-        console.log("¿Coincide con total enviado?", verificacionBackend === resultadosFinales.total);
-        console.log("Diferencia:", Math.abs(verificacionBackend - resultadosFinales.total));
-
         return resultadosFinales;
     };
 
-    // VERSIÓN ALTERNATIVA - PRUEBA CON CÁLCULOS SIN REDONDEOS INTERMEDIOS
-    
-
-    // AÑADIR FUNCIÓN PARA MANEJAR EL CÁLCULO
     const handleCalcular = () => {
         if (!validarDatos()) {
             alert("Por favor, complete todos los campos requeridos antes de calcular");
@@ -291,7 +257,6 @@ export default function FormatoCotizacionFabricacion({
         setResultados(nuevosResultados);
     };
 
-    // FUNCIÓN CORREGIDA PARA GUARDAR EN BD - CON REDONDEO DE DECIMALES
     const guardarCotizacionEnBD = async () => {
         try {
             console.log("🔄 Guardando cotización...");
@@ -300,11 +265,9 @@ export default function FormatoCotizacionFabricacion({
                 throw new Error("Cliente y empleado son requeridos");
             }
 
-            // Calcular resultados
             const resultadosCalculados = calcularResultadosFabricacion();
             setResultados(resultadosCalculados);
 
-            // Preparar datos
             const fechaVencimiento = new Date();
             fechaVencimiento.setDate(fechaVencimiento.getDate() + 30);
             
@@ -352,7 +315,6 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // AÑADIR FUNCIÓN PARA GENERAR COTIZACIÓN (POR AHORA SOLO ALERTA)
     const handleGenerarCotizacion = async () => {
         if (!validarDatos()) {
             alert('Por favor complete todos los campos requeridos antes de generar la cotización');
@@ -361,11 +323,9 @@ export default function FormatoCotizacionFabricacion({
 
         try {
             console.log("🚀 Iniciando generación de cotización...");
-            // 1. Calcular primero
             handleCalcular();
-            await new Promise(resolve => setTimeout(resolve, 100)); // Esperar actualización de estado
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-            // 2. Guardar en BD
             let cotizacionGuardada = null;
             try {
                 cotizacionGuardada = await guardarCotizacionEnBD();
@@ -373,10 +333,8 @@ export default function FormatoCotizacionFabricacion({
                 
             } catch (dbError) {
                 console.error("❌ Error al guardar en BD:", dbError);
-                // Continuar para generar PDF aunque falle el guardado en BD
             }
 
-            // Crear overlay para la generación del PDF
             const overlay = document.createElement('div');
             overlay.className = 'overlay-pdf';
             overlay.style.position = 'fixed';
@@ -392,7 +350,6 @@ export default function FormatoCotizacionFabricacion({
             overlay.style.overflow = 'auto';
             overlay.style.padding = '20px';
 
-            // Clonar el contenido de la cotización
             const cotizacionContent = cotizacionRef.current.cloneNode(true);
             cotizacionContent.style.visibility = 'visible';
             cotizacionContent.style.opacity = '1';
@@ -409,10 +366,8 @@ export default function FormatoCotizacionFabricacion({
             overlay.appendChild(cotizacionContent);
             document.body.appendChild(overlay);
 
-            // Esperar un momento para que se renderice
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Generar canvas del PDF
             const canvas = await html2canvas(cotizacionContent, {
                 scale: 2,
                 useCORS: true,
@@ -427,10 +382,8 @@ export default function FormatoCotizacionFabricacion({
                 windowHeight: 1056
             });
 
-            // Remover el overlay
             document.body.removeChild(overlay);
 
-            // Crear PDF
             const imgData = canvas.toDataURL('image/jpeg', 0.95);
             const pdf = new jsPDF({
                 orientation: 'portrait',
@@ -443,31 +396,15 @@ export default function FormatoCotizacionFabricacion({
 
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
             
-            // GUARDAR EN BASE DE DATOS
-            //let cotizacionGuardada = null;
-            //let guardadoExitoso = false;
-            
-            //try {
-              //  cotizacionGuardada = await guardarCotizacionEnBD();
-               // guardadoExitoso = true;
-                
-            //} catch (dbError) {
-              //  console.warn("Cotización no se pudo guardar en BD, pero se generará PDF:", dbError);
-                //guardadoExitoso = false;
-            //}
-
-            // Descargar PDF con el número real de cotización
             const nombreArchivo = cotizacionGuardada 
                 ? `cotizacion_${cotizacionGuardada.numero_cotizacion}.pdf`
                 : `cotizacion_${Date.now()}.pdf`;
             
             pdf.save(nombreArchivo);
             
-            // 4. Mensaje final según resultado
             if (cotizacionGuardada) {
                 alert(`✅ Cotización generada y guardada exitosamente!\nNúmero: ${cotizacionGuardada.numero_cotizacion}\nLa cotización ahora aparece en la lista.`);
                 
-                // Cerrar después de éxito
                 setTimeout(() => {
                     if (onClose) onClose();
                 }, 2000);
@@ -481,7 +418,6 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // AÑADIR FUNCIÓN PARA OBTENER DATOS DEL CLIENTE (similar a FacturacionModule)
     const obtenerDatosCliente = () => {
         const clienteSeleccionado = clientes.find(c => c.id_cliente === parseInt(datosCotizacion.id_cliente));
         return {
@@ -492,7 +428,6 @@ export default function FormatoCotizacionFabricacion({
         };
     };
 
-    // Función para actualizar datos generales
     const handleActualizarDatos = (campo, valor) => {
         setDatosCotizacion(prev => ({
             ...prev,
@@ -507,7 +442,6 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // Función para manejar cambio de cliente
     const handleClienteChange = (idCliente) => {
         const clienteSeleccionado = clientes.find(c => c.id_cliente === idCliente);
         if (clienteSeleccionado) {
@@ -521,7 +455,6 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // FUNCIONES PARA MANEJAR PRODUCTOS
     const handleAgregarProducto = () => {
         setDatosCotizacion(prev => ({
             ...prev,
@@ -563,7 +496,6 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // FUNCIONES PARA MANEJAR MATERIALES
     const handleAgregarMaterial = () => {
         setDatosCotizacion(prev => ({
             ...prev,
@@ -602,18 +534,15 @@ export default function FormatoCotizacionFabricacion({
         }
     };
 
-    // Función para validar datos
     const validarDatos = () => {
         const nuevosErrores = {};
         
-        // Validar datos del cliente
         if (!datosCotizacion.id_cliente) nuevosErrores.id_cliente = 'Cliente es requerido';
         if (!datosCotizacion.id_empleado) nuevosErrores.id_empleado = 'Empleado es requerido';
         if (!datosCotizacion.fecha) nuevosErrores.fecha = 'Fecha es requerida';
         if (!datosCotizacion.telefono) nuevosErrores.telefono = 'Teléfono es requerido';
         if (!datosCotizacion.direccion) nuevosErrores.direccion = 'Dirección es requerida';
         
-        // Validar productos
         datosCotizacion.productos.forEach((producto) => {
             if (!producto.codigo) nuevosErrores[`producto_${producto.id}_codigo`] = 'Código boceto es requerido';
             if (!producto.producto) nuevosErrores[`producto_${producto.id}_producto`] = 'Nombre del diseño es requerido';
@@ -621,14 +550,12 @@ export default function FormatoCotizacionFabricacion({
             if (!producto.descripcion) nuevosErrores[`producto_${producto.id}_descripcion`] = 'Descripción del boceto es requerida';
         });
 
-        // Validar materiales
         datosCotizacion.materiales.forEach((material) => {
             if (!material.tipo_material) nuevosErrores[`material_${material.id}_tipo_material`] = 'Tipo de material es requerido';
             if (!material.peso_gramos || material.peso_gramos <= 0) nuevosErrores[`material_${material.id}_peso_gramos`] = 'Peso en gramos es requerido';
             if (!material.precio_por_gramo || material.precio_por_gramo <= 0) nuevosErrores[`material_${material.id}_precio_por_gramo`] = 'Precio por gramo es requerido';
         });
 
-        // Validar costos adicionales
         if (!datosCotizacion.costo_insumos || datosCotizacion.costo_insumos < 0) nuevosErrores.costo_insumos = 'Costo de insumos es requerido';
         if (!datosCotizacion.mano_obra || datosCotizacion.mano_obra < 0) nuevosErrores.mano_obra = 'Mano de obra es requerida';
 
@@ -636,7 +563,6 @@ export default function FormatoCotizacionFabricacion({
         return Object.keys(nuevosErrores).length === 0;
     };
 
-    // Cálculos para el resumen
     const calcularResumen = () => {
         const totalMateriales = datosCotizacion.materiales.reduce((sum, material) => sum + material.costo_total, 0);
         const totalInsumos = parseFloat(datosCotizacion.costo_insumos) || 0;
@@ -655,20 +581,6 @@ export default function FormatoCotizacionFabricacion({
 
     const resumen = calcularResumen();
 
-    // Función para guardar
-    const handleGuardar = () => {
-        if (!validarDatos()) {
-            alert('Por favor complete todos los campos requeridos');
-            return;
-        }
-
-        console.log('Datos de cotización de fabricación:', datosCotizacion);
-        alert('¡Funciona! Datos guardados correctamente para cotización de fabricación');
-        
-        // En el futuro aquí guardaremos en la base de datos
-        // onSave(datosCotizacion);
-    };
-
     if (loading) {
         return (
             <div className="cotizacion-fabricacion-loading">
@@ -680,20 +592,18 @@ export default function FormatoCotizacionFabricacion({
 
     return (
         <div className="cotizacion-fabricacion">
-            {/* Header SIMPLIFICADO - SIN BOTONES */}
+            {/* Header */}
             <div className="cotizacion-header">
                 <h1>
                     {modoEdicion ? 'Editar Cotización de Fabricación' : 
                      cotizacion ? 'Ver Cotización de Fabricación' : 'Nueva Cotización de Fabricación'}
                 </h1>
-                {/* ELIMINADO: header-actions con botones Cancelar/Continuar */}
             </div>
 
             {/* Sección de Datos del Cliente */}
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Datos del Cliente</h2>
-                    {/* ELIMINADO: seccion-indicador 1/6 */}
                 </div>
                 
                 <div className="seccion-contenido">
@@ -713,7 +623,6 @@ export default function FormatoCotizacionFabricacion({
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Detalle del Producto</h2>
-                    {/* ELIMINADO: seccion-indicador 2/6 */}
                     <button 
                         type="button"
                         className="btn-agregar"
@@ -751,7 +660,6 @@ export default function FormatoCotizacionFabricacion({
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Detalles Adicionales</h2>
-                    {/* ELIMINADO: seccion-indicador 3/6 */}
                 </div>
                 
                 <div className="seccion-contenido">
@@ -886,11 +794,10 @@ export default function FormatoCotizacionFabricacion({
                 </div>
             </div>
 
-            {/* AÑADIR SECCIÓN DE RESULTADOS (SIMILAR A FACTURACION) */}
+            {/* Sección de Resultados */}
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Resultados</h2>
-                    {/* ELIMINADO: seccion-indicador 4/6 */}
                 </div>
                 
                 <div className="seccion-contenido">
@@ -931,19 +838,20 @@ export default function FormatoCotizacionFabricacion({
                 </div>
             </div>
 
-            {/* AÑADIR BOTONES (SIMILARES A FACTURACION) */}
+            {/* Botones con estilo PILL */}
             <div className="seccion-cotizacion">
-                {/* ELIMINADO: seccion-header con título "Acciones" */}
-                
                 <div className="seccion-contenido">
-                    <div className="botones-container">
-                        <button className="btn-submit" onClick={handleCalcular}>
+                    <div className="botones-cotizacion-container">
+                        <button className="btn-pill btn-pill-secondary" onClick={handleCalcular}>
+                            <FaCalculator />
                             Calcular Total
                         </button>
-                        <button className="btn-cancel" onClick={onClose}>
+                        <button className="btn-pill btn-pill-danger" onClick={onClose}>
+                            <FaTimesCircle />
                             Cancelar
                         </button>
-                        <button className="btn-submit" onClick={handleGenerarCotizacion}>
+                        <button className="btn-pill btn-pill-success" onClick={handleGenerarCotizacion}>
+                            <FaFilePdf />
                             Generar Cotización
                         </button>
                     </div>

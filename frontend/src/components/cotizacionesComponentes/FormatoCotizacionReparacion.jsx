@@ -1,7 +1,7 @@
 // components/cotizacionesComponentes/FormatoCotizacionReparacion.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaCalculator, FaTimesCircle, FaFilePdf } from 'react-icons/fa';
 import DatosCliente from '../FacturacionModule/DatosCliente.jsx';
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -565,17 +565,6 @@ export default function FormatoCotizacionReparacion({
         };
     };
 
-    // Función para guardar temporalmente
-    const handleGuardar = () => {
-        if (!validarDatos()) {
-            alert('Por favor complete todos los campos requeridos');
-            return;
-        }
-
-        console.log('Datos de cotización de reparación:', datosCotizacion);
-        alert('¡Datos guardados correctamente! Puede continuar editando o generar la cotización cuando esté listo.');
-    };
-
     if (loading) {
         return (
             <div className="cotizacion-reparacion-loading">
@@ -587,20 +576,18 @@ export default function FormatoCotizacionReparacion({
 
     return (
         <div className="cotizacion-reparacion">
-            {/* Header SIMPLIFICADO - SIN BOTONES */}
+            {/* Header */}
             <div className="cotizacion-header">
                 <h1>
                     {modoEdicion ? 'Editar Cotización de Reparación' : 
                      cotizacion ? 'Ver Cotización de Reparación' : 'Nueva Cotización de Reparación'}
                 </h1>
-                {/* ELIMINADO: header-actions con botones Cancelar/Continuar */}
             </div>
 
             {/* Sección de Datos del Cliente */}
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Datos del Cliente</h2>
-                    {/* ELIMINADO: seccion-indicador 1/6 */}
                 </div>
                 
                 <div className="seccion-contenido">
@@ -620,7 +607,6 @@ export default function FormatoCotizacionReparacion({
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Detalles de Reparación</h2>
-                    {/* ELIMINADO: seccion-indicador 2/6 */}
                     <button 
                         type="button"
                         className="btn-agregar"
@@ -723,7 +709,6 @@ export default function FormatoCotizacionReparacion({
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Detalles Adicionales</h2>
-                    {/* ELIMINADO: seccion-indicador 3/6 */}
                 </div>
                 
                 <div className="seccion-contenido">
@@ -741,7 +726,6 @@ export default function FormatoCotizacionReparacion({
                             </button>
                         </div>
 
-                        {/* REEMPLAZA TODO ESTE BLOQUE: */}
                         {datosCotizacion.materiales.map((material, index) => (
                             <Material
                                 key={material.id}
@@ -757,7 +741,6 @@ export default function FormatoCotizacionReparacion({
                                 materialesStock={materialesStock}
                             />
                         ))}
-                        {/* FIN DEL REEMPLAZO */}
                     </div>
 
                     {/* Costos Adicionales */}
@@ -864,7 +847,6 @@ export default function FormatoCotizacionReparacion({
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
                     <h2>Resultados</h2>
-                    {/* ELIMINADO: seccion-indicador 4/6 */}
                 </div>
                 
                 <div className="seccion-contenido">
@@ -905,19 +887,20 @@ export default function FormatoCotizacionReparacion({
                 </div>
             </div>
 
-            {/* Sección de Acciones */}
+            {/* Botones con estilo PILL */}
             <div className="seccion-cotizacion">
-                {/* ELIMINADO: seccion-header con título "Acciones" */}
-                
                 <div className="seccion-contenido">
-                    <div className="botones-container">
-                        <button className="btn-submit" onClick={handleCalcular}>
+                    <div className="botones-cotizacion-container">
+                        <button className="btn-pill btn-pill-secondary" onClick={handleCalcular}>
+                            <FaCalculator />
                             Calcular Total
                         </button>
-                        <button className="btn-cancel" onClick={onClose}>
+                        <button className="btn-pill btn-pill-danger" onClick={onClose}>
+                            <FaTimesCircle />
                             Cancelar
                         </button>
-                        <button className="btn-submit" onClick={handleGenerarCotizacion}>
+                        <button className="btn-pill btn-pill-success" onClick={handleGenerarCotizacion}>
+                            <FaFilePdf />
                             Generar Cotización
                         </button>
                     </div>

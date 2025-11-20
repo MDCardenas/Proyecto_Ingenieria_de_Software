@@ -158,7 +158,8 @@ export default function AdminPanel() {
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>
+              
               <div className="module-actions">
               </div>
             </div>

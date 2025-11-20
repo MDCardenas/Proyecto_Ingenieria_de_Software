@@ -107,6 +107,62 @@
 }
 
 /* ========================================
+   BOTONES PILL
+   ======================================== */
+.btn-pill {
+  @include button-pill-primary;
+  
+  &-secondary {
+    @include button-pill-secondary;
+  }
+  
+  &-success {
+    @include button-pill-success;
+  }
+  
+  &-danger {
+    @include button-pill-danger;
+  }
+}
+
+/* ========================================
+   GRUPOS DE BOTONES PILL
+   ======================================== */
+.pill-button-group {
+  @include pill-button-group;
+}
+
+/* ========================================
+   BARRAS DE BÚSQUEDA PILL
+   ======================================== */
+.search-pill {
+  @include search-pill;
+  
+  &-container {
+    display: flex;
+    gap: $spacing-md;
+    align-items: center;
+    margin-bottom: $spacing-lg;
+    flex-wrap: wrap;
+  }
+}
+
+/* ========================================
+   BOTONES DE FILTRO PILL
+   ======================================== */
+.filter-pill {
+  @include filter-pill;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  justify-content: center;
+}
+
+/* ========================================
    ESTADOS Y MENSAJES
    ======================================== */
 .error {
@@ -207,6 +263,21 @@
 }
 
 /* ========================================
+   ANIMACIONES
+   ======================================== */
+.animate-bounce {
+  @include bounce-animation;
+}
+
+.animate-fade-in {
+  @include fade-in;
+}
+
+.animate-pulse {
+  @include pulse-animation;
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 @include responsive(md) {
@@ -231,6 +302,16 @@
   .barra-busqueda {
     flex-direction: column;
   }
+
+  .pill-button-group {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .btn-pill {
+      max-width: 100%;
+      min-width: auto;
+    }
+  }
 }
 
 @include responsive(sm) {
@@ -241,6 +322,23 @@
   .btn {
     &-login {
       padding: $spacing-md;
+    }
+  }
+
+  .search-pill-container {
+    flex-direction: column;
+    
+    .search-pill {
+      max-width: 100%;
+    }
+  }
+
+  .filter-group {
+    justify-content: stretch;
+    
+    .filter-pill {
+      flex: 1;
+      min-width: 120px;
     }
   }
 }

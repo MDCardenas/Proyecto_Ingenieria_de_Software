@@ -1,4 +1,8 @@
 // styles/scss/components/_cotizacionReparacion.scss
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+@import '../components/forms';
+
 .cotizacion-reparacion {
     background: white;
     border-radius: 8px;
@@ -18,7 +22,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #e67e22; // Naranja para reparación
+            border-top: 4px solid #e67e22;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 16px;
@@ -36,7 +40,7 @@
         align-items: center;
         padding: 24px;
         border-bottom: 1px solid #e9ecef;
-        background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); // Gradiente naranja
+        background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
         color: white;
         border-radius: 8px 8px 0 0;
 
@@ -44,39 +48,6 @@
             margin: 0;
             font-size: 1.75rem;
             font-weight: 600;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-
-            .btn {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: 500;
-                transition: all 0.2s;
-
-                &.btn-secondary {
-                    background: rgba(255, 255, 255, 0.2);
-                    color: white;
-                    
-                    &:hover {
-                        background: rgba(255, 255, 255, 0.3);
-                    }
-                }
-
-                &.btn-primary {
-                    background: white;
-                    color: #e67e22; // Naranja para reparación
-                    
-                    &:hover {
-                        background: #f8f9fa;
-                        transform: translateY(-1px);
-                    }
-                }
-            }
         }
     }
 
@@ -98,30 +69,14 @@
                 font-weight: 600;
             }
 
-            .seccion-indicador {
-                background: #e67e22; // Naranja para reparación
-                color: white;
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 0.85rem;
-                font-weight: 500;
-            }
-
             .btn-agregar {
-                background: #27ae60;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                transition: background-color 0.2s;
-
+                @include button-pill-success;
+                min-width: auto;
+                padding: $spacing-sm $spacing-lg;
+                font-size: $font-size-sm;
+                
                 &:hover {
-                    background: #219653;
+                    transform: translateY(-1px);
                 }
             }
         }
@@ -145,9 +100,24 @@
     }
 }
 
+/* ============ ESTILOS PARA BOTONES PILL EN COTIZACIÓN REPARACIÓN ============ */
+.botones-cotizacion-container {
+    @include pill-button-group;
+    margin-top: $spacing-xl;
+    padding: $spacing-lg 0;
+    border-top: 1px solid $border-color-light;
+
+    .btn-pill {
+        min-width: 180px;
+        
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+}
+
 /* ============ ESTILOS PARA ITEMS (PRODUCTOS Y MATERIALES) ============ */
-.producto-bloque,
-.material-bloque {
+.producto-bloque {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -159,8 +129,7 @@
         margin-bottom: 0;
     }
 
-    .producto-header,
-    .material-header {
+    .producto-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -168,7 +137,7 @@
         padding-bottom: 16px;
         border-bottom: 1px solid #e5e7eb;
 
-        h4, h5 {
+        h4 {
             margin: 0;
             color: #2c3e50;
             font-size: 1.2rem;
@@ -176,33 +145,20 @@
         }
 
         .btn-eliminar {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-
+            @include button-pill-danger;
+            min-width: auto;
+            padding: $spacing-sm $spacing-md;
+            font-size: $font-size-sm;
+            
             &:hover {
-                background: #c0392b;
+                transform: translateY(-1px);
             }
         }
-    }
-
-    .producto-contenido,
-    .material-contenido {
-        // Contenido específico para cada bloque
     }
 }
 
 /* ============ ESTILOS PARA CAMPOS DE FORMULARIO ============ */
 .campo-producto,
-.campo-material,
 .campo-item {
     label {
         display: block;
@@ -225,7 +181,7 @@
 
         &:focus {
             outline: none;
-            border-color: #e67e22; // Naranja para reparación
+            border-color: #e67e22;
             box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
         }
 
@@ -282,7 +238,7 @@
 
         &:focus {
             outline: none;
-            border-color: #e67e22; // Naranja para reparación
+            border-color: #e67e22;
             box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
         }
 
@@ -320,18 +276,6 @@
     }
 }
 
-.material-fila {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
-
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-}
-
 /* ============ SUBSECCIONES ============ */
 .subseccion {
     margin-bottom: 24px;
@@ -358,20 +302,13 @@
         }
 
         .btn-agregar {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background-color 0.2s;
-
+            @include button-pill-success;
+            min-width: auto;
+            padding: $spacing-sm $spacing-lg;
+            font-size: $font-size-sm;
+            
             &:hover {
-                background: #219653;
+                transform: translateY(-1px);
             }
         }
     }
@@ -395,7 +332,7 @@
     padding: 20px;
     background: #f8f9fc;
     border-radius: 12px;
-    border-left: 4px solid #e67e22; // Naranja para reparación
+    border-left: 4px solid #e67e22;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -424,7 +361,7 @@
 }
 
 .costo-total.total-final {
-    border-top: 2px solid #e67e22; // Naranja para reparación
+    border-top: 2px solid #e67e22;
     border-bottom: none;
     padding-top: 16px;
     margin-top: 8px;
@@ -446,88 +383,172 @@
 
 /* ============ TABLA DE RESULTADOS ============ */
 .tabla-resultados {
-    margin-top: 20px;
-    
+    background: $bg-secondary;
+    border-radius: $border-radius-lg;
+    padding: $spacing-lg;
+    margin: $spacing-lg 0;
+
     table {
         width: 100%;
         border-collapse: collapse;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-        tbody tr {
-            border-bottom: 1px solid #e5e7eb;
-            
+        tr {
+            border-bottom: 1px solid $border-color-light;
+
             &:last-child {
                 border-bottom: none;
             }
-            
-            &:nth-child(even) {
-                background: #f9fafb;
+
+            td {
+                padding: $spacing-md;
+                font-size: $font-size-base;
+
+                &:first-child {
+                    font-weight: $font-weight-semibold;
+                    color: $text-primary;
+                }
+
+                &:last-child {
+                    font-weight: $font-weight-bold;
+                    color: $primary-color;
+                    text-align: right;
+                }
             }
-        }
 
-        td {
-            padding: 12px 16px;
-            font-size: 0.95rem;
-
-            &:first-child {
-                font-weight: 600;
-                color: #374151;
-                width: 60%;
+            &:nth-last-child(2) {
+                border-bottom: 2px solid $primary-color;
             }
 
             &:last-child {
-                text-align: right;
-                font-weight: 600;
-                color: #1f2937;
-                font-family: 'Courier New', monospace;
+                background: $primary-light;
+                border-radius: 0 0 $border-radius $border-radius;
+
+                td {
+                    font-size: $font-size-lg;
+                    color: $text-primary;
+                }
             }
         }
     }
 }
 
-/* ============ BOTONES ============ */
-.botones-container {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #e9ecef;
+/* ============ ESTILOS PARA COMPONENTE MATERIAL ============ */
+.material-bloque {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-    .btn-submit,
-    .btn-cancel {
-        padding: 12px 24px;
-        border: none;
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    .material-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e5e7eb;
+
+        h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .btn-eliminar-material {
+            @include button-pill-danger;
+            min-width: auto;
+            padding: $spacing-sm $spacing-md;
+            font-size: $font-size-sm;
+            
+            &:hover {
+                transform: translateY(-1px);
+            }
+        }
+    }
+
+    .material-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+}
+
+.campo-material {
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #d1d5db;
         border-radius: 6px;
         font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
+        background: white;
         transition: all 0.2s;
-        min-width: 140px;
+        box-sizing: border-box;
+        color: #1f2937;
 
-        &.btn-submit {
-            background: #e67e22; // Naranja para reparación
-            color: white;
-
-            &:hover {
-                background: #d35400;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
-            }
+        &:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        &.btn-cancel {
-            background: #95a5a6;
-            color: white;
-
-            &:hover {
-                background: #7f8c8d;
-                transform: translateY(-1px);
-            }
+        &.campo-error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
         }
+
+        &.campo-calculado, &.campo-solo-lectura {
+            background-color: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+    }
+
+    .mensaje-error {
+        display: block;
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    .form-hint {
+        display: block;
+        font-size: 0.8rem;
+        margin-top: 6px;
+        color: #059669;
+        font-style: italic;
+    }
+}
+
+.campo-material-full {
+    grid-column: 1 / -1;
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
     }
 }
 
@@ -538,11 +559,6 @@
             flex-direction: column;
             gap: 16px;
             text-align: center;
-            
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-            }
         }
 
         .seccion-cotizacion {
@@ -554,20 +570,17 @@
         }
     }
 
-    .producto-bloque,
-    .material-bloque {
+    .producto-bloque {
         padding: 16px;
         
-        .producto-header,
-        .material-header {
+        .producto-header {
             flex-direction: column;
             gap: 12px;
             align-items: flex-start;
         }
     }
 
-    .producto-fila,
-    .material-fila {
+    .producto-fila {
         grid-template-columns: 1fr;
     }
 
@@ -585,25 +598,44 @@
         grid-template-columns: 1fr;
     }
 
-    .botones-container {
+    .botones-cotizacion-container {
         flex-direction: column;
-        align-items: center;
-        
-        .btn-submit,
-        .btn-cancel {
-            width: 100%;
-            max-width: 300px;
+        gap: $spacing-md;
+
+        .btn-pill {
+            min-width: 100%;
+            max-width: 100%;
+        }
+    }
+
+    .tabla-resultados {
+        padding: $spacing-md;
+
+        table {
+            tr td {
+                padding: $spacing-sm;
+                font-size: $font-size-sm;
+            }
         }
     }
 
     .campo-producto,
-    .campo-material,
     .campo-item,
     .campo-descripcion,
     .campo-item-full {
         input, textarea, select {
             padding: 14px 16px;
-            font-size: 16px; // Evita zoom en iOS
+            font-size: 16px;
+        }
+    }
+
+    .material-bloque {
+        padding: 16px;
+        
+        .material-header {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
         }
     }
 }
@@ -614,11 +646,6 @@
 }
 
 /* ============ ESTILOS ESPECÍFICOS PARA REPARACIÓN ============ */
-// Puedes agregar estilos específicos para reparación aquí si es necesario
-.reparacion-especifica {
-    // Estilos que solo aplican a reparación
-}
-
 .garantia-badge {
     background: #fff3cd;
     color: #856404;

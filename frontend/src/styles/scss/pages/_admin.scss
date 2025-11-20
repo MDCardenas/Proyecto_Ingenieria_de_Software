@@ -128,7 +128,7 @@
 }
 
 /* ========================================
-   ITEM 3 - CONTENIDO PRINCIPAL (Módulos)
+   ITEM 3 - CONTENIDO PRINCIPAL (Módulos) - CORREGIDO
    ======================================== */
 .item-3 {
   grid-area: content;
@@ -156,23 +156,27 @@
         align-items: center;
         gap: 16px;
         
-        /* NUEVO: Contenedor para título con icono */
+        /* Contenedor para título con icono - CORREGIDO */
         .module-title-with-icon {
           display: flex;
           align-items: center;
           gap: 16px;
+          /* REMOVER: color: $blue-gradient; ← Esta línea estaba causando el problema */
+          background: transparent; /* ← Asegurar que sea transparente */
           
           .module-title-icon {
-            font-size: 2.5rem; /* Icono grande */
+            font-size: 2.5rem;
             color: $bg-primary;
             opacity: 0.9;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            background: transparent; /* ← Asegurar que sea transparente */
           }
           
           .module-title-text {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            background: transparent; /* ← Asegurar que sea transparente */
             
             .module-title {
               font-size: 1.3rem;
@@ -180,6 +184,7 @@
               line-height: 1.2;
               color: $bg-primary;
               margin: 0;
+              background: transparent; /* ← Asegurar que sea transparente */
             }
             
             .module-subtitle {
@@ -189,6 +194,7 @@
               line-height: 1.2;
               color: $bg-primary;
               margin: 0;
+              background: transparent; /* ← Asegurar que sea transparente */
             }
           }
         }
@@ -241,7 +247,6 @@
     }
   }
 }
-
 
 /* ========================================
    BOTONES DEL SIDEBAR (Compactos)
@@ -342,7 +347,7 @@
     .module-header {
       .module-title-with-icon {
         .module-title-icon {
-          font-size: 2rem; /* Reducir icono en tablets */
+          font-size: 2rem;
         }
         
         .module-title-text {
@@ -431,7 +436,7 @@
             gap: 12px;
             
             .module-title-icon {
-              font-size: 1.8rem; /* Reducir más en móviles */
+              font-size: 1.8rem;
             }
             
             .module-title-text {
@@ -501,7 +506,7 @@
             gap: 8px;
             
             .module-title-icon {
-              font-size: 1.5rem; /* Icono más pequeño en móviles muy pequeños */
+              font-size: 1.5rem;
             }
             
             .module-title-text {

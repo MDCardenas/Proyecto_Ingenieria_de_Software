@@ -28,6 +28,7 @@ $warning-color: #f59e0b;
 $warning-dark: #d97706;
 $error-color: #ef4444;
 $error-dark: #dc2626;
+$white: #ffffff;
 
 // Colores del sistema
 $blue-primary: #667eea;
@@ -60,6 +61,15 @@ $bg-gradient: linear-gradient(135deg, #f7f5f2 0%, #e9e6df 100%);
 $button-gradient: linear-gradient(90deg, #bfa36f 60%, #e9e6df 100%);
 $blue-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 $success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+// Nuevos gradientes para botones pill
+$pill-gradient: linear-gradient(135deg, #bfa36f 0%, #d4b77f 100%);
+$pill-gradient-hover: linear-gradient(135deg, #a88c5f 0%, #bfa36f 100%);
+$pill-gradient-secondary: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+$pill-gradient-secondary-hover: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+$pill-gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+$pill-gradient-success-hover: linear-gradient(135deg, #059669 0%, #10b981 100%);
+$search-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 
 // ========================================
 // TIPOGRAFÍA
@@ -104,6 +114,7 @@ $border-radius-sm: 4px;
 $border-radius: 8px;
 $border-radius-lg: 12px;
 $border-radius-xl: 16px;
+$border-radius-pill: 50px;
 
 $border-color: #d6cfc0;
 $border-color-light: #e5e7eb;
@@ -148,6 +159,14 @@ $z-index-tooltip: 1070;
 $transition-fast: 0.15s ease;
 $transition-normal: 0.3s ease;
 $transition-slow: 0.5s ease;
+
+// ========================================
+// ANIMACIONES
+// ========================================
+
+$bounce-animation: bounce 0.5s ease;
+$fade-in: fadeIn 0.3s ease;
+$pulse-animation: pulse 2s infinite;
 
 // ========================================
 // VARIABLES CSS GLOBALES
@@ -240,6 +259,7 @@ $transition-slow: 0.5s ease;
   --border-radius: #{$border-radius};
   --border-radius-lg: #{$border-radius-lg};
   --border-radius-xl: #{$border-radius-xl};
+  --border-radius-pill: #{$border-radius-pill};
 
   // Sombras
   --shadow-sm: #{$shadow-sm};
