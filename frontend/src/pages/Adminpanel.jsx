@@ -9,7 +9,7 @@ import FacturacionModule from "../components/FacturacionModule/FacturacionModule
 import Dashboard from "../components/DashboardModule/Dashboard.jsx";
 import Usuarios from "../components/UsuariosModule/Usuarios.jsx";
 import InventarioModule from "../components/InventarioModule/InventarioModule.jsx";
-
+import CotizacionesModule from "../components/CotizacionesModule/CotizacionesModule.jsx";
 import { menuItems } from "../services/menuItems.js";
 import "../styles/scss/main.scss";
 import OrdenesModule from "../components/OrdenesModule/OrdenesModule.jsx";
@@ -91,7 +91,7 @@ export default function AdminPanel() {
       case "Facturacion":
         return <FacturacionModule onCancel={() => setActiveButton("Dashboard")} />;
       case "Cotizaciones":
-        return <h1 className="titulo-modulo">COTIZACIONES</h1>;
+        return <CotizacionesModule setActiveButton={setActiveButton} />;
       case "Inventario":
         return <InventarioModule setActiveButton={setActiveButton} />;
       case "Ordenes":
@@ -159,7 +159,8 @@ export default function AdminPanel() {
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>
+              
               <div className="module-actions">
               </div>
             </div>

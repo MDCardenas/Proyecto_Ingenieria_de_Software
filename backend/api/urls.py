@@ -29,9 +29,7 @@ urlpatterns = [
     path('empleados/<int:pk>/', views.empleado_detalle, name='empleado_detalle'),
     path('empleados/', views.lista_empleados, name='lista_empleados'),
     
-    # POST para crear empleados
-   
-
+    
     path('empleados/<int:pk>/', views.empleado_detalle, name='empleado_detalle'),
     # ========================================
     # RUTAS DE FACTURAS (DEBEN IR ANTES DEL ROUTER)

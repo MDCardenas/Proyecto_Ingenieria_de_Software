@@ -685,8 +685,8 @@ export default function Facturacion({ onCancel }) {
       {/* Header */}
       <div className="facturacion-header">
         <div className="texto-header">
-          <h1 className="facturacion-title">Facturación</h1>
-          <p className="facturacion-subtitle">Gestión de Facturas y Ventas</p>
+          <h1 className="facturacion-title"></h1>
+          <p className="facturacion-subtitle"></p>
         </div>
         <div className="botones-header">
           {mostrarLista && (

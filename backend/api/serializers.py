@@ -1,4 +1,7 @@
 # backend/api/serializers.py
+import requests
+import base64
+from io import BytesIO
 from rest_framework import serializers
 from django.db import transaction
 from decimal import Decimal
@@ -119,20 +122,31 @@ class EmpleadoSerializer(serializers.ModelSerializer):
             'contrasena': {'write_only': True}
         }
 
+# CORREGIR en serializers.py - StockJoyaSerializer
 class StockJoyaSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
     
     class Meta:
         model = TblStockJoyas
         fields = [
-            'codigo_joya', 'nombre', 'imagen', 'imagen_base64', 'tipo', 
+            'codigo_joya', 'nombre', 'imagen_url', 'imagen_base64', 'tipo', 
             'peso', 'material', 'descripcion', 'precio_venta'
         ]
     
     def get_imagen_base64(self, obj):
-        if obj.imagen:
-            import base64
-            return base64.b64encode(obj.imagen).decode('utf-8')
+        if obj.imagen_url:
+            try:
+            
+                # Descargar la imagen desde la URL
+                response = requests.get(obj.imagen_url, timeout=10)
+                response.raise_for_status()
+                
+                # Convertir a base64
+                image_base64 = base64.b64encode(response.content).decode('utf-8')
+                return image_base64
+            except Exception as e:
+                print(f"Error cargando imagen {obj.imagen_url}: {e}")
+                return None
         return None
 
 class ServicioSerializer(serializers.ModelSerializer):
@@ -305,15 +319,15 @@ class CotizacionSerializer(serializers.ModelSerializer):
             })
         
         # Validar que subtotal - descuento + isv = total
-        subtotal = data.get('subtotal', Decimal('0'))
-        descuento = data.get('descuento', Decimal('0'))
-        isv = data.get('isv', Decimal('0'))
-        total_calculado = subtotal - descuento + isv
+        # subtotal = data.get('subtotal', Decimal('0'))
+        # descuento = data.get('descuento', Decimal('0'))
+        # isv = data.get('isv', Decimal('0'))
+        # total_calculado = subtotal - descuento + isv
         
-        if total and abs(total - total_calculado) > Decimal('0.01'):
-            raise serializers.ValidationError({
-                'total': f'El total calculado ({total_calculado}) no coincide con el total proporcionado ({total})'
-            })
+        # if total and abs(total - total_calculado) > Decimal('0.01'):
+        #     raise serializers.ValidationError({
+        #         'total': f'El total calculado ({total_calculado}) no coincide con el total proporcionado ({total})'
+        #     })
         
         return data
     

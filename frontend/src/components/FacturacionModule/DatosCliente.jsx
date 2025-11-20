@@ -1,3 +1,4 @@
+// components/cotizacionesComponentes/DatosCliente.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { normalizeText, normalizeSearch } from "../../utils/normalize";
@@ -30,7 +31,8 @@ export default function DatosCliente({
     console.log("Datos recibidos en DatosCliente:");
     console.log("- Clientes:", clientes?.length || 0, clientes);
     console.log("- Empleados:", empleados?.length || 0, empleados);
-  }, [clientes, empleados]);
+    console.log("- Datos factura:", datosFactura);
+  }, [clientes, empleados, datosFactura]);
 
   // Detectar clics fuera de los resultados
   useEffect(() => {
@@ -98,18 +100,38 @@ export default function DatosCliente({
     setMostrarResultadosEmpleado(filtrados.length > 0);
   }, [busquedaEmpleado, empleados]);
 
-  // Obtener nombre del cliente seleccionado
+  // Obtener nombre del cliente seleccionado - CORREGIDO
   const obtenerNombreCliente = () => {
     if (!datosFactura.id_cliente) return "";
     const cliente = clientes.find(c => c.id_cliente === parseInt(datosFactura.id_cliente));
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "";
   };
 
-  // Obtener nombre del empleado seleccionado
+  // Obtener nombre del empleado seleccionado - CORREGIDO
   const obtenerNombreEmpleado = () => {
     if (!datosFactura.id_empleado) return "";
-    const empleado = empleados.find(e => e.id_empleado === parseInt(datosFactura.id_empleado));
-    return empleado ? `${empleado.nombre} ${empleado.apellido}` : "";
+    
+    console.log("Buscando empleado con ID:", datosFactura.id_empleado);
+    console.log("Lista de empleados:", empleados);
+    
+    // Buscar el empleado - probamos diferentes formas de comparación
+    const empleado = empleados.find(e => {
+      // Intentar diferentes formas de comparación
+      return e.id_empleado === parseInt(datosFactura.id_empleado) ||
+             e.id_empleado == datosFactura.id_empleado ||
+             e.id === parseInt(datosFactura.id_empleado) ||
+             e.id == datosFactura.id_empleado;
+    });
+    
+    console.log("Empleado encontrado:", empleado);
+    
+    if (empleado) {
+      // Mostrar el nombre completo si existe
+      const nombreCompleto = `${empleado.nombre || ''} ${empleado.apellido || ''}`.trim();
+      return nombreCompleto || empleado.usuario || empleado.nombre || "Empleado sin nombre";
+    }
+    
+    return "Empleado no encontrado";
   };
 
   // Manejar selección de cliente
@@ -122,7 +144,8 @@ export default function DatosCliente({
 
   // Manejar selección de empleado
   const handleSeleccionarEmpleado = (empleado) => {
-    onActualizar('id_empleado', empleado.id_empleado);
+    console.log("Empleado seleccionado:", empleado);
+    onActualizar('id_empleado', empleado.id_empleado || empleado.id);
     setBusquedaEmpleado("");
     setMostrarResultadosEmpleado(false);
     onCambioCampo && onCambioCampo('id_empleado');
@@ -261,7 +284,7 @@ export default function DatosCliente({
                 <div className="resultados-busqueda">
                   {empleadosFiltrados.map(empleado => (
                     <div 
-                      key={empleado.id_empleado}
+                      key={empleado.id_empleado || empleado.id}
                       className="resultado-item"
                       onClick={() => handleSeleccionarEmpleado(empleado)}
                     >
@@ -288,6 +311,14 @@ export default function DatosCliente({
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreEmpleado()}</strong>
+                <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                  {empleados.find(e => 
+                    e.id_empleado === parseInt(datosFactura.id_empleado) || 
+                    e.id_empleado == datosFactura.id_empleado ||
+                    e.id === parseInt(datosFactura.id_empleado) ||
+                    e.id == datosFactura.id_empleado
+                  )?.usuario}
+                </div>
               </div>
               <button 
                 type="button"
