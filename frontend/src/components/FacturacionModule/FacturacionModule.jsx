@@ -660,13 +660,10 @@ export default function Facturacion({ onCancel }) {
   };
 
   const handleCancelar = () => {
-    if (onCancel) {
-      onCancel();
-    } else {
-      setMostrarLista(true);
-      setTipoFactura(null);
-      setMostrarOpciones(false);
-    }
+    setMostrarLista(true);
+    setTipoFactura(null);
+    setMostrarOpciones(false);
+    limpiarFormulario();
   };
 
   const handleClienteChange = (clienteId) => {

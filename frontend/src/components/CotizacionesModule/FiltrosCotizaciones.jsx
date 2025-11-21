@@ -17,6 +17,16 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
         cargarClientes();
     }, []);
 
+    // CAMBIO IMPORTANTE: Aplicar filtros automáticamente cuando cambien
+    useEffect(() => {
+        // Aplicar filtros después de un pequeño delay para evitar muchas llamadas
+        const timeoutId = setTimeout(() => {
+            onFiltrosChange(filtrosLocales);
+        }, 300);
+        
+        return () => clearTimeout(timeoutId);
+    }, [filtrosLocales, onFiltrosChange]);
+
     const cargarClientes = async () => {
         try {
             setCargandoClientes(true);
@@ -38,10 +48,7 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
             [campo]: valor
         };
         setFiltrosLocales(nuevosFiltros);
-    };
-
-    const handleAplicarFiltros = () => {
-        onFiltrosChange(filtrosLocales);
+        // Los filtros se aplican automáticamente por el useEffect de arriba
     };
 
     const handleLimpiarFiltros = () => {
@@ -167,15 +174,6 @@ export default function FiltrosCotizaciones({ filtros, onFiltrosChange, onLimpia
                 >
                     <FaEraser style={{ marginRight: '6px' }} />
                     Limpiar Filtros
-                </button>
-                
-                <button
-                    type="button"
-                    className="btn-aplicar"
-                    onClick={handleAplicarFiltros}
-                >
-                    <FaSearch style={{ marginRight: '6px' }} />
-                    Aplicar Filtros
                 </button>
             </div>
 

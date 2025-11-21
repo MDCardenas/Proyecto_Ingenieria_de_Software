@@ -65,10 +65,18 @@ export default function CotizacionesModule() {
     const aplicarFiltros = () => {
         let cotizacionesFiltradas = [...cotizacionesOriginales];
 
-        // Filtro por estado - MANEJAR VENCIDAS EN FRONTEND
+        // Filtro por búsqueda general
+        if (filtros.busqueda) {
+            cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
+                cot.numero_cotizacion.toString().includes(filtros.busqueda) ||
+                cot.cliente_nombre?.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
+                (cot.id_cliente?.nombre + ' ' + cot.id_cliente?.apellido)?.toLowerCase().includes(filtros.busqueda.toLowerCase())
+            );
+        }
+
+        // Filtro por estado
         if (filtros.estado) {
             if (filtros.estado === 'VENCIDA') {
-                // Filtrar cotizaciones ACTIVAS con fecha vencida
                 const hoy = new Date().toISOString().split('T')[0];
                 cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
                     cot.estado === 'ACTIVA' && 
@@ -76,26 +84,27 @@ export default function CotizacionesModule() {
                     cot.fecha_vencimiento < hoy
                 );
             } else {
-                // Para ACTIVA y CONVERTIDA, usar filtro normal
                 cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
                     cot.estado === filtros.estado
                 );
             }
         }
 
-        // Los demás filtros los manejamos en frontend también para consistencia
+        // Filtro por cliente
         if (filtros.cliente) {
             cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
                 cot.id_cliente == filtros.cliente
             );
         }
 
+        // Filtro por tipo de servicio
         if (filtros.tipoServicio) {
             cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
                 cot.tipo_servicio === filtros.tipoServicio
             );
         }
 
+        // Filtros por fecha
         if (filtros.fechaInicio) {
             cotizacionesFiltradas = cotizacionesFiltradas.filter(cot => 
                 cot.fecha_creacion >= filtros.fechaInicio
@@ -241,7 +250,7 @@ export default function CotizacionesModule() {
             />
 
             <ListaCotizaciones
-                cotizaciones={cotizaciones}
+                cotizaciones={cotizaciones} // <- Ahora pasa las cotizaciones ya filtradas
                 loading={loading}
                 onEliminar={handleEliminarCotizacion}
                 onConvertirAFactura={handleConvertirAFactura}
