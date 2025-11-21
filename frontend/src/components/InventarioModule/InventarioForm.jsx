@@ -36,7 +36,7 @@ const InventarioForm = ({ mode, type, initialData, onSubmit, onCancel, proveedor
   // Configuración de campos por tipo
   const fieldConfig = {
     joyas: {
-      required: ['nombre', 'precio_venta'],
+      required: ['nombre', 'precio_venta', 'costo', 'cantidad_existencia'],
       sections: [
         {
           title: 'Características de la Joya',
@@ -44,7 +44,14 @@ const InventarioForm = ({ mode, type, initialData, onSubmit, onCancel, proveedor
             { name: 'tipo', label: 'Tipo', type: 'text', placeholder: 'Anillo, Collar, Pulsera' },
             { name: 'material', label: 'Material', type: 'text', placeholder: 'Oro, Plata, Platino' },
             { name: 'peso', label: 'Peso (gramos)', type: 'number', step: '0.01' },
+            { name: 'costo', label: 'Costo', type: 'number', step: '0.01', required: true },
             { name: 'precio_venta', label: 'Precio de Venta', type: 'number', step: '0.01', required: true }
+          ]
+        },
+        {
+          title: 'Inventario',
+          fields: [
+            { name: 'cantidad_existencia', label: 'Cantidad en Stock', type: 'number', required: true }
           ]
         },
         {

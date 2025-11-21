@@ -130,13 +130,18 @@ class StockJoyaSerializer(serializers.ModelSerializer):
         model = TblStockJoyas
         fields = [
             'codigo_joya', 'nombre', 'imagen_url', 'imagen_base64', 'tipo', 
-            'peso', 'material', 'descripcion', 'precio_venta'
+            'peso', 'material', 'descripcion', 'precio_venta', 'costo', 'cantidad_existencia'
         ]
+        # AGREGAR ESTO PARA PERMITIR ACTUALIZACIONES:
+        extra_kwargs = {
+            'costo': {'required': False},
+            'precio_venta': {'required': False},
+            'cantidad_existencia': {'required': False}
+        }
     
     def get_imagen_base64(self, obj):
         if obj.imagen_url:
             try:
-            
                 # Descargar la imagen desde la URL
                 response = requests.get(obj.imagen_url, timeout=10)
                 response.raise_for_status()
@@ -149,6 +154,15 @@ class StockJoyaSerializer(serializers.ModelSerializer):
                 return None
         return None
 
+    # AGREGAR MÉTODO UPDATE PARA MANEJAR ACTUALIZACIONES PARCIALES
+    def update(self, instance, validated_data):
+        # Permitir actualización parcial de todos los campos
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+    
+    
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = TblServicios

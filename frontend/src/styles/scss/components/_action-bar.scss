@@ -18,10 +18,11 @@
   .action-bar-content {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: $spacing-lg;
-    flex-wrap: wrap;
     max-width: 1200px;
     margin: 0 auto;
+    flex-wrap: wrap;
 
     @include responsive(lg) {
       gap: $spacing-md;
@@ -30,153 +31,189 @@
     @include responsive(md) {
       flex-direction: column;
       align-items: stretch;
+      gap: $spacing-md;
+    }
+
+    @include responsive(sm) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-md;
     }
   }
+}
 
-  .search-container {
-    display: flex;
-    align-items: center;
-    background: $bg-primary;
-    border-radius: $border-radius-pill;
-    padding: $spacing-md $spacing-lg;
-    border: 1px solid $border-color-light;
-    transition: all $transition-normal;
+// ========================================
+// SEARCH PILL
+// ========================================
+
+.search-pill {
+  @include flex-center;
+  background: $bg-primary;
+  border-radius: $border-radius-pill;
+  padding: $spacing-md $spacing-lg;
+  border: 1px solid $border-color-light;
+  gap: $spacing-md;
+  flex: 1;
+  min-width: 280px;
+  max-width: 420px;
+  transition: all $transition-normal;
+
+  @include responsive(md) {
+    min-width: auto;
+    max-width: none;
     flex: 1;
-    min-width: 250px;
-    max-width: 400px;
-    gap: $spacing-md;
-
-    @include responsive(md) {
-      max-width: none;
-      min-width: auto;
-    }
-
-    &:focus-within {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-    }
-
-    .search-icon {
-      color: $text-muted;
-      min-width: 20px;
-      min-height: 20px;
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    .search-input {
-      border: none;
-      background: transparent;
-      outline: none;
-      flex: 1;
-      color: $text-primary;
-      font-size: $font-size-base;
-      font-family: $font-family;
-      min-width: 0;
-
-      &::placeholder {
-        color: $text-muted;
-        font-weight: $font-weight-normal;
-      }
-
-      &::-webkit-search-cancel-button {
-        display: none;
-      }
-
-      &::-webkit-autofill,
-      &::-webkit-autofill:hover,
-      &::-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0 1000px $bg-primary inset !important;
-        -webkit-text-fill-color: $text-primary !important;
-      }
-    }
   }
 
-  .filter-container {
-    display: flex;
-    align-items: center;
-    background: $bg-primary;
-    border-radius: $border-radius-pill;
-    padding: $spacing-md $spacing-lg;
-    border: 1px solid $border-color-light;
-    transition: all $transition-normal;
-    gap: $spacing-md;
-
-    @include responsive(md) {
-      width: auto;
-    }
-
-    &:focus-within {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-    }
-
-    .filter-icon {
-      color: $text-muted;
-      min-width: 20px;
-      min-height: 20px;
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    .filter-select {
-      border: none;
-      background: transparent;
-      outline: none;
-      color: $text-primary;
-      font-size: $font-size-base;
-      cursor: pointer;
-      font-family: $font-family;
-      font-weight: $font-weight-medium;
-      padding: 0;
-      min-width: 0;
-      flex: 1;
-
-      option {
-        color: $text-primary;
-        background: $bg-primary;
-        padding: $spacing-md;
-      }
-
-      &:hover {
-        color: $primary-color;
-      }
-
-      &:focus {
-        outline: none;
-      }
-    }
+  &:focus-within {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
   }
 
-  .btn-add {
-    @include button-pill-primary;
-    min-width: 180px;
-    white-space: nowrap;
+  .search-pill-icon {
     flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-sm;
+    color: $text-muted;
+    width: 20px;
+    height: 20px;
+  }
 
-    @include responsive(md) {
-      min-width: auto;
-      width: 100%;
+  .search-pill-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    color: $text-primary;
+    font-size: $font-size-base;
+    font-family: $font-family;
+    font-weight: $font-weight-normal;
+
+    &::placeholder {
+      color: $text-muted;
+      font-weight: $font-weight-normal;
     }
 
-    .btn-icon {
-      width: 20px;
-      height: 20px;
-      min-width: 20px;
-      min-height: 20px;
-      flex-shrink: 0;
-      display: inline-block;
-      vertical-align: middle;
+    &:focus {
+      outline: none;
     }
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+
+    &::-webkit-autofill,
+    &::-webkit-autofill:hover,
+    &::-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 1000px $bg-primary inset !important;
+      -webkit-text-fill-color: $text-primary !important;
+      caret-color: $text-primary;
+    }
+  }
+}
+
+// ========================================
+// FILTER PILL (VERSIÓN ANTERIOR)
+// ========================================
+
+.filter-pill {
+  @include flex-center;
+  background: $pill-gradient;
+  border-radius: $border-radius-pill;
+  padding: $spacing-md $spacing-lg;
+  border: 1px solid $primary-dark;
+  gap: $spacing-md;
+  transition: all $transition-normal;
+
+  @include responsive(md) {
+    width: 100%;
+  }
+
+  &:focus-within {
+    border-color: $primary-dark;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+  }
+
+  .filter-pill-icon {
+    flex-shrink: 0;
+    color: $text-light;
+    width: 20px;
+    height: 20px;
+  }
+
+  .filter-pill-select {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: $text-light;
+    font-size: $font-size-base;
+    font-family: $font-family;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    padding: 0;
+    min-width: 0;
+
+    option {
+      color: $text-primary;
+      background: $pill-gradient ;
+    }
+
+    &:hover {
+      color: $text-light;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+// ========================================
+// BUTTON ADD PILL
+// ========================================
+
+.btn-add-pill {
+  @include flex-center;
+  gap: $spacing-sm;
+  background: $pill-gradient;
+  color: $text-light;
+  border: none;
+  padding: $spacing-md $spacing-lg;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  font-family: $font-family;
+  cursor: pointer;
+  border-radius: $border-radius-pill;
+  transition: all $transition-normal;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba($primary-color, 0.2);
+
+  @include responsive(md) {
+    width: 100%;
+    flex-shrink: 1;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-weight: $font-weight-semibold;
+  }
+
+  &:hover {
+    background: $pill-gradient-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba($primary-color, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba($primary-color, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 4px 12px rgba($primary-color, 0.2), 0 0 0 3px rgba($primary-color, 0.1);
   }
 }

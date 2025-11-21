@@ -83,6 +83,7 @@ class TblServicios(models.Model):
         return self.nombre_servicio
 
 
+# En la clase TblStockJoyas, agregar el campo costo:
 class TblStockJoyas(models.Model):
     codigo_joya = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50, db_collation='Modern_Spanish_CI_AS')
@@ -92,6 +93,8 @@ class TblStockJoyas(models.Model):
     material = models.CharField(max_length=50, db_collation='Modern_Spanish_CI_AS', blank=True, null=True)
     descripcion = models.CharField(max_length=200, db_collation='Modern_Spanish_CI_AS', blank=True, null=True)
     precio_venta = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
+    costo = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
+    cantidad_existencia = models.IntegerField(blank=True, null=True, default=0)
 
     class Meta:
         managed = False

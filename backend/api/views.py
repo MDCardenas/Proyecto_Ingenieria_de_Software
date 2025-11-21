@@ -14,7 +14,7 @@ from .models import (
     TblClientes, TblEmpleados, TblStockJoyas, TblServicios,
     TblFacturas, TblCotizaciones, TblStockInsumos, 
     TblStockMateriales, TblProvedores, PerfilesEmpleados,
-    TblOrdenesTrabajo, TblDetallesFactura,TblGastos
+    TblOrdenesTrabajo, TblDetallesFactura,TblGastos,
 )
 from .serializers import (
     ClienteSerializer, EmpleadoSerializer, StockJoyaSerializer,
@@ -40,6 +40,70 @@ class EmpleadoViewSet(viewsets.ModelViewSet):
 class StockJoyaViewSet(viewsets.ModelViewSet):
     queryset = TblStockJoyas.objects.all()
     serializer_class = StockJoyaSerializer
+    
+    # AGREGAR ESTOS MÉTODOS PARA MEJORAR LAS ACTUALIZACIONES:
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)  # Permitir actualizaciones parciales
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['put', 'patch'])
+    def actualizar_costo(self, request, pk=None):
+        """Endpoint específico para actualizar solo el costo"""
+        joya = self.get_object()
+        costo = request.data.get('costo')
+        
+        if costo is not None:
+            try:
+                joya.costo = Decimal(str(costo))
+                joya.save()
+                return Response({
+                    'success': True,
+                    'message': 'Costo actualizado exitosamente',
+                    'costo_actualizado': float(joya.costo)
+                })
+            except Exception as e:
+                return Response({
+                    'success': False,
+                    'error': f'Error al actualizar costo: {str(e)}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                'success': False,
+                'error': 'El campo costo es requerido'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def actualizar_costos_masivo(self, request):
+        """Actualizar costos de múltiples joyas a la vez"""
+        try:
+            updates = request.data.get('updates', [])
+            
+            for update in updates:
+                codigo_joya = update.get('codigo_joya')
+                costo = update.get('costo')
+                
+                if codigo_joya and costo is not None:
+                    try:
+                        joya = TblStockJoyas.objects.get(codigo_joya=codigo_joya)
+                        joya.costo = Decimal(str(costo))
+                        joya.save()
+                    except TblStockJoyas.DoesNotExist:
+                        continue
+            
+            return Response({
+                'success': True,
+                'message': f'Costos de {len(updates)} joyas actualizados'
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': f'Error en actualización masiva: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 class ServicioViewSet(viewsets.ModelViewSet):
     queryset = TblServicios.objects.all()
@@ -1103,7 +1167,7 @@ def lista_empleados(request):
 def lista_perfiles(request):
     """Endpoint para listar los perfiles disponibles desde Perfiles_Empleados."""
     try:
-        perfiles = TblPerfilesEmpleado.objects.all().order_by('id')
+        perfiles = PerfilesEmpleados.objects.all().order_by('id')
         print(f">>> Se encontraron {perfiles.count()} perfiles")
 
         data = [
