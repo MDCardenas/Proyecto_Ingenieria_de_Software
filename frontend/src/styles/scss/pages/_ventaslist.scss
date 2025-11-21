@@ -9,6 +9,10 @@
   padding: 0;
   background: transparent;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-height: 0;
 }
 
 /* ========================================
@@ -19,14 +23,23 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-lg;
   padding: $spacing-lg;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+
+  @include responsive(md) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .header-left {
+  flex: 1;
+
   h2 {
     margin: 0;
-    color: $gray-800;
+    color: $gray-900;
     font-size: $font-size-2xl;
     font-weight: $font-weight-semibold;
   }
@@ -34,7 +47,7 @@
 
 .subtitle {
   margin: $spacing-xs 0 0 0;
-  color: $gray-500;
+  color: $text-muted;
   font-size: $font-size-sm;
 }
 
@@ -47,40 +60,68 @@
   display: flex;
   gap: $spacing-sm;
   align-items: center;
+  flex-shrink: 0;
+
+  @include responsive(md) {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
-
 .btn-volver {
+  @include button-primary;
   width: auto;
   padding: $spacing-md $spacing-lg;
   font-size: $font-size-sm;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  min-height: 50px; 
-  
-  &:hover {
-    background: $gray-600;
+  min-height: 50px;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+
+  @include responsive(md) {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 .btn-refresh {
+  @include button-primary;
   width: auto;
   padding: $spacing-md $spacing-lg;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
   font-size: $font-size-sm;
-  min-height: 30px;
-  background: $blue-gradient;
+  min-height: 50px;
 
   &:disabled {
     background: $gray-400;
     cursor: not-allowed;
+    transform: none;
   }
 
   &:hover:not(:disabled) {
     background: $primary-dark;
+    transform: translateY(-1px);
+  }
+
+  svg {
+    &.spin {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -88,12 +129,10 @@
    RESUMEN DE TOTALES
    ======================================== */
 .resumen-totales {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-md;
-  margin-bottom: $spacing-lg;
+  @include grid-responsive(2, $spacing-md);
+  flex-shrink: 0;
 
-  @include responsive(lg) {
+  @include responsive(md) {
     grid-template-columns: 1fr;
   }
 }
@@ -111,6 +150,7 @@
 .total-icon {
   font-size: $font-size-3xl;
   color: $success-dark;
+  flex-shrink: 0;
 }
 
 .total-info {
@@ -121,7 +161,7 @@
 
 .total-label {
   font-size: $font-size-sm;
-  color: $gray-500;
+  color: $text-muted;
   font-weight: $font-weight-medium;
 }
 
@@ -129,6 +169,7 @@
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
   color: $success-dark;
+  line-height: 1;
 }
 
 /* ========================================
@@ -137,38 +178,23 @@
 .filtros-container {
   @include card-style;
   padding: $spacing-lg;
-  margin-bottom: $spacing-md;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
 }
 
 .search-section {
   display: flex;
-  gap: $spacing-sm;
+  gap: $spacing-md;
   align-items: center;
-  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
 
-  @include responsive(md) {
-    flex-direction: column;
-    align-items: stretch;
+  .search-pill {
+    flex: 1;
+    min-width: 280px;
+    max-width: 420px;
   }
-}
-
-.search-input-wrapper {
-  position: relative;
-  flex: 1;
-}
-
-.search-icon {
-  position: absolute;
-  left: $spacing-md;
-  top: 50%;
-  transform: translateY(-50%);
-  color: $gray-500;
-  pointer-events: none;
-}
-
-.input-busqueda {
-  @include input-style;
-  padding-left: $spacing-2xl;
 }
 
 .btn-limpiar {
@@ -177,22 +203,30 @@
   padding: $spacing-md $spacing-lg;
   font-size: $font-size-sm;
   white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  &:hover:not(:disabled) {
+    background: $gray-600;
+    transform: translateY(-1px);
+  }
 
   @include responsive(md) {
     width: 100%;
-  }
-
-  &:hover {
-    background: $gray-600;
   }
 }
 
 .filtros-section {
   display: flex;
   gap: $spacing-md;
+  flex-wrap: wrap;
+  align-items: flex-end;
 
   @include responsive(md) {
     flex-direction: column;
+    align-items: stretch;
   }
 }
 
@@ -200,6 +234,11 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+  min-width: 200px;
+
+  @include responsive(md) {
+    min-width: 100%;
+  }
 
   label {
     font-size: $font-size-sm;
@@ -209,19 +248,8 @@
 }
 
 .select-filtro {
-  padding: $spacing-md;
-  border: 1px solid $border-color-light;
-  border-radius: $border-radius;
-  font-size: $font-size-sm;
-  background: $bg-primary;
+  @include input-style;
   cursor: pointer;
-  transition: border-color $transition-fast;
-
-  &:focus {
-    outline: none;
-    border-color: $info-color;
-    box-shadow: 0 0 0 2px rgba($info-color, 0.1);
-  }
 }
 
 /* ========================================
@@ -231,11 +259,16 @@
   display: flex;
   gap: $spacing-sm;
   flex-wrap: wrap;
-  margin-bottom: $spacing-md;
   padding: $spacing-md;
   background: lighten($info-color, 45%);
   border-radius: $border-radius;
   border-left: 4px solid $info-color;
+  flex-shrink: 0;
+
+  @include responsive(md) {
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
 }
 
 .filtro-activo {
@@ -248,29 +281,61 @@
   font-size: $font-size-sm;
   color: $gray-700;
   box-shadow: $shadow-sm;
+  flex-shrink: 0;
 }
 
 /* ========================================
-   TABLA
+   TABLA CON SCROLLBAR MEJORADO
    ======================================== */
 .tabla-container {
   @include card-style;
   border-radius: $border-radius-lg;
-  overflow: hidden;
-  margin-bottom: $spacing-md;
-
-  @include responsive(md) {
-    overflow-x: auto;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  
+  // Scrollbar mejorado - más delgado y estético
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
+
+  &::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, $gray-50 0%, $gray-100 100%);
+    border-radius: 4px;
+    margin: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all $transition-normal;
+    
+    &:hover {
+      background: linear-gradient(135deg, $primary-dark 0%, darken($primary-dark, 10%) 100%);
+      transform: scale(1.1);
+    }
+    
+    &:active {
+      background: linear-gradient(135deg, darken($primary-dark, 10%) 0%, darken($primary-dark, 15%) 100%);
+    }
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: $gray-100;
+    border-radius: 0 0 $border-radius-lg 0;
+  }
+
+  // Para Firefox
+  scrollbar-width: thin;
+  scrollbar-color: $primary-color $gray-100;
 }
 
 .tabla-ventas {
   width: 100%;
   border-collapse: collapse;
-
-  @include responsive(md) {
-    min-width: 900px;
-  }
+  min-width: 900px;
 
   th {
     background: $gray-50;
@@ -282,6 +347,14 @@
     font-size: $font-size-sm;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    
+    // Efecto glass para headers sticky
+    backdrop-filter: blur(10px);
+    background: rgba($gray-50, 0.95);
   }
 
   td {
@@ -289,14 +362,17 @@
     border-bottom: 1px solid $gray-100;
     font-size: $font-size-sm;
     vertical-align: middle;
+    transition: background-color $transition-fast;
   }
 }
 
 .fila-factura {
-  transition: background-color $transition-fast;
+  transition: all $transition-fast;
 
   &:hover {
     background: $gray-50;
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -305,12 +381,14 @@
   align-items: center;
   gap: $spacing-sm;
   font-weight: $font-weight-semibold;
-  color: $gray-800;
+  color: $gray-900;
+  white-space: nowrap;
 }
 
 .icon-factura {
   color: $info-color;
   font-size: $font-size-lg;
+  flex-shrink: 0;
 }
 
 .cliente-info {
@@ -319,19 +397,19 @@
   gap: $spacing-xs;
 
   strong {
-    color: $gray-800;
+    color: $gray-900;
     font-weight: $font-weight-medium;
   }
 }
 
 .observacion {
-  color: $gray-500;
+  color: $text-muted;
   font-size: $font-size-xs;
   font-style: italic;
 }
 
 .fecha-factura {
-  color: $gray-500;
+  color: $text-muted;
   white-space: nowrap;
 }
 
@@ -340,8 +418,9 @@
 .descuento {
   text-align: right;
   font-family: 'Courier New', monospace;
-  color: $gray-500;
+  color: $text-muted;
   font-size: $font-size-sm;
+  white-space: nowrap;
 }
 
 .total-factura {
@@ -349,6 +428,7 @@
   font-family: 'Courier New', monospace;
   color: $success-dark;
   font-size: $font-size-base;
+  white-space: nowrap;
 
   strong {
     font-weight: $font-weight-semibold;
@@ -367,96 +447,97 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  transition: all $transition-fast;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
 }
 
 .badge-venta {
   background: lighten($info-color, 35%);
   color: darken($info-color, 20%);
+  border: 1px solid lighten($info-color, 25%);
 }
 
 .badge-fabricacion {
   background: lighten($error-color, 35%);
   color: darken($error-color, 20%);
+  border: 1px solid lighten($error-color, 25%);
 }
 
 .badge-reparacion {
   background: lighten($warning-color, 35%);
   color: darken($warning-color, 20%);
+  border: 1px solid lighten($warning-color, 25%);
 }
 
 .badge-efectivo {
   background: lighten($success-color, 35%);
   color: darken($success-color, 20%);
+  border: 1px solid lighten($success-color, 25%);
 }
 
 .badge-tarjeta {
   background: lighten($info-color, 35%);
   color: darken($info-color, 20%);
+  border: 1px solid lighten($info-color, 25%);
 }
 
 .badge-transferencia {
   background: lighten($primary-color, 35%);
   color: darken($primary-color, 20%);
+  border: 1px solid lighten($primary-color, 25%);
 }
 
 .badge-metodo {
   background: $gray-100;
-  color: $gray-500;
+  color: $text-muted;
+  border: 1px solid $gray-200;
 }
 
 .badge-secondary {
   background: $gray-100;
-  color: $gray-500;
+  color: $text-muted;
+  border: 1px solid $gray-200;
 }
 
 /* ========================================
-   ACCIONES
+   BOTONES PILL PARA ACCIONES
    ======================================== */
-.acciones-tabla {
+.acciones-tabla-pill {
   display: flex;
-  gap: $spacing-xs;
-  justify-content: flex-start;
-
-  @include responsive(md) {
-    flex-direction: column;
-    gap: $spacing-xs;
-  }
+  justify-content: center;
+  align-items: center;
 }
 
-.btn-detalles,
-.btn-anular {
-  padding: $spacing-xs $spacing-md;
-  border: none;
-  border-radius: $border-radius-sm;
-  cursor: pointer;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  white-space: nowrap;
-  transition: all $transition-fast;
+.btn-pill-detalles {
+  @include button-pill-primary;
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-sm;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+  background: $info-color;
+  
+  &:hover:not(:disabled) {
+    background: $info-dark;
+    transform: translateY(-2px) scale(1.02);
+  }
 
   @include responsive(md) {
     width: 100%;
+    min-width: auto;
+    justify-content: center;
   }
 }
 
-.btn-detalles {
-  background: $info-color;
-  color: $text-light;
-
-  &:hover {
-    background: $info-dark;
-    transform: translateY(-1px);
-  }
-}
-
-.btn-anular {
-  background: $error-color;
-  color: $text-light;
-
-  &:hover {
-    background: $error-dark;
-    transform: translateY(-1px);
-  }
+.btn-pill-icon {
+  font-size: $font-size-sm;
+  flex-shrink: 0;
 }
 
 /* ========================================
@@ -465,8 +546,9 @@
 .loading-message,
 .sin-resultados {
   text-align: center;
-  padding: $spacing-xl $spacing-lg;
+  padding: $spacing-2xl $spacing-lg;
   font-size: $font-size-base;
+  grid-column: 1 / -1;
 }
 
 .loading-message {
@@ -475,7 +557,7 @@
 }
 
 .sin-resultados {
-  color: $gray-500;
+  color: $text-muted;
   font-style: italic;
 }
 
@@ -487,11 +569,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: $spacing-md $spacing-lg;
+  padding: $spacing-lg;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: $spacing-md;
 
   @include responsive(md) {
     flex-direction: column;
-    gap: $spacing-md;
     text-align: center;
   }
 }
@@ -500,11 +584,13 @@
   display: flex;
   gap: $spacing-xl;
   font-size: $font-size-sm;
-  color: $gray-500;
+  color: $text-muted;
+  flex-wrap: wrap;
 
   @include responsive(md) {
     flex-direction: column;
     gap: $spacing-sm;
+    width: 100%;
   }
 
   strong {
@@ -518,29 +604,84 @@
   font-size: $font-size-xs;
   color: $gray-400;
   font-style: italic;
+  flex-shrink: 0;
+
+  @include responsive(md) {
+    width: 100%;
+  }
 }
 
 /* ========================================
-   RESPONSIVE ADICIONAL
+   EFECTOS VISUALES MEJORADOS
    ======================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tabla-ventas tbody tr {
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+  
+  // Escalonar las animaciones de las filas
+  @for $i from 1 through 20 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}
+
+/* ========================================
+   MEJORAS RESPONSIVE
+   ======================================== */
+@include responsive(lg) {
+  .tabla-ventas {
+    min-width: 800px;
+    
+    th, td {
+      padding: $spacing-sm;
+    }
+  }
+}
+
 @include responsive(md) {
-  .list-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .tabla-container {
+    border-radius: $border-radius;
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+  }
+  
+  .tabla-ventas {
+    min-width: 700px;
+    
+    th, td {
+      padding: $spacing-xs $spacing-sm;
+      font-size: $font-size-xs;
+    }
+  }
+}
+
+@include responsive(sm) {
+  .ventas-list-container {
     gap: $spacing-md;
   }
-
-  .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+  
+  .list-header,
+  .filtros-container,
+  .resumen-final {
+    padding: $spacing-md;
   }
-
-  .tabla-ventas {
-    font-size: $font-size-sm;
-    
-    th,
-    td {
-      padding: $spacing-md;
-    }
+  
+  .total-card {
+    padding: $spacing-md;
   }
 }

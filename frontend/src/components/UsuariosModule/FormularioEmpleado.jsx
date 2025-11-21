@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
 
-const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
+const FormularioNuevoEmpleado = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -11,9 +16,6 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
     salario: '',
     codigo_perfil: '1',
   });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,8 +34,6 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
         codigo_perfil: parseInt(formData.codigo_perfil),
       };
 
-      console.log('🚀 Enviando empleado:', empleadoData);
-
       const response = await fetch('http://127.0.0.1:8000/api/empleados/nuevo/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,227 +45,180 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
         throw new Error(errorData.error || `Error ${response.status}`);
       }
 
-      const result = await response.json();
-      console.log('✅ Empleado guardado:', result);
-      onEmpleadoAgregado();
-      onClose();
+      navigate('/usuarios');
     } catch (err) {
-      console.error('❌ Error al crear empleado:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🟣 === ESTILOS ===
-  const styles = {
-    overlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000,
-      animation: 'fadeIn 0.3s ease-in-out',
-      padding: '20px',
-    },
-    modal: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
-      width: '100%',
-      maxWidth: '750px',
-      overflow: 'hidden',
-      animation: 'slideUp 0.4s ease-in-out',
-    },
-    header: {
-      background: 'linear-gradient(135deg, #667eea, #764ba2)',
-      color: 'white',
-      padding: '20px 30px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      fontSize: '1.3em',
-      fontWeight: 'bold',
-    },
-    closeBtn: {
-      background: 'none',
-      border: 'none',
-      color: 'white',
-      fontSize: '24px',
-      cursor: 'pointer',
-    },
-    form: {
-      padding: '25px 30px',
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '20px',
-      marginBottom: '25px',
-    },
-    group: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    label: {
-      fontWeight: '600',
-      color: '#2c3e50',
-      marginBottom: '8px',
-      fontSize: '14px',
-    },
-    input: {
-      padding: '12px 15px',
-      border: '2px solid #e9ecef',
-      borderRadius: '8px',
-      fontSize: '14px',
-      backgroundColor: '#f8f9fa',
-      outline: 'none',
-      transition: 'all 0.3s ease',
-      color: 'black',
-    },
-    select: {
-      padding: '12px',
-      border: '2px solid #e9ecef',
-      borderRadius: '8px',
-      backgroundColor: '#f8f9fa',
-      fontSize: '14px',
-      outline: 'none',
-      color: 'black',
-    },
-    errorMsg: {
-      backgroundColor: '#f8d7da',
-      color: '#721c24',
-      padding: '15px',
-      borderRadius: '8px',
-      border: '1px solid #f5c6cb',
-      marginBottom: '15px',
-      fontWeight: '500',
-    },
-    actions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '15px',
-      borderTop: '1px solid #e9ecef',
-      padding: '20px 30px',
-      backgroundColor: '#fdfdfd',
-    },
-    btnCancelar: {
-      backgroundColor: '#6c757d',
-      border: 'none',
-      padding: '12px 25px',
-      color: 'white',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      fontWeight: '600',
-      transition: 'all 0.3s ease',
-    },
-    btnGuardar: {
-      background: 'linear-gradient(135deg, #667eea, #764ba2)',
-      border: 'none',
-      padding: '12px 25px',
-      color: 'white',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      fontWeight: '600',
-      transition: 'all 0.3s ease',
-    },
-  };
-
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
-        <div style={styles.header}>
-          <h2>Agregar Nuevo Empleado</h2>
-          <button style={styles.closeBtn} onClick={onClose}>×</button>
+    <div className="formulario-page">
+      <div className="formulario-container">
+        {/* Header */}
+        <div className="formulario-header">
+          <button 
+            className="btn-volver"
+            onClick={() => navigate('/usuarios')}
+          >
+            <FaArrowLeft /> Volver
+          </button>
+          <div className="header-text">
+            <h1>Nuevo Empleado</h1>
+            <p>Completa la información del nuevo usuario</p>
+          </div>
         </div>
 
-        <form style={styles.form} onSubmit={handleSubmit}>
-          {error && <div style={styles.errorMsg}>{error}</div>}
+        {/* Formulario */}
+        <form className="formulario-content" onSubmit={handleSubmit}>
+          {error && (
+            <div className="alert-error">
+              <span className="alert-icon">⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-          <div style={styles.grid}>
-            <div style={styles.group}>
-              <label style={styles.label}>Nombre *</label>
-              <input style={styles.input} name="nombre" value={formData.nombre} onChange={handleChange} required />
+          <div className="formulario-grid">
+            {/* Información Personal */}
+            <div className="formulario-seccion">
+              <h3 className="seccion-titulo">Información Personal</h3>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nombre *</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    required
+                    placeholder="Ingrese el nombre"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Apellido *</label>
+                  <input
+                    type="text"
+                    name="apellido"
+                    value={formData.apellido}
+                    onChange={handleChange}
+                    required
+                    placeholder="Ingrese el apellido"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Teléfono</label>
+                  <input
+                    type="tel"
+                    name="telefono"
+                    value={formData.telefono}
+                    onChange={handleChange}
+                    placeholder="Ej: +504 9999-9999"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Correo Electrónico *</label>
+                  <input
+                    type="email"
+                    name="correo"
+                    value={formData.correo}
+                    onChange={handleChange}
+                    required
+                    placeholder="ejemplo@correo.com"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div style={styles.group}>
-              <label style={styles.label}>Apellido *</label>
-              <input style={styles.input} name="apellido" value={formData.apellido} onChange={handleChange} required />
-            </div>
+            {/* Información de Acceso */}
+            <div className="formulario-seccion">
+              <h3 className="seccion-titulo">Información de Acceso</h3>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Usuario *</label>
+                  <input
+                    type="text"
+                    name="usuario"
+                    value={formData.usuario}
+                    onChange={handleChange}
+                    required
+                    placeholder="Nombre de usuario"
+                  />
+                </div>
 
-            <div style={styles.group}>
-              <label style={styles.label}>Usuario *</label>
-              <input style={styles.input} name="usuario" value={formData.usuario} onChange={handleChange} required />
-            </div>
+                <div className="form-group">
+                  <label>Contraseña *</label>
+                  <input
+                    type="password"
+                    name="contrasena"
+                    value={formData.contrasena}
+                    onChange={handleChange}
+                    required
+                    placeholder="Contraseña segura"
+                  />
+                </div>
+              </div>
 
-            <div style={styles.group}>
-              <label style={styles.label}>Contraseña *</label>
-              <input type="password" style={styles.input} name="contrasena" value={formData.contrasena} onChange={handleChange} required />
-            </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Perfil *</label>
+                  <select
+                    name="codigo_perfil"
+                    value={formData.codigo_perfil}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="1">Administrador</option>
+                    <option value="2">Vendedor</option>
+                    <option value="3">Gerente</option>
+                    <option value="4">Cajero</option>
+                    <option value="5">Contador</option>
+                  </select>
+                </div>
 
-            <div style={styles.group}>
-              <label style={styles.label}>Teléfono</label>
-              <input style={styles.input} name="telefono" value={formData.telefono} onChange={handleChange} />
-            </div>
-
-            <div style={styles.group}>
-              <label style={styles.label}>Correo *</label>
-              <input type="email" style={styles.input} name="correo" value={formData.correo} onChange={handleChange} required />
-            </div>
-
-            <div style={styles.group}>
-              <label style={styles.label}>Salario</label>
-              <input type="number" style={styles.input} name="salario" value={formData.salario} onChange={handleChange} placeholder="0.00" />
-            </div>
-
-            <div style={styles.group}>
-              <label style={styles.label}>Perfil *</label>
-              <select style={styles.select} name="codigo_perfil" value={formData.codigo_perfil} onChange={handleChange}>
-                <option value="1">Administrador</option>
-                <option value="2">Vendedor</option>
-                <option value="3">Gerente</option>
-                <option value="4">Cajero</option>
-                <option value="5">Contador</option>
-              </select>
+                <div className="form-group">
+                  <label>Salario</label>
+                  <input
+                    type="number"
+                    name="salario"
+                    value={formData.salario}
+                    onChange={handleChange}
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style={styles.actions}>
-            <button type="button" style={styles.btnCancelar} onClick={onClose}>Cancelar</button>
-            <button type="submit" style={styles.btnGuardar} disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+          {/* Acciones */}
+          <div className="formulario-acciones">
+            <button
+              type="button"
+              className="btn-pill btn-pill-secondary"
+              onClick={() => navigate('/usuarios')}
+            >
+              <FaTimes /> Cancelar
+            </button>
+            <button
+              type="submit"
+              className="btn-pill btn-pill-success"
+              disabled={loading}
+            >
+              <FaSave /> {loading ? 'Guardando...' : 'Guardar Empleado'}
             </button>
           </div>
         </form>
       </div>
-
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-          }
-          input:focus, select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-            background-color: #fff;
-          }
-          button:hover {
-            transform: scale(1.05);
-          }
-        `}
-      </style>
     </div>
   );
 };
 
-export default FormularioEmpleado;
+export default FormularioNuevoEmpleado;

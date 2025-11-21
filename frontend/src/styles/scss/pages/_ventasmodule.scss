@@ -1,0 +1,404 @@
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+/* ========================================
+   CONTENEDOR DEL MÓDULO DE VENTAS
+   ======================================== */
+.ventas-module {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: $spacing-lg;
+  gap: $spacing-lg;
+  background: $bg-primary;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  min-height: 0;
+  overflow: hidden;
+  
+  // Permitir scroll en el contenedor interno
+  > * {
+    flex-shrink: 0;
+  }
+  
+  // Sección con scroll
+  .acciones-section {
+    flex: 1;
+    overflow-y: auto;
+    @include scrollbar-style;
+  }
+}
+
+/* ========================================
+   HEADER DEL MÓDULO
+   ======================================== */
+.ventas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+
+  @include responsive(md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-md;
+  }
+}
+
+.ventas-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $gray-900;
+  margin: 0;
+}
+
+.ventas-subtitle {
+  color: $text-muted;
+  font-size: $font-size-sm;
+  margin: $spacing-xs 0 0 0;
+}
+
+.btn-volver {
+  @include button-primary;
+  width: auto;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background $transition-normal;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+    transform: translateY(-1px);
+  }
+
+  @include responsive(md) {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   MENSAJES DE ESTADO
+   ======================================== */
+.error-message {
+  background: lighten($error-color, 40%);
+  color: darken($error-color, 20%);
+  padding: $spacing-md $spacing-lg;
+  border-radius: $border-radius;
+  border-left: 4px solid $error-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: $spacing-md;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: darken($error-color, 20%);
+  font-size: $font-size-2xl;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity $transition-fast;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.success-message {
+  background: lighten($success-color, 40%);
+  color: darken($success-color, 20%);
+  padding: $spacing-md $spacing-lg;
+  border-radius: $border-radius;
+  border-left: 4px solid $success-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: $spacing-md;
+}
+
+.success-close {
+  background: none;
+  border: none;
+  color: darken($success-color, 20%);
+  font-size: $font-size-2xl;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity $transition-fast;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.loading-message {
+  text-align: center;
+  padding: $spacing-2xl $spacing-lg;
+  color: $info-color;
+  font-size: $font-size-lg;
+  flex-shrink: 0;
+}
+
+/* ========================================
+   GRID DE ESTADÍSTICAS
+   ======================================== */
+.stats-grid {
+  @include grid-responsive(4, $spacing-md);
+  flex-shrink: 0;
+
+  @include responsive(lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include responsive(md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tarjetas de estadísticas */
+.stat-card {
+  background: $bg-tertiary;
+  border-radius: $border-radius;
+  padding: $spacing-lg;
+  border-left: 4px solid $info-color;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  transition: all $transition-normal;
+  @include card-hover;
+
+  &:hover {
+    @include card-hover;
+  }
+}
+
+.stat-card-green {
+  border-left-color: $success-dark;
+}
+
+.stat-card-blue {
+  border-left-color: $info-dark;
+}
+
+.stat-card-purple {
+  border-left-color: $accent-color;
+}
+
+.stat-card-orange {
+  border-left-color: $warning-color;
+}
+
+.stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-2xl;
+  flex-shrink: 0;
+  color: $text-light;
+}
+
+.stat-card-green .stat-icon-wrapper {
+  background-color: $success-dark;
+}
+
+.stat-card-blue .stat-icon-wrapper {
+  background-color: $info-dark;
+}
+
+.stat-card-purple .stat-icon-wrapper {
+  background-color: $accent-color;
+}
+
+.stat-card-orange .stat-icon-wrapper {
+  background-color: $warning-color;
+}
+
+.stat-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-xs 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $gray-700;
+  margin: 0;
+  line-height: 1;
+  @include text-ellipsis;
+}
+
+/* ========================================
+   ACCIONES RÁPIDAS
+   ======================================== */
+.acciones-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: $spacing-lg;
+}
+
+.section-title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $gray-900;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.acciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-md;
+  flex: 1;
+  min-height: 0;
+  align-content: start;
+
+  @include responsive(md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include responsive(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tarjetas de acción */
+.accion-card {
+  @include card-interactive;
+  padding: $spacing-lg;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-height: 90px;
+}
+
+.accion-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-2xl;
+  flex-shrink: 0;
+  background: lighten($primary-color, 35%);
+  color: $primary-dark;
+}
+
+.accion-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.accion-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.accion-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $gray-700;
+  margin: 0 0 $spacing-xs 0;
+  @include text-ellipsis;
+}
+
+.accion-description {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.4;
+  @include text-ellipsis-multiline(2);
+}
+
+/* ========================================
+   RESPONSIVE ADICIONAL
+   ======================================== */
+@include responsive(md) {
+  .ventas-module {
+    padding: $spacing-md;
+    gap: $spacing-md;
+  }
+
+  .stat-card {
+    padding: $spacing-md;
+  }
+
+  .stat-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    font-size: $font-size-lg;
+  }
+
+  .stat-value {
+    font-size: $font-size-lg;
+  }
+
+  .accion-card {
+    padding: $spacing-md;
+    min-height: 80px;
+  }
+
+  .accion-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    font-size: $font-size-lg;
+  }
+
+  .accion-title {
+    font-size: $font-size-sm;
+  }
+
+  .accion-description {
+    font-size: $font-size-xs;
+  }
+}
+
+@include responsive(sm) {
+  .ventas-module {
+    padding: $spacing-sm;
+  }
+
+  .ventas-title {
+    font-size: $font-size-xl;
+  }
+
+  .ventas-subtitle {
+    font-size: $font-size-xs;
+  }
+
+  .section-title {
+    font-size: $font-size-base;
+  }
+}

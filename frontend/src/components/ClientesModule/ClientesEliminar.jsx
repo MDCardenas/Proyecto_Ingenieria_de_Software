@@ -1,5 +1,4 @@
-
-import { FaSync, FaSearch, FaEnvelope, FaPhone, FaTrash } from 'react-icons/fa';
+import { FaSync, FaSearch, FaEnvelope, FaPhone, FaTrash, FaTimes } from 'react-icons/fa';
 import "../../styles/scss/pages/_clientes.scss";
 
 const ClientesEliminar = ({
@@ -39,8 +38,8 @@ const ClientesEliminar = ({
       {/* Barra de búsqueda y estadísticas */}
       <div className="filtros-container">
         <div className="search-section">
-          <div className="search-input-wrapper">
-            <FaSearch className="search-icon" />
+          <div className="search-pill">
+            <FaSearch className="search-pill-icon" />
             <input 
               type="text"
               placeholder="Buscar por nombre, identidad, correo o teléfono..."
@@ -49,12 +48,12 @@ const ClientesEliminar = ({
                 onBusquedaChange(e.target.value);
                 onPaginaChange(1);
               }}
-              className="input-busqueda"
+              className="search-pill-input"
             />
           </div>
           {busqueda && (
             <button onClick={() => onBusquedaChange("")} className="btn-limpiar">
-              Limpiar
+              <FaTimes /> Limpiar
             </button>
           )}
         </div>

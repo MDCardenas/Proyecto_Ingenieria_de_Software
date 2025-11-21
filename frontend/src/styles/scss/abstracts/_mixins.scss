@@ -202,6 +202,26 @@
   }
 }
 
+@mixin button-pill-info {
+  @include button-pill-primary;
+  background: $pill-gradient-info;
+  
+  &:hover:not(:disabled) {
+    background: $pill-gradient-info-hover;
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
+@mixin button-pill-warning {
+  @include button-pill-primary;
+  background: $pill-gradient-warning;
+  
+  &:hover:not(:disabled) {
+    background: $pill-gradient-warning-hover;
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
 // Grupo de botones pill con ancho consistente
 @mixin pill-button-group {
   display: flex;

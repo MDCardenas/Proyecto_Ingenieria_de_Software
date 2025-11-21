@@ -3,25 +3,29 @@
 
 /* ============ LISTA DE FACTURAS - DISEÑO MEJORADO Y COMPACTO ============ */
 .lista-facturas-container {
-  display: block;
-  height: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   min-height: auto;
-  overflow: visible !important;
+  overflow: hidden;
   padding: $spacing-md;
   background: $bg-secondary;
+  gap: $spacing-md;
 }
 
 /* Header con estadísticas - COMPACTO */
 .header-lista-facturas {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-md;
   padding: $spacing-md;
   background: $bg-primary;
   border-radius: $border-radius;
   box-shadow: $shadow-sm;
   border: 1px solid $border-color-light;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
 }
 
 .estadisticas-rapidas {
@@ -83,68 +87,75 @@
 
 /* Panel de filtros - COMPACTO */
 .panel-filtros {
+  flex-shrink: 0;
   display: flex;
   gap: $spacing-md;
-  margin-bottom: $spacing-md;
   padding: $spacing-md;
   background: $bg-primary;
   border-radius: $border-radius;
   box-shadow: $shadow-sm;
   border: 1px solid $border-color-light;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .grupo-busqueda {
   flex: 1;
+  min-width: 250px;
 }
 
-.input-busqueda-container {
+/* Barra de búsqueda PILL mejorada */
+.search-pill {
+  @include search-pill;
+  margin-bottom: 0;
   position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-busqueda {
-  @include input-style;
-  padding: $spacing-sm $spacing-lg $spacing-sm $spacing-2xl;
-  border-radius: $border-radius;
-  font-size: $font-size-sm;
   
-  &:focus {
-    border-color: $primary-color;
-    box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
-  }
-}
-
-.icono-busqueda {
-  position: absolute;
-  left: $spacing-sm;
-  color: $text-muted;
-  z-index: 2;
-  font-size: $font-size-sm;
-}
-
-.btn-limpiar-busqueda {
-  position: absolute;
-  right: $spacing-xs;
-  background: none;
-  border: none;
-  color: $text-muted;
-  cursor: pointer;
-  font-size: $font-size-sm;
-  padding: $spacing-xs;
-  border-radius: 50%;
-  transition: all $transition-fast;
-  
-  &:hover {
-    background: $gray-100;
+  .search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    padding: $spacing-sm;
     color: $text-primary;
+    font-size: $font-size-base;
+    
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+  
+  .search-icon {
+    color: $text-muted;
+    margin-right: $spacing-sm;
+    font-size: $font-size-sm;
+  }
+  
+  .btn-limpiar-busqueda {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    font-size: $font-size-sm;
+    padding: $spacing-xs;
+    border-radius: 50%;
+    transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: $spacing-xs;
+
+    &:hover {
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+    }
   }
 }
 
 .grupo-filtros {
   display: flex;
   gap: $spacing-sm;
-  align-items: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .filtro-group {
@@ -180,9 +191,9 @@
   }
 }
 
-/* Botones de filtros - COMPACTOS */
+/* Botones de filtros - COMPACTOS con estilo PILL */
 .btn-limpiar-filtros {
-  @include button-secondary;
+  @include filter-pill;
   display: flex;
   align-items: center;
   gap: $spacing-xs;
@@ -194,7 +205,7 @@
 }
 
 .btn-actualizar {
-  @include button-primary;
+  @include button-pill-primary;
   display: flex;
   align-items: center;
   gap: $spacing-xs;
@@ -202,6 +213,7 @@
   min-width: auto;
   width: auto;
   font-size: $font-size-xs;
+  min-width: 120px;
   
   &:disabled {
     background: $gray-400;
@@ -211,30 +223,44 @@
 
 /* Resumen de filtros - COMPACTO */
 .resumen-filtros {
+  flex-shrink: 0;
   padding: $spacing-sm $spacing-md;
   background: $gray-50;
   border-radius: $border-radius-sm;
-  margin-bottom: $spacing-md;
   font-size: $font-size-xs;
   color: $text-primary;
   border-left: 3px solid $info-color;
-}
-
-.filtros-activos {
-  color: $text-secondary;
-  font-style: italic;
+  overflow-x: auto;
 }
 
 /* Grid de facturas - CARDS COMPACTAS */
 .grid-facturas {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: $spacing-md;
   padding: $spacing-xs;
-  margin-bottom: $spacing-md;
-  overflow: visible !important;
-  height: auto;
-  min-height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $gray-light;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
 }
 
 /* Cards de facturas - COMPACTAS */
@@ -242,14 +268,13 @@
   @include card-style;
   @include card-hover;
   border-radius: $border-radius;
-  overflow: hidden !important;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 220px;
-  max-height: 280px;
   border: 1px solid $border-color-light;
   transition: all $transition-normal;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: $shadow-lg;
@@ -452,88 +477,108 @@
   font-weight: $font-weight-medium !important;
 }
 
-/* Footer de card - BOTONES COMPACTOS */
+/* Footer de card - BOTONES PILL UNIFORMES */
 .card-footer {
   padding: $spacing-sm;
   background: $bg-tertiary;
   border-top: 1px solid $border-color-light;
   display: flex;
+  flex-direction: column;
   gap: $spacing-sm;
-  min-height: 50px;
+  min-height: auto;
 }
 
+/* Selector de método de pago con estilo PILL uniforme */
+.selector-metodo-pago {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+  flex-wrap: wrap;
+  
+  .selector-pill {
+    @include button-pill-accent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    min-height: 32px;
+    min-width: 120px;
+    flex: 1;
+    
+    select {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      color: $text-light;
+      font-size: $font-size-xs;
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      text-align: center;
+      
+      option {
+        background: $bg-primary;
+        color: $text-primary;
+      }
+    }
+  }
+}
+
+/* Botones PILL uniformes para las facturas */
 .btn-detalles {
-  @include button-secondary;
+  @include button-pill-info;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-xs;
-  padding: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   min-height: 32px;
-  border-radius: $border-radius-sm;
-  
-  &:hover {
-    transform: translateY(-1px);
-  }
+  width: 100%;
 }
 
 .btn-marcar-pagada {
-  @include button-primary;
+  @include button-pill-success;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-xs;
-  padding: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   min-height: 32px;
-  border-radius: $border-radius-sm;
-  background: $success-gradient;
-  
-  &:hover:not(:disabled) {
-    background: $success-dark;
-    transform: translateY(-1px);
-  }
+  width: 100%;
 }
 
 .btn-reabrir {
-  @include button-secondary;
+  @include button-pill-warning;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-xs;
-  padding: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   min-height: 32px;
-  border-radius: $border-radius-sm;
-  background: linear-gradient(135deg, $warning-color 0%, $warning-dark 100%);
-  
-  &:hover:not(:disabled) {
-    background: $warning-dark;
-    transform: translateY(-1px);
-  }
+  width: 100%;
 }
 
 .btn-reactivar {
-  @include button-primary;
+  @include button-pill-warning;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-xs;
-  padding: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   min-height: 32px;
-  border-radius: $border-radius-sm;
-  background: $blue-gradient;
-  
-  &:hover:not(:disabled) {
-    background: $blue-dark;
-    transform: translateY(-1px);
-  }
+  width: 100%;
 }
 
 /* Estados de carga y sin resultados - COMPACTOS */
@@ -566,17 +611,21 @@
   background: $bg-primary;
   border-radius: $border-radius;
   box-shadow: $shadow-sm;
-  margin: $spacing-md 0;
   border: 2px dashed $border-color-light;
+  
+  .btn-limpiar-filtros {
+    @include button-pill-primary;
+    margin-top: $spacing-md;
+  }
 }
 
 /* Mensajes - COMPACTOS */
 .mensaje-error {
+  flex-shrink: 0;
   background: $gray-50;
   color: $error-dark;
   padding: $spacing-sm $spacing-md;
   border-radius: $border-radius-sm;
-  margin-bottom: $spacing-md;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -590,13 +639,12 @@
   border: none;
   color: $error-dark;
   cursor: pointer;
-  font-size: $font-size-sm;
   padding: $spacing-xs;
   border-radius: 50%;
   transition: all $transition-fast;
   
   &:hover {
-    background: $gray-200;
+    background: rgba($error-color, 0.1);
   }
 }
 
@@ -657,105 +705,85 @@
 }
 
 @include responsive(md) {
-  .grid-facturas {
-    grid-template-columns: 1fr;
-    gap: $spacing-sm;
+  .lista-facturas-container {
+    padding: $spacing-sm;
   }
-  
+
   .header-lista-facturas {
     flex-direction: column;
     gap: $spacing-sm;
     align-items: stretch;
   }
-  
+
   .estadisticas-rapidas {
     justify-content: space-around;
   }
-  
+
   .panel-filtros {
     flex-direction: column;
     gap: $spacing-sm;
   }
-  
-  .grupo-filtros {
-    flex-direction: column;
-    align-items: stretch;
-    gap: $spacing-sm;
-  }
-  
-  .select-filtro {
+
+  .grupo-busqueda {
+    width: 100%;
     min-width: 100%;
   }
-  
-  .card-header {
-    padding: $spacing-sm;
+
+  .grupo-filtros {
+    width: 100%;
     flex-direction: column;
-    gap: $spacing-sm;
-    align-items: flex-start;
-    min-height: 50px;
+    align-items: stretch;
   }
-  
-  .info-principal {
+
+  .select-filtro {
     width: 100%;
   }
-  
-  .badge-estado {
-    align-self: flex-start;
+
+  .grid-facturas {
+    grid-template-columns: 1fr;
   }
   
-  .card-body {
-    padding: $spacing-sm;
-    min-height: 100px;
+  .selector-metodo-pago {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .selector-pill {
+      max-width: 100%;
+    }
+    
+    .btn-marcar-pagada {
+      width: 100%;
+    }
+  }
+}
+
+@include responsive(sm) {
+  .grid-facturas {
+    grid-template-columns: 1fr;
+    gap: $spacing-sm;
+  }
+
+  .estadisticas-rapidas {
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  .estadistica-item {
+    flex-direction: row;
+    justify-content: space-between;
+    min-width: auto;
   }
   
   .card-footer {
-    padding: $spacing-sm;
-    flex-direction: column;
-    gap: $spacing-xs;
-    min-height: auto;
+    padding: $spacing-xs;
   }
   
   .btn-detalles,
   .btn-marcar-pagada,
   .btn-reabrir,
   .btn-reactivar {
-    min-height: 36px;
-    font-size: $font-size-sm;
-  }
-}
-
-@include responsive(sm) {
-  .lista-facturas-container {
-    padding: $spacing-sm;
-  }
-  
-  .grid-facturas {
-    grid-template-columns: 1fr;
-  }
-  
-  .estadisticas-rapidas {
-    flex-direction: column;
-    gap: $spacing-xs;
-  }
-  
-  .estadistica-item {
-    flex-direction: row;
-    justify-content: space-between;
-    min-width: auto;
-    text-align: left;
-    
-    .numero {
-      font-size: $font-size-lg;
-      margin: 0;
-    }
-  }
-  
-  .card-factura {
-    min-height: auto;
-    max-height: none;
-  }
-  
-  .monto-total {
-    font-size: $font-size-base;
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-xs;
+    min-height: 32px;
   }
 }

@@ -123,6 +123,29 @@
   &-danger {
     @include button-pill-danger;
   }
+
+  &-accent {
+    @include button-pill-accent;
+  }
+
+  // Nuevas variantes para ListaFacturas
+  &-info {
+    @include button-pill-primary;
+    background: linear-gradient(135deg, $info-color 0%, $info-dark 100%);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, $info-dark 0%, $info-color 100%);
+    }
+  }
+
+  &-warning {
+    @include button-pill-primary;
+    background: linear-gradient(135deg, $warning-color 0%, $warning-dark 100%);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, $warning-dark 0%, $warning-color 100%);
+    }
+  }
 }
 
 /* ========================================

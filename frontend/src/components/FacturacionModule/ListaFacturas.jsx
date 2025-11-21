@@ -237,14 +237,14 @@ export default function ListaFacturas() {
       {/* Panel de filtros y búsqueda */}
       <div className="panel-filtros">
         <div className="grupo-busqueda">
-          <div className="input-busqueda-container">
-            <FaSearch className="icono-busqueda" />
+          <div className="search-pill">
+            <FaSearch className="search-icon" />
             <input
               type="text"
               placeholder="Buscar por número, cliente o identidad..."
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
-              className="input-busqueda"
+              className="search-input"
             />
             {terminoBusqueda && (
               <button 
@@ -296,7 +296,7 @@ export default function ListaFacturas() {
           {(terminoBusqueda || filtroEstado !== "TODAS" || filtroTipo !== "TODAS") && (
             <button 
               onClick={limpiarFiltros}
-              className="btn-limpiar-filtros"
+              className="btn-limpiar-filtros filter-pill"
               title="Limpiar todos los filtros"
             >
               <FaTimes />
@@ -399,7 +399,7 @@ export default function ListaFacturas() {
 
               <div className="card-footer">
                 <button 
-                  className="btn-detalles"
+                  className="btn-detalles btn-pill btn-pill-info"
                   onClick={() => verDetallesFactura(factura)}
                   title="Ver detalles completos"
                 >
@@ -408,32 +408,35 @@ export default function ListaFacturas() {
                 </button>
 
                 {factura.estado_pago === 'PENDIENTE' && (
-                <div className="selector-metodo-pago" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
-                  <select 
-                    value={metodoPagoSeleccionado[factura.numero_factura] || 'EFECTIVO'}
-                    onChange={(e) => setMetodoPagoSeleccionado(prev => ({
-                      ...prev, 
-                      [factura.numero_factura]: e.target.value
-                    }))}
-                    style={{ 
-                      padding: '6px 8px', 
-                      border: '1px solid #ddd', 
-                      borderRadius: '4px', 
-                      fontSize: '0.85rem', 
-                      background: 'white',
-                      minWidth: '100px',
-                      color: 'black'
-                    }}
-                  >
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="TARJETA">Tarjeta</option>
-                  </select>
+                <div className="selector-metodo-pago" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
+                  <div className="search-pill" style={{ maxWidth: '140px', minWidth: '120px' }}>
+                    <select 
+                      value={metodoPagoSeleccionado[factura.numero_factura] || 'EFECTIVO'}
+                      onChange={(e) => setMetodoPagoSeleccionado(prev => ({
+                        ...prev, 
+                        [factura.numero_factura]: e.target.value
+                      }))}
+                      style={{ 
+                        border: 'none',
+                        background: 'transparent',
+                        outline: 'none',
+                        flex: 1,
+                        padding: '4px 8px',
+                        color: 'inherit',
+                        fontSize: '0.85rem',
+                        width: '100%'
+                      }}
+                    >
+                      <option value="EFECTIVO">Efectivo</option>
+                      <option value="TARJETA">Tarjeta</option>
+                    </select>
+                  </div>
                   
                   <button
-                    className="btn-marcar-pagada"
+                    className="btn-marcar-pagada btn-pill btn-pill-success"
                     onClick={() => cambiarEstadoPago(factura.numero_factura, 'PAGADA')}
                     disabled={actualizando[factura.numero_factura]}
-                    style={{ whiteSpace: 'nowrap', minWidth: '80px' }}
+                    style={{ whiteSpace: 'nowrap', minWidth: '100px' }}
                   >
                     {actualizando[factura.numero_factura] ? (
                       <FaSync className="girando" />
@@ -445,12 +448,12 @@ export default function ListaFacturas() {
                 </div>
               )}
 
-
                 {factura.estado_pago === 'PAGADA' && (
                   <button
-                    className="btn-reabrir"
+                    className="btn-reabrir btn-pill btn-pill-warning"
                     onClick={() => cambiarEstadoPago(factura.numero_factura, 'PENDIENTE')}
                     disabled={actualizando[factura.numero_factura]}
+                    style={{ marginTop: '8px' }}
                   >
                     {actualizando[factura.numero_factura] ? (
                       <FaSync className="girando" />
@@ -463,9 +466,10 @@ export default function ListaFacturas() {
 
                 {factura.estado_pago === 'CANCELADA' && (
                   <button
-                    className="btn-reactivar"
+                    className="btn-reactivar btn-pill btn-pill-warning"
                     onClick={() => cambiarEstadoPago(factura.numero_factura, 'PENDIENTE')}
                     disabled={actualizando[factura.numero_factura]}
+                    style={{ marginTop: '8px' }}
                   >
                     {actualizando[factura.numero_factura] ? (
                       <FaSync className="girando" />
@@ -488,7 +492,7 @@ export default function ListaFacturas() {
               }
             </p>
             {(terminoBusqueda || filtroEstado !== "TODAS" || filtroTipo !== "TODAS") && (
-              <button onClick={limpiarFiltros} className="btn-limpiar-filtros">
+              <button onClick={limpiarFiltros} className="btn-limpiar-filtros btn-pill">
                 Limpiar filtros
               </button>
             )}

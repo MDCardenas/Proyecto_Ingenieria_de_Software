@@ -74,6 +74,15 @@ $pill-gradient-secondary: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
 $pill-gradient-secondary-hover: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
 $pill-gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
 $pill-gradient-success-hover: linear-gradient(135deg, #059669 0%, #10b981 100%);
+$pill-gradient-accent: linear-gradient(135deg, $accent-color 0%, $accent-dark 100%);
+$pill-gradient-accent-hover: linear-gradient(135deg, $accent-dark 0%, $accent-color 100%);
+
+// NUEVOS GRADIENTES AGREGADOS
+$pill-gradient-info: linear-gradient(135deg, $info-color 0%, $info-dark 100%);
+$pill-gradient-info-hover: linear-gradient(135deg, $info-dark 0%, $info-color 100%);
+$pill-gradient-warning: linear-gradient(135deg, $warning-color 0%, $warning-dark 100%);
+$pill-gradient-warning-hover: linear-gradient(135deg, $warning-dark 0%, $warning-color 100%);
+
 $search-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 
 // ========================================
@@ -293,9 +302,14 @@ $pulse-animation: pulse 2s infinite;
   --z-index-popover: #{$z-index-popover};
   --z-index-tooltip: #{$z-index-tooltip};
 
-    // Nuevas variables
+  // Nuevas variables
   --shadow-card: #{$shadow-card};
   --shadow-card-hover: #{$shadow-card-hover};
   --ring-color: #{$ring-color};
 
+  // NUEVAS VARIABLES CSS PARA GRADIENTES PILL
+  --pill-gradient-info: #{$pill-gradient-info};
+  --pill-gradient-info-hover: #{$pill-gradient-info-hover};
+  --pill-gradient-warning: #{$pill-gradient-warning};
+  --pill-gradient-warning-hover: #{$pill-gradient-warning-hover};
 }
