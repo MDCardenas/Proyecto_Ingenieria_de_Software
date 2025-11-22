@@ -29,7 +29,7 @@ const ItemsGrid = ({ type, data, alertas, onEdit, onDelete, loading }) => {
     return <div className="loading-state">Cargando...</div>;
   }
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="empty-state">
         <Icon className="empty-icon" />
@@ -43,7 +43,7 @@ const ItemsGrid = ({ type, data, alertas, onEdit, onDelete, loading }) => {
     <div className={`items-grid ${type}-grid`}>
       {data.map(item => (
         <ItemCard
-          key={item[`codigo_${type.slice(0, -1)}`]}
+          key={item[`codigo_${type.slice(0, -1)}`] || Math.random()}
           type={type}
           item={item}
           alertas={alertas}
@@ -292,6 +292,7 @@ const ItemCard = ({ type, item, alertas, onEdit, onDelete, config }) => {
           <h3 className="item-name">{item.nombre}</h3>
           <p className="item-description">{item.descripcion || 'Sin descripción'}</p>
         </div>
+        {/* Aquí están los botones que no se veían */}
         <div className="item-actions">
           <button 
             className="btn-edit" 

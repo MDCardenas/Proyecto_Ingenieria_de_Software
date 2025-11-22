@@ -49,6 +49,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  background: $bg-primary; // Asegurar fondo base
+  border-radius: $border-radius; // Asegurar borde redondeado base
 
   &.with-alerts {
     border-left-color: $warning-color;
@@ -181,6 +183,7 @@
           svg {
             width: 24px;
             height: 24px;
+            stroke-width: 2px;
           }
 
           &:hover {
@@ -188,29 +191,16 @@
             transform: scale(1.15);
           }
 
-          &.btn-view:hover {
-            color: $info-color;
-          }
-
-          &.btn-edit:hover {
-            color: $primary-color;
-          }
-
-          &.btn-delete:hover {
-            color: $error-color;
-          }
+          &.btn-view:hover { color: $info-color; }
+          &.btn-edit:hover { color: $primary-color; }
+          &.btn-delete:hover { color: $error-color; }
         }
       }
     }
 
     &:hover {
-      .joya-image {
-        transform: scale(1.05);
-      }
-
-      .joya-image-overlay {
-        opacity: 1;
-      }
+      .joya-image { transform: scale(1.05); }
+      .joya-image-overlay { opacity: 1; }
     }
   }
 
@@ -300,78 +290,97 @@
 
 // TARJETA ESTÁNDAR (MATERIALES E INSUMOS)
 .item-card:not(.joya-card) {
+  
+  // Estructura del Header donde están los botones
   .item-header {
     display: flex;
     align-items: flex-start;
     gap: $spacing-md;
     margin-bottom: $spacing-md;
-  }
+    width: 100%;
 
-  .item-icon {
-    @include flex-center;
-    width: 48px;
-    height: 48px;
-    background: rgba($primary-color, 0.1);
-    border-radius: $border-radius-lg;
-    color: $primary-color;
-    flex-shrink: 0;
-
-    svg {
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  .item-info {
-    flex: 1;
-    min-width: 0;
-
-    h3 {
-      font-size: $font-size-base;
-      font-weight: $font-weight-semibold;
-      color: $text-primary;
-      margin: 0 0 $spacing-xs 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    p {
-      color: $text-secondary;
-      font-size: $font-size-sm;
-      margin: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-    }
-  }
-
-  .item-actions {
-    display: flex;
-    gap: $spacing-xs;
-    flex-shrink: 0;
-
-    button {
+    // Icono del item (Material/Insumo)
+    .item-icon {
       @include flex-center;
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: $border-radius;
-      background: $gray-100;
-      color: $text-secondary;
-      cursor: pointer;
-      transition: all $transition-fast;
-
-      &:hover {
-        background: $primary-color;
-        color: $text-light;
-        transform: scale(1.05);
-      }
+      width: 48px;
+      height: 48px;
+      background: rgba($primary-color, 0.1);
+      border-radius: $border-radius-lg;
+      color: $primary-color;
+      flex-shrink: 0;
 
       svg {
-        width: 16px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    // Información textual
+    .item-info {
+      flex: 1;
+      min-width: 0;
+
+      h3 {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        margin: 0 0 $spacing-xs 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      p {
+        color: $text-secondary;
+        font-size: $font-size-sm;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+      }
+    }
+
+    // Acciones (Botones Editar/Eliminar)
+    .item-actions {
+      display: flex;
+      gap: $spacing-xs;
+      flex-shrink: 0;
+      margin-left: auto; // Empujar a la derecha si hay espacio extra
+
+      .btn-edit, 
+      .btn-delete {
+        display: flex; // Forzar flex
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: $border-radius;
+        background: $gray-100;
+        color: $text-secondary;
+        cursor: pointer;
+        transition: all $transition-fast;
+        padding: 0; // Reset padding
+
+        svg {
+          width: 16px;
+          height: 16px;
+          stroke-width: 2px;
+        }
+
+        &:hover {
+          transform: scale(1.05);
+          color: $text-light;
+        }
+      }
+
+      .btn-edit:hover {
+        background: $primary-color;
+      }
+
+      .btn-delete:hover {
+        background: $error-color;
       }
     }
   }
@@ -483,6 +492,7 @@
       transition: all $transition-fast;
       padding: $spacing-sm;
       border-radius: $border-radius;
+      z-index: 10;
 
       &:hover {
         background: $gray-100;
@@ -502,6 +512,9 @@
       object-fit: contain;
       border-radius: $border-radius;
       margin-bottom: $spacing-md;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .modal-title {
@@ -514,21 +527,11 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }

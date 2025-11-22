@@ -1,0 +1,512 @@
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+/* ========================================
+   MÓDULO DE ÓRDENES DE TRABAJO
+   ======================================== */
+
+.ordenes-module {
+  @include flex-column;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  background: $bg-secondary;
+  min-height: 100%;
+  box-sizing: border-box;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/*Header y Títulos*/
+.ordenes-header {
+  @include flex-between;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+
+  .header-content {
+    .ordenes-title {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    .ordenes-subtitle {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      margin-top: $spacing-xs;
+    }
+  }
+
+  // Botón Pill Principal
+  .btn-crear-orden {
+    @include button-pill-primary;
+    gap: $spacing-sm;
+    
+    svg {
+      font-size: 1.1em;
+    }
+  }
+}
+
+/* Toolbar (Búsqueda y Filtros) */
+.ordenes-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-sm;
+
+  .busqueda-wrapper {
+    flex: 1 1 300px;
+    max-width: 500px;
+    @include search-pill; // Usa tu mixin de search-pill
+    background: $bg-primary; // Asegura fondo blanco
+    
+    .icono-busqueda {
+      color: $text-muted;
+      margin-right: $spacing-sm;
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      color: $text-primary;
+      font-size: $font-size-sm;
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+
+    .btn-clear-search {
+      background: transparent;
+      border: none;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      padding: 2px;
+      
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+
+  .filters {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+
+    select {
+      appearance: none;
+      padding: $spacing-sm $spacing-xl $spacing-sm $spacing-md;
+      border-radius: $border-radius-pill; // Estilo Pill
+      border: 1px solid $border-color-light;
+      background-color: $bg-primary;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23bfa36f%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 0.65em auto;
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      cursor: pointer;
+      min-width: 160px;
+      transition: all $transition-fast;
+
+      &:focus {
+        border-color: $primary-color;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+      }
+
+      &:hover {
+        border-color: $gray-300;
+      }
+    }
+  }
+}
+
+/* Formulario Inline (Reemplazo del Modal) */
+.crear-orden-form-container {
+  @include card-base; // Estilo base de tarjeta
+  padding: $spacing-xl;
+  background: $bg-primary;
+  animation: slideInRight 0.3s ease-out;
+
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $border-color-light;
+
+    h2 {
+      font-size: $font-size-xl;
+      color: $text-primary;
+      margin: 0;
+    }
+    
+    p {
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      margin-top: $spacing-xs;
+    }
+  }
+
+  .form-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+    
+    @include responsive(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
+  }
+
+  .form-group {
+    @include flex-column;
+    gap: $spacing-xs;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+    }
+
+    input, select, textarea {
+      @include input-style;
+      
+      &:focus {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      }
+    }
+
+    .mensaje-error {
+      color: $error-color;
+      font-size: $font-size-xs;
+    }
+  }
+
+  // Wrapper personalizado para inputs tipo fecha y búsqueda
+  .input-wrapper-icon {
+    position: relative;
+    
+    input {
+      padding-right: $spacing-xl;
+    }
+
+    .icon-action {
+      position: absolute;
+      right: $spacing-sm;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-muted;
+      cursor: pointer;
+      background: none;
+      border: none;
+      
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+
+  // Resultados de búsqueda (Dropdown)
+  .resultados-busqueda {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: $bg-primary;
+    border: 1px solid $border-color-light;
+    border-radius: $border-radius;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: $shadow-lg;
+    z-index: 10;
+
+    .resultado-item {
+      padding: $spacing-sm $spacing-md;
+      border-bottom: 1px solid $gray-100;
+      cursor: pointer;
+      transition: background $transition-fast;
+
+      &:hover {
+        background: $bg-secondary;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      strong {
+        display: block;
+        color: $text-primary;
+        font-size: $font-size-sm;
+      }
+
+      .muted {
+        font-size: $font-size-xs;
+        color: $text-muted;
+      }
+    }
+
+    .sin-resultados {
+      padding: $spacing-md;
+      text-align: center;
+      color: $text-muted;
+      font-size: $font-size-sm;
+    }
+  }
+
+  // Selección mostrada (Chip grande)
+  .seleccion-mostrada {
+    @include flex-between;
+    padding: $spacing-sm $spacing-md;
+    background: rgba($success-color, 0.05);
+    border: 1px solid rgba($success-color, 0.2);
+    border-radius: $border-radius;
+
+    .info-seleccion {
+      strong {
+        display: block;
+        color: $success-dark;
+        font-size: $font-size-sm;
+      }
+      .muted {
+        font-size: $font-size-xs;
+        color: $success-color;
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-md;
+    margin-top: $spacing-xl;
+    padding-top: $spacing-lg;
+    border-top: 1px solid $border-color-light;
+
+    // Botones Pill en el formulario
+    .btn-cancel {
+      @include button-pill-secondary;
+      min-width: 150px;
+    }
+
+    .btn-save {
+      @include button-pill-primary;
+      min-width: 150px;
+    }
+  }
+}
+
+/* Grid de Tarjetas (Visualización) */
+.ordenes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-lg;
+  margin-top: $spacing-md;
+}
+
+.orden-card {
+  @include card-interactive; // Mixin de tarjeta interactiva
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-lg;
+  border: 1px solid transparent; // Para hover effect
+  
+  .orden-head {
+    @include flex-between;
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1px solid $gray-100;
+
+    .orden-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+    }
+
+    .orden-sub {
+      font-size: $font-size-xs;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .orden-body {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    flex: 1;
+
+    .orden-row {
+      @include flex-between;
+      font-size: $font-size-sm;
+
+      .lbl {
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+      }
+
+      .val {
+        color: $text-primary;
+        font-weight: $font-weight-semibold;
+        text-align: right;
+      }
+    }
+  }
+
+  // Barra de Progreso
+  .progress-container {
+    margin: $spacing-md 0;
+    
+    .progress {
+      width: 100%;
+      height: 6px;
+      background: $gray-100;
+      border-radius: $border-radius-pill;
+      overflow: hidden;
+      
+      .progress-fill {
+        height: 100%;
+        background: $primary-color; // Usando el dorado
+        transition: width 1s ease-in-out;
+        
+        &.proceso { background: $warning-color; }
+        &.completada { background: $success-color; }
+      }
+    }
+  }
+
+  .orden-footer {
+    margin-top: auto;
+    padding-top: $spacing-md;
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+
+    // Botones pequeños tipo pill dentro de la tarjeta
+    .btn-detalles {
+      padding: 6px 12px;
+      border-radius: $border-radius-pill;
+      border: 1px solid $border-color-light;
+      background: transparent;
+      color: $text-secondary;
+      font-size: $font-size-xs;
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: $bg-secondary;
+        color: $text-primary;
+        border-color: $gray-300;
+      }
+    }
+
+    .btn-accion {
+      padding: 6px 12px;
+      border-radius: $border-radius-pill;
+      border: none;
+      color: $white;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+      cursor: pointer;
+      transition: transform $transition-fast;
+
+      &:hover { transform: scale(1.05); }
+      
+      &.iniciar { background: $info-color; }
+      &.proceso { background: $warning-color; }
+      &.completada { background: $gray-400; cursor: default; &:hover { transform: none; } }
+    }
+  }
+}
+
+/* Chips de Estado (Pills pequeños) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: $border-radius-pill;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+
+  &.chip-danger {
+    background: rgba($error-color, 0.1);
+    color: $error-color;
+  }
+  
+  &.chip-warning {
+    background: rgba($warning-color, 0.1);
+    color: $warning-dark;
+  }
+  
+  &.chip-success {
+    background: rgba($success-color, 0.1);
+    color: $success-dark;
+  }
+}
+
+/* Estados de Carga y Vacío */
+.loading-state, .empty-state {
+  @include flex-center;
+  flex-direction: column;
+  padding: $spacing-3xl;
+  color: $text-muted;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $gray-200;
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: $spacing-md;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive específico */
+@include responsive(sm) {
+  .ordenes-header {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .btn-crear-orden {
+      width: 100%;
+    }
+  }
+
+  .ordenes-toolbar {
+    flex-direction: column;
+    
+    .busqueda-wrapper, .filters, .filters select {
+      width: 100%;
+      max-width: none;
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    .btn-cancel, .btn-save {
+      width: 100%;
+    }
+  }
+}

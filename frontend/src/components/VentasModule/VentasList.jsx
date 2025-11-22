@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaFileInvoice, FaSearch, FaFilter, FaSync, FaMoneyBillWave, FaTimes, FaEye } from 'react-icons/fa';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import ModalDetalleFactura from '../FacturacionModule/ModalDetalleFactura'; // Importar el modal
 import "../../styles/scss/pages/_ventaslist.scss";
 
 export default function VentasList({ onVolver }) {
@@ -9,6 +10,8 @@ export default function VentasList({ onVolver }) {
   const [loading, setLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("TODAS");
+  const [facturaSeleccionada, setFacturaSeleccionada] = useState(null); // Estado para la factura seleccionada
+  const [mostrarModal, setMostrarModal] = useState(false); // Estado para controlar el modal
 
   useEffect(() => {
     fetchFacturas();
@@ -28,9 +31,20 @@ export default function VentasList({ onVolver }) {
   };
 
   const verDetalles = (numeroFactura) => {
-    console.log('Ver detalles:', numeroFactura);
-    // Aquí puedes implementar la lógica para mostrar detalles
-    alert(`Mostrando detalles de la factura #${numeroFactura}`);
+    // Encontrar la factura completa por su número
+    const facturaCompleta = facturas.find(f => f.numero_factura === numeroFactura);
+    if (facturaCompleta) {
+      setFacturaSeleccionada(facturaCompleta);
+      setMostrarModal(true);
+    } else {
+      console.error('Factura no encontrada:', numeroFactura);
+      alert('Error: No se pudo encontrar la información completa de la factura.');
+    }
+  };
+
+  const cerrarModal = () => {
+    setMostrarModal(false);
+    setFacturaSeleccionada(null);
   };
 
   const filtrarFacturas = () => {
@@ -296,6 +310,14 @@ export default function VentasList({ onVolver }) {
             Solo facturas con estado <strong className="text-pagada">PAGADA</strong>
           </div>
         </div>
+      )}
+
+      {/* Modal de detalle de factura */}
+      {mostrarModal && facturaSeleccionada && (
+        <ModalDetalleFactura 
+          factura={facturaSeleccionada}
+          onCerrar={cerrarModal}
+        />
       )}
     </div>
   );
