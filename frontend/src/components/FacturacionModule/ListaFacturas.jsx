@@ -398,87 +398,77 @@ export default function ListaFacturas() {
               </div>
 
               <div className="card-footer">
-                <button 
-                  className="btn-detalles btn-pill btn-pill-info"
-                  onClick={() => verDetallesFactura(factura)}
-                  title="Ver detalles completos"
-                >
-                  <FaEye />
-                  Detalles
-                </button>
+                <div className="botones-fila">
+                  <button 
+                    className="btn-detalles"
+                    onClick={() => verDetallesFactura(factura)}
+                    title="Ver detalles completos"
+                  >
+                    <FaEye />
+                    Detalles
+                  </button>
 
-                {factura.estado_pago === 'PENDIENTE' && (
-                <div className="selector-metodo-pago" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
-                  <div className="search-pill" style={{ maxWidth: '140px', minWidth: '120px' }}>
-                    <select 
-                      value={metodoPagoSeleccionado[factura.numero_factura] || 'EFECTIVO'}
-                      onChange={(e) => setMetodoPagoSeleccionado(prev => ({
-                        ...prev, 
-                        [factura.numero_factura]: e.target.value
-                      }))}
-                      style={{ 
-                        border: 'none',
-                        background: 'transparent',
-                        outline: 'none',
-                        flex: 1,
-                        padding: '4px 8px',
-                        color: 'inherit',
-                        fontSize: '0.85rem',
-                        width: '100%'
-                      }}
+                  {factura.estado_pago === 'PENDIENTE' && (
+                    <div className="grupo-pago">
+                      <div className="selector-pill">
+                        <select 
+                          value={metodoPagoSeleccionado[factura.numero_factura] || 'EFECTIVO'}
+                          onChange={(e) => setMetodoPagoSeleccionado(prev => ({
+                            ...prev, 
+                            [factura.numero_factura]: e.target.value
+                          }))}
+                        >
+                          <option value="EFECTIVO">Efectivo</option>
+                          <option value="TARJETA">Tarjeta</option>
+                          <option value="CREDITO">Crédito</option>
+                        </select>
+                      </div>
+                      
+                      <button
+                        className="btn-marcar-pagada"
+                        onClick={() => cambiarEstadoPago(factura.numero_factura, 'PAGADA')}
+                        disabled={actualizando[factura.numero_factura]}
+                      >
+                        {actualizando[factura.numero_factura] ? (
+                          <FaSync className="girando" />
+                        ) : (
+                          <FaMoneyBillWave />
+                        )}
+                        {actualizando[factura.numero_factura] ? 'Procesando...' : 'Pagar'}
+                      </button>
+                    </div>
+                  )}
+
+                  {factura.estado_pago === 'PAGADA' && (
+                    <button
+                      className="btn-reabrir"
+                      onClick={() => cambiarEstadoPago(factura.numero_factura, 'PENDIENTE')}
+                      disabled={actualizando[factura.numero_factura]}
                     >
-                      <option value="EFECTIVO">Efectivo</option>
-                      <option value="TARJETA">Tarjeta</option>
-                    </select>
-                  </div>
-                  
-                  <button
-                    className="btn-marcar-pagada btn-pill btn-pill-success"
-                    onClick={() => cambiarEstadoPago(factura.numero_factura, 'PAGADA')}
-                    disabled={actualizando[factura.numero_factura]}
-                    style={{ whiteSpace: 'nowrap', minWidth: '100px' }}
-                  >
-                    {actualizando[factura.numero_factura] ? (
-                      <FaSync className="girando" />
-                    ) : (
-                      <FaMoneyBillWave />
-                    )}
-                    {actualizando[factura.numero_factura] ? 'Procesando...' : 'Pagar'}
-                  </button>
+                      {actualizando[factura.numero_factura] ? (
+                        <FaSync className="girando" />
+                      ) : (
+                        <FaReceipt />
+                      )}
+                      Reabrir
+                    </button>
+                  )}
+
+                  {factura.estado_pago === 'CANCELADA' && (
+                    <button
+                      className="btn-reactivar"
+                      onClick={() => cambiarEstadoPago(factura.numero_factura, 'PENDIENTE')}
+                      disabled={actualizando[factura.numero_factura]}
+                    >
+                      {actualizando[factura.numero_factura] ? (
+                        <FaSync className="girando" />
+                      ) : (
+                        <FaCheck />
+                      )}
+                      Reactivar
+                    </button>
+                  )}
                 </div>
-              )}
-
-                {factura.estado_pago === 'PAGADA' && (
-                  <button
-                    className="btn-reabrir btn-pill btn-pill-warning"
-                    onClick={() => cambiarEstadoPago(factura.numero_factura, 'PENDIENTE')}
-                    disabled={actualizando[factura.numero_factura]}
-                    style={{ marginTop: '8px' }}
-                  >
-                    {actualizando[factura.numero_factura] ? (
-                      <FaSync className="girando" />
-                    ) : (
-                      <FaReceipt />
-                    )}
-                    Reabrir
-                  </button>
-                )}
-
-                {factura.estado_pago === 'CANCELADA' && (
-                  <button
-                    className="btn-reactivar btn-pill btn-pill-warning"
-                    onClick={() => cambiarEstadoPago(factura.numero_factura, 'PENDIENTE')}
-                    disabled={actualizando[factura.numero_factura]}
-                    style={{ marginTop: '8px' }}
-                  >
-                    {actualizando[factura.numero_factura] ? (
-                      <FaSync className="girando" />
-                    ) : (
-                      <FaCheck />
-                    )}
-                    Reactivar
-                  </button>
-                )}
               </div>
             </div>
           ))
@@ -492,7 +482,7 @@ export default function ListaFacturas() {
               }
             </p>
             {(terminoBusqueda || filtroEstado !== "TODAS" || filtroTipo !== "TODAS") && (
-              <button onClick={limpiarFiltros} className="btn-limpiar-filtros btn-pill">
+              <button onClick={limpiarFiltros} className="btn-limpiar-filtros">
                 Limpiar filtros
               </button>
             )}
