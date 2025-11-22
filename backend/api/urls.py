@@ -1,7 +1,10 @@
 # backend/api/urls.py
 from django.urls import path, include
+from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Configurar router para ViewSets
 router = DefaultRouter()
@@ -134,3 +137,7 @@ path('gastos/mes/', views.gastos_mes, name='gastos-mes'),
 
 # Configuración para el nombre de la app
 app_name = 'api'
+
+# SERVIR ARCHIVOS EN DESARROLLO
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

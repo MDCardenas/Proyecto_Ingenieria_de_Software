@@ -1,5 +1,8 @@
 # backend/api/views.py
 #DAVID: AQUI LE IMPORTE MODELS
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
 from django.db.models.functions import TruncDate
 from django.db import models
 from rest_framework import viewsets, status
@@ -22,7 +25,8 @@ from .serializers import (
     StockInsumoSerializer, StockMaterialSerializer, ProvedorSerializer,
     PerfilEmpleadoSerializer, OrdenTrabajoSerializer, DetalleFacturaSerializer,
     CrearFacturaCompletaSerializer, ActualizarEstadoPagoSerializer,
-    ActualizarEstadoOrdenSerializer, CrearFacturaSimpleSerializer
+    ActualizarEstadoOrdenSerializer, CrearFacturaSimpleSerializer,
+    CrearCotizacionSerializer, ActualizarCotizacionSerializer
 )
 
 # ========================================
@@ -115,10 +119,76 @@ class FacturaViewSet(viewsets.ModelViewSet):
 
 class CotizacionViewSet(viewsets.ModelViewSet):
     queryset = TblCotizaciones.objects.all()
-    serializer_class = CotizacionSerializer
+    # serializer_class = CotizacionSerializer
 
 
     # Metodos Personalizados
+
+    def get_serializer_class(self):
+        # Usar CrearCotizacionSerializer para creación
+        if self.action == 'create':
+            return CrearCotizacionSerializer
+        return CotizacionSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Crear cotización con manejo de imagen"""
+        try:
+            # Procesar imagen si viene en la request
+            imagen_file = request.FILES.get('imagen_referencia')
+            imagen_path = None
+            
+            if imagen_file:
+                # Guardar la imagen en la carpeta que creaste
+                filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+                filepath = os.path.join('imagenes_cotizaciones', filename)
+                
+                # Guardar el archivo
+                saved_path = default_storage.save(filepath, imagen_file)
+                imagen_path = saved_path  # Esta es la ruta que guardaremos en la BD
+                
+                # Reemplazar el archivo por la ruta en los datos
+                request.data._mutable = True
+                request.data['imagen_referencia'] = imagen_path
+                request.data._mutable = False
+            
+            # Continuar con la creación normal
+            return super().create(request, *args, **kwargs)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': f'Error al crear cotización: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        """Actualizar cotización con manejo de imagen"""
+        try:
+            # Procesar imagen si viene en la request
+            imagen_file = request.FILES.get('imagen_referencia')
+            imagen_path = None
+            
+            if imagen_file:
+                # Guardar la imagen en la carpeta que creaste
+                filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+                filepath = os.path.join('imagenes_cotizaciones', filename)
+                
+                # Guardar el archivo
+                saved_path = default_storage.save(filepath, imagen_file)
+                imagen_path = saved_path
+                
+                # Reemplazar el archivo por la ruta en los datos
+                request.data._mutable = True
+                request.data['imagen_referencia'] = imagen_path
+                request.data._mutable = False
+            
+            # Continuar con la actualización normal
+            return super().update(request, *args, **kwargs)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': f'Error al actualizar cotización: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
         """Filtrar cotizaciones por estado si se proporciona"""
@@ -679,6 +749,19 @@ def cotizaciones_vencidas(request):
 def crear_cotizacion_completa(request):
     """Crear cotización completa con validación"""
     try:
+        # Procesar imagen si viene en la request
+        imagen_file = request.FILES.get('imagen_referencia')
+        imagen_path = None
+        
+        if imagen_file:
+            # Guardar la imagen en la carpeta que creaste
+            filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+            filepath = os.path.join('imagenes_cotizaciones', filename)
+            
+            # Guardar el archivo
+            saved_path = default_storage.save(filepath, imagen_file)
+            imagen_path = saved_path
+
         # Validar datos requeridos
         required_fields = ['id_cliente', 'id_empleado', 'subtotal', 'isv', 'total']
         for field in required_fields:
@@ -701,7 +784,8 @@ def crear_cotizacion_completa(request):
             'isv': Decimal(str(request.data['isv'])),
             'total': Decimal(str(request.data['total'])),
             'tipo_servicio': request.data.get('tipo_servicio', 'REPARACIÓN'),
-            'observaciones': request.data.get('observaciones', '')
+            'observaciones': request.data.get('observaciones', ''),
+            'imagen_referencia': imagen_path
         }
         
         cotizacion = TblCotizaciones.objects.create(**cotizacion_data)

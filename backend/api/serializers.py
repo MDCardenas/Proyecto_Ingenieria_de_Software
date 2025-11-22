@@ -285,6 +285,10 @@ class CotizacionSerializer(serializers.ModelSerializer):
     dias_para_vencimiento = serializers.SerializerMethodField()
     puede_convertir = serializers.SerializerMethodField()
 
+    # NUEVO: Campo para la imagen
+    imagen_url = serializers.SerializerMethodField()
+    imagen_base64 = serializers.SerializerMethodField()
+
     class Meta:
         model = TblCotizaciones
         fields = [
@@ -295,9 +299,14 @@ class CotizacionSerializer(serializers.ModelSerializer):
             'subtotal', 'descuento', 'isv', 'total', 
             'tipo_servicio', 'tipo_servicio_display',
             'estado', 'estado_display', 'puede_convertir',
-            'observaciones', 'numero_factura_conversion', 'fecha_conversion'
+            'observaciones', 'numero_factura_conversion', 'fecha_conversion',
+            'imagen_referencia', 'imagen_url', 'imagen_base64'
         ]
         read_only_fields = ['numero_cotizacion', 'fecha_creacion', 'numero_factura_conversion', 'fecha_conversion']
+        # AGREGAR ESTO PARA HACER EL CAMPO OPCIONAL:
+        extra_kwargs = {
+            'imagen_referencia': {'required': False, 'allow_null': True, 'allow_blank': True}
+        }
 
     def get_cliente_nombre(self, obj):
         return f"{obj.id_cliente.nombre} {obj.id_cliente.apellido}"
@@ -316,6 +325,41 @@ class CotizacionSerializer(serializers.ModelSerializer):
     def get_puede_convertir(self, obj):
         """Determinar si la cotización puede convertirse a factura"""
         return obj.estado == 'ACTIVA' and obj.numero_factura_conversion is None
+    
+    # CORREGIDO: Manejar valores NULL de forma segura
+    def get_imagen_url(self, obj):
+        """Obtener la URL de la imagen de forma segura"""
+        try:
+            if obj.imagen_referencia:
+                request = self.context.get('request')
+                if request is not None:
+                    return request.build_absolute_uri(f'/media/{obj.imagen_referencia}')
+                return f'/media/{obj.imagen_referencia}'
+        except Exception as e:
+            print(f"Error obteniendo URL de imagen: {e}")
+        return None
+    
+    def get_imagen_base64(self, obj):
+        """Convertir imagen a base64 de forma segura"""
+        try:
+            if obj.imagen_referencia:
+                import base64
+                import os
+                from django.conf import settings
+                from django.core.files.storage import default_storage
+                
+                # Verificar si el archivo existe en el storage
+                if default_storage.exists(obj.imagen_referencia):
+                    with default_storage.open(obj.imagen_referencia, 'rb') as image_file:
+                        image_data = image_file.read()
+                    
+                    # Convertir a base64
+                    image_base64 = base64.b64encode(image_data).decode('utf-8')
+                    return image_base64
+                    
+        except Exception as e:
+            print(f"Error procesando imagen base64: {e}")
+        return None
     
     def validate_fecha_vencimiento(self, value):
         """Validar que la fecha de vencimiento sea futura"""
@@ -355,8 +399,45 @@ class CrearCotizacionSerializer(serializers.ModelSerializer):
             'id_cliente', 'id_empleado', 'fecha_vencimiento',
             'direccion', 'telefono', 'rtn',
             'subtotal', 'descuento', 'isv', 'total',
-            'tipo_servicio', 'observaciones'
+            'tipo_servicio', 'observaciones',
+            'imagen_referencia'
         ]
+        # ✅ HACER EL CAMPO OPCIONAL
+        extra_kwargs = {
+            'imagen_referencia': {'required': False, 'allow_null': True, 'allow_blank': True}
+        }
+
+    def create(self, validated_data):
+        """Crear cotización con manejo de imagen"""
+        try:
+            # Extraer la imagen si viene en los datos
+            imagen_file = validated_data.pop('imagen_referencia', None)
+            imagen_path = None
+            
+            if imagen_file:
+                # Guardar la imagen en la carpeta
+                import os
+                from django.core.files.storage import default_storage
+                from datetime import datetime
+                
+                filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+                filepath = os.path.join('imagenes_cotizaciones', filename)
+                
+                # Guardar el archivo
+                saved_path = default_storage.save(filepath, imagen_file)
+                imagen_path = saved_path
+            
+            # Crear la cotización con la ruta de la imagen
+            cotizacion = TblCotizaciones.objects.create(
+                imagen_referencia=imagen_path,
+                **validated_data
+            )
+            
+            return cotizacion
+            
+        except Exception as e:
+            raise serializers.ValidationError(f'Error al crear cotización: {str(e)}')
+        
     
     def validate(self, data):
         """Validaciones para creación de cotizaciones"""
@@ -397,9 +478,14 @@ class ActualizarCotizacionSerializer(serializers.ModelSerializer):
         fields = [
             'fecha_vencimiento', 'direccion', 'telefono', 'rtn',
             'subtotal', 'descuento', 'isv', 'total',
-            'tipo_servicio', 'observaciones', 'estado'
+            'tipo_servicio', 'observaciones', 'estado',
+            'imagen_referencia'
         ]
         read_only_fields = ['numero_cotizacion', 'id_cliente', 'id_empleado', 'fecha_creacion']
+        # HACER EL CAMPO OPCIONAL
+        extra_kwargs = {
+            'imagen_referencia': {'required': False, 'allow_null': True}
+        }
     
     def validate_estado(self, value):
         """Validar cambios de estado"""

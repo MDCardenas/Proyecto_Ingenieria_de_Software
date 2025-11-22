@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 
@@ -146,3 +147,9 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+
+# Tu carpeta de imágenes estará en: backend/imagenes_cotizaciones/
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

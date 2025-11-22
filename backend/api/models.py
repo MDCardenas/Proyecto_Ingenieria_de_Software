@@ -166,6 +166,7 @@ class TblCotizaciones(models.Model):
     observaciones = models.CharField(max_length=500, db_collation='Modern_Spanish_CI_AS', blank=True, null=True)
     numero_factura_conversion = models.ForeignKey('TblFacturas', models.DO_NOTHING, db_column='numero_factura_conversion', blank=True, null=True)
     fecha_conversion = models.DateTimeField(blank=True, null=True)
+    imagen_referencia = models.CharField(max_length=500, db_collation='Modern_Spanish_CI_AS', blank=True, null=True)
 
     class Meta:
         managed = False
