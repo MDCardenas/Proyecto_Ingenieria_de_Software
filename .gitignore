@@ -26,6 +26,10 @@ env/
 # Archivos estáticos y media compilados
 staticfiles/
 media/
+# --- EXCEPCIÓN: permitir la carpeta de imágenes de prueba para cotizaciones
+!backend/media/
+!backend/media/imagenes_cotizaciones/
+!backend/media/imagenes_cotizaciones/**
 
 # Archivos de configuración sensibles
 *.secret
@@ -61,3 +65,4 @@ yarn-error.log
 .env.local
 .env.development.local
 .env.test.local
+

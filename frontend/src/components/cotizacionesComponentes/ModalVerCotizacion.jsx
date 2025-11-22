@@ -12,11 +12,18 @@ import {
     FaTools,
     FaUsers,
     FaTag,
-    FaListAlt
+    FaListAlt,
+    FaImage
 } from 'react-icons/fa';
 import "../../styles/scss/components/_modales.scss";
 
 export default function ModalVerCotizacion({ cotizacion, onClose }) {
+    // Agregar estos console.log al inicio del componente
+    console.log('📦 Datos completos de cotización:', cotizacion);
+    console.log('🔍 Campo descripción:', cotizacion.descripcion);
+    console.log('🖼️ Campo imagen_url:', cotizacion.imagen_url);
+    console.log('🎯 Tipo servicio:', cotizacion.tipo_servicio);
+
     // Función para formatear fecha
     const formatearFecha = (fecha) => {
         if (!fecha) return 'No especificada';
@@ -50,17 +57,53 @@ export default function ModalVerCotizacion({ cotizacion, onClose }) {
         return isNaN(numero) ? 0 : numero;
     };
 
-    // Obtener datos estructurados
+    // Obtener datos estructurados - VERSIÓN MEJORADA
     const obtenerProductos = () => {
-        return cotizacion.productos || cotizacion.detalles_productos || [{
+        console.log('📋 Buscando productos en cotización:', {
+            allKeys: Object.keys(cotizacion)
+        });
+        
+        // PRIMERO: Buscar en arrays existentes
+        if (cotizacion.productos && Array.isArray(cotizacion.productos) && cotizacion.productos.length > 0) {
+            console.log('✅ Usando array de productos');
+            return cotizacion.productos;
+        }
+        
+        if (cotizacion.detalles_productos && Array.isArray(cotizacion.detalles_productos) && cotizacion.detalles_productos.length > 0) {
+            console.log('✅ Usando array de detalles_productos');
+            return cotizacion.detalles_productos;
+        }
+        
+        // SEGUNDO: Crear descripción basada en el tipo de servicio
+        let descripcion = '';
+        
+        if (cotizacion.tipo_servicio === 'REPARACION') {
+            descripcion = 'Servicio de reparación de equipo/artículo';
+            if (cotizacion.observaciones) {
+                descripcion += `. ${cotizacion.observaciones}`;
+            }
+        } else if (cotizacion.tipo_servicio === 'FABRICACION') {
+            descripcion = 'Servicio de fabricación personalizada';
+            if (cotizacion.observaciones) {
+                descripcion += `. ${cotizacion.observaciones}`;
+            }
+        } else {
+            descripcion = cotizacion.observaciones || 'Servicio general';
+        }
+        
+        console.log('🔍 Descripción generada:', descripcion);
+        
+        // Crear producto desde datos principales
+        return [{
             id: 1,
-            nombre: cotizacion.descripcion_servicio || 'Servicio Principal',
-            descripcion: cotizacion.detalles_adicionales || 'Sin descripción detallada',
-            cantidad: parsearNumero(cotizacion.cantidad) || 1,
-            precio_unitario: parsearNumero(cotizacion.precio_unitario) || parsearNumero(cotizacion.subtotal),
-            subtotal: parsearNumero(cotizacion.subtotal)
+            nombre: `Cotización ${cotizacion.tipo_servicio === 'REPARACION' ? 'Reparación' : 'Fabricación'} #${cotizacion.numero_cotizacion}`,
+            descripcion: descripcion,
+            cantidad: 1,
+            precio_unitario: parsearNumero(cotizacion.subtotal) || 0,
+            subtotal: parsearNumero(cotizacion.subtotal) || 0
         }];
     };
+
 
     const obtenerInsumos = () => {
         return cotizacion.insumos || cotizacion.materiales || [];
@@ -78,10 +121,26 @@ export default function ModalVerCotizacion({ cotizacion, onClose }) {
         }] : []);
     };
 
+    // Función para construir la URL - VERSIÓN FINAL (ya funciona)
+    const obtenerUrlImagen = () => {
+        if (!cotizacion.imagen_referencia) {
+            return null;
+        }
+        
+        // Ya que Django está sirviendo las imágenes correctamente
+        const baseUrl = 'http://localhost:8000';
+        const urlImagen = `${baseUrl}/media/${cotizacion.imagen_referencia}`;
+        
+        console.log('✅ URL imagen funcionando:', urlImagen);
+        return urlImagen;
+    };
+
     const productos = obtenerProductos();
     const insumos = obtenerInsumos();
     const manoObra = obtenerManoObra();
     const descuentos = obtenerDescuentos();
+    const urlImagen = obtenerUrlImagen();
+    const mostrarImagen = cotizacion.tipo_servicio === 'REPARACION' && urlImagen;
 
     // Calcular totales de forma segura
     const calcularSubtotal = (items) => {
@@ -182,6 +241,31 @@ export default function ModalVerCotizacion({ cotizacion, onClose }) {
                             </div>
                         </div>
                     </div>
+
+                    {/* SECCIÓN DE IMAGEN - SOLO PARA REPARACIONES */}
+                    {mostrarImagen && (
+                        <div className="seccion-imagen">
+                            <div className="seccion-header">
+                                <FaImage className="icono" />
+                                <h3>Imagen del Equipo/Artículo</h3>
+                            </div>
+                            <div className="imagen-container">
+                                <img 
+                                    src={urlImagen} 
+                                    alt="Imagen del equipo o artículo a reparar"
+                                    className="imagen-cotizacion"
+                                    onError={(e) => {
+                                        console.log('❌ Error cargando imagen, pero debería funcionar');
+                                        e.target.style.display = 'none';
+                                    }}
+                                    onLoad={(e) => {
+                                        console.log('✅ Imagen cargada correctamente');
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
 
                     {/* Detalles del Producto */}
                     <div className="seccion-detalles">

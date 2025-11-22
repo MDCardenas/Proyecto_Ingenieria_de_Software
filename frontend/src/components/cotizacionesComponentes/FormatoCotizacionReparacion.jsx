@@ -63,7 +63,9 @@ export default function FormatoCotizacionReparacion({
         costo_insumos: 0,
         mano_obra: 0,
         descuentos: 0,
-        observaciones: ''
+        observaciones: '',
+        imagen_referencia: null,
+        imagen_preview: null
     });
 
     // Estado para resultados
@@ -395,33 +397,39 @@ export default function FormatoCotizacionReparacion({
             fechaVencimiento.setDate(fechaVencimiento.getDate() + 30);
             const fechaVencimientoFormatted = fechaVencimiento.toISOString().split('T')[0];
 
-            // Preparar datos para la BD
-            const cotizacionData = {
-                id_cliente: parseInt(datosCotizacion.id_cliente),
-                id_empleado: parseInt(datosCotizacion.id_empleado),
-                fecha_vencimiento: fechaVencimientoFormatted,
-                direccion: datosCotizacion.direccion || "No especificada",
-                telefono: datosCotizacion.telefono || "No especificado",
-                rtn: datosCotizacion.rtn || "",
-                subtotal: resultados.subtotal.toFixed(2),
-                descuento: (parseFloat(datosCotizacion.descuentos) || 0).toFixed(2),
-                isv: resultados.isv.toFixed(2),
-                total: resultados.total.toFixed(2),
-                tipo_servicio: "REPARACION",
-                observaciones: datosCotizacion.observaciones || '',
-                estado: "ACTIVA"
-            };
+            // ✅ CORREGIR: Usar SOLO FormData, eliminar cotizacionData
+            const formData = new FormData();
 
-            console.log("Enviando datos de cotización de reparación:", cotizacionData);
+            // Agregar datos básicos
+            formData.append('id_cliente', datosCotizacion.id_cliente);
+            formData.append('id_empleado', datosCotizacion.id_empleado);
+            formData.append('fecha_vencimiento', fechaVencimientoFormatted);
+            formData.append('direccion', datosCotizacion.direccion || "No especificada");
+            formData.append('telefono', datosCotizacion.telefono || "No especificado");
+            formData.append('rtn', datosCotizacion.rtn || "");
+            formData.append('subtotal', resultados.subtotal.toFixed(2));
+            formData.append('descuento', (parseFloat(datosCotizacion.descuentos) || 0).toFixed(2));
+            formData.append('isv', resultados.isv.toFixed(2));
+            formData.append('total', resultados.total.toFixed(2));
+            formData.append('tipo_servicio', "REPARACION");
+            formData.append('observaciones', datosCotizacion.observaciones || '');
+            formData.append('estado', "ACTIVA");
+
+            // ✅ CORREGIR: Agregar imagen si existe
+            if (datosCotizacion.imagen_referencia) {
+                formData.append('imagen_referencia', datosCotizacion.imagen_referencia);
+                console.log("✅ Imagen incluida en FormData");
+            }
+
+            console.log("Enviando FormData con imagen...");
 
             const endpoint = 'http://localhost:8000/api/cotizaciones/';
             
+            // ✅ CORREGIR: Usar fetch correctamente con FormData
             const response = await fetch(endpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(cotizacionData)
+                body: formData
+                // NO incluir Content-Type header - el browser lo setea automáticamente
             });
 
             if (!response.ok) {
@@ -461,30 +469,76 @@ export default function FormatoCotizacionReparacion({
             overlay.style.backgroundColor = 'white';
             overlay.style.zIndex = '9999';
             overlay.style.display = 'flex';
-            overlay.style.justifyContent = 'center';
-            overlay.style.alignItems = 'flex-start';
+            overlay.style.flexDirection = 'column';
+            overlay.style.alignItems = 'center';
             overlay.style.overflow = 'auto';
             overlay.style.padding = '20px';
 
-            const cotizacionContent = cotizacionRef.current.cloneNode(true);
-            cotizacionContent.style.visibility = 'visible';
-            cotizacionContent.style.opacity = '1';
-            cotizacionContent.style.position = 'relative';
-            cotizacionContent.style.left = '0';
-            cotizacionContent.style.top = '0';
-            cotizacionContent.style.width = '8.5in';
-            cotizacionContent.style.minHeight = '11in';
-            cotizacionContent.style.backgroundColor = 'white';
-            cotizacionContent.style.padding = '0.4in';
-            cotizacionContent.style.boxSizing = 'border-box';
-            cotizacionContent.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+            // Crear contenedores separados para cada página
+            const pagina1Container = document.createElement('div');
+            pagina1Container.style.width = '8.5in';
+            pagina1Container.style.minHeight = '11in';
+            pagina1Container.style.backgroundColor = 'white';
+            pagina1Container.style.padding = '0.4in';
+            pagina1Container.style.boxSizing = 'border-box';
+            pagina1Container.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+            pagina1Container.style.marginBottom = '20px';
 
-            overlay.appendChild(cotizacionContent);
+            const pagina2Container = document.createElement('div');
+            if (datosCotizacion.imagen_preview) {
+                pagina2Container.style.width = '8.5in';
+                pagina2Container.style.minHeight = '11in';
+                pagina2Container.style.backgroundColor = 'white';
+                pagina2Container.style.padding = '0.4in';
+                pagina2Container.style.boxSizing = 'border-box';
+                pagina2Container.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+            }
+
+            // Clonar el contenido
+            const cotizacionContent = cotizacionRef.current.cloneNode(true);
+            
+            // Separar las páginas
+            const pagina1 = cotizacionContent.querySelector('.pagina-1');
+            const pagina2 = cotizacionContent.querySelector('.pagina-2');
+
+            // Asegurar que las páginas sean visibles
+            if (pagina1) {
+                pagina1.style.visibility = 'visible';
+                pagina1.style.opacity = '1';
+                pagina1.style.position = 'relative';
+                pagina1.style.left = '0';
+                pagina1.style.top = '0';
+                pagina1Container.appendChild(pagina1);
+            }
+
+            overlay.appendChild(pagina1Container);
+
+            if (pagina2 && datosCotizacion.imagen_preview) {
+                pagina2.style.visibility = 'visible';
+                pagina2.style.opacity = '1';
+                pagina2.style.position = 'relative';
+                pagina2.style.left = '0';
+                pagina2.style.top = '0';
+                pagina2Container.appendChild(pagina2);
+                overlay.appendChild(pagina2Container);
+            }
+
             document.body.appendChild(overlay);
 
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            const canvas = await html2canvas(cotizacionContent, {
+            // Crear PDF
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'in',
+                format: 'letter'
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            // Convertir página 1
+            const canvas1 = await html2canvas(pagina1Container, {
                 scale: 2,
                 useCORS: true,
                 allowTaint: false,
@@ -498,20 +552,31 @@ export default function FormatoCotizacionReparacion({
                 windowHeight: 1056
             });
 
+            const imgData1 = canvas1.toDataURL('image/jpeg', 0.95);
+            pdf.addImage(imgData1, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
+
+            // Convertir página 2 si existe
+            if (pagina2 && datosCotizacion.imagen_preview) {
+                pdf.addPage();
+                const canvas2 = await html2canvas(pagina2Container, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: 816,
+                    height: 1056,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 816,
+                    windowHeight: 1056
+                });
+                const imgData2 = canvas2.toDataURL('image/jpeg', 0.95);
+                pdf.addImage(imgData2, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
+            }
+
             document.body.removeChild(overlay);
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'in',
-                format: 'letter'
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
-            
             // GUARDAR EN BASE DE DATOS
             let cotizacionGuardada = null;
             let guardadoExitoso = false;
@@ -563,6 +628,46 @@ export default function FormatoCotizacionReparacion({
             telefono: datosCotizacion.telefono,
             rtn: datosCotizacion.rtn
         };
+    };
+
+    // FUNCIÓN PARA MANEJAR LA IMAGEN
+    const handleImagenChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor seleccione un archivo de imagen válido');
+                return;
+            }
+
+            // Validar tamaño (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('La imagen no debe superar los 5MB');
+                return;
+            }
+
+            // Crear preview Y guardar el archivo
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setDatosCotizacion(prev => ({
+                    ...prev,
+                    imagen_referencia: file, // ✅ GUARDAR EL ARCHIVO, no el base64
+                    imagen_preview: e.target.result // Preview para mostrar
+                }));
+            };
+            reader.readAsDataURL(file);
+            
+            console.log("📁 Archivo seleccionado:", file.name, file.size, file.type);
+        }
+    };
+
+    // FUNCIÓN PARA ELIMINAR LA IMAGEN
+    const handleEliminarImagen = () => {
+        setDatosCotizacion(prev => ({
+            ...prev,
+            imagen_referenciada: null,
+            imagen_preview: null
+        }));
     };
 
     if (loading) {
@@ -702,6 +807,54 @@ export default function FormatoCotizacionReparacion({
                             </div>
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* Sección de Imagen de Referencia */}
+            <div className="seccion-cotizacion">
+                <div className="seccion-header">
+                    <h2>Imagen de Referencia</h2>
+                </div>
+                
+                <div className="seccion-contenido">
+                    <div className="subseccion">
+                        <div className="campo-imagen">
+                            <label htmlFor="imagen_referencia" className="label-imagen">
+                                Subir imagen de la joya a reparar
+                                <span className="texto-ayuda">(Opcional - Formatos: JPG, PNG, GIF - Máx: 5MB)</span>
+                            </label>
+                            
+                            <input
+                                type="file"
+                                id="imagen_referencia"
+                                accept="image/*"
+                                onChange={handleImagenChange}
+                                className="input-imagen"
+                            />
+                            
+                            {/* Preview de la imagen */}
+                            {datosCotizacion.imagen_preview && (
+                                <div className="imagen-preview-container">
+                                    <div className="imagen-preview-header">
+                                        <span>Vista previa:</span>
+                                        <button 
+                                            type="button"
+                                            className="btn-eliminar-imagen"
+                                            onClick={handleEliminarImagen}
+                                        >
+                                            <FaTrash />
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                    <img 
+                                        src={datosCotizacion.imagen_preview} 
+                                        alt="Preview de la joya a reparar"
+                                        className="imagen-preview"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -930,6 +1083,7 @@ export default function FormatoCotizacionReparacion({
                         datosCotizacion={datosCotizacion}
                         costoInsumos={datosCotizacion.costo_insumos}
                         manoObra={datosCotizacion.mano_obra}
+                        imagen_referencia={datosCotizacion.imagen_preview}
                     />
                 </div>
             </div>

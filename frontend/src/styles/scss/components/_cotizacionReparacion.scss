@@ -640,6 +640,84 @@
     }
 }
 
+
+.campo-imagen {
+    margin-bottom: 20px;
+    
+    .label-imagen {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        
+        .texto-ayuda {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: normal;
+            margin-left: 8px;
+        }
+    }
+    
+    .input-imagen {
+        width: 100%;
+        padding: 8px;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+        cursor: pointer;
+        
+        &:hover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+    }
+}
+
+.imagen-preview-container {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+    
+    .imagen-preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        
+        span {
+            font-weight: 600;
+            color: #333;
+        }
+    }
+    
+    .btn-eliminar-imagen {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9em;
+        
+        &:hover {
+            background: #c82333;
+        }
+    }
+    
+    .imagen-preview {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+}
+
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }

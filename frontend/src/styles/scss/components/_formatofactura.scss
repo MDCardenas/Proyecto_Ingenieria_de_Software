@@ -17,7 +17,7 @@
 
 // ============ ESTILOS ESPECÍFICOS PARA PDF - CORREGIDOS ============
 .overlay-pdf {
-  .formato-factura-pdf {
+  .pagina-1 {
     width: 100% !important;
     max-width: 8.5in !important;
     min-height: 11in !important;
@@ -372,6 +372,92 @@
       visibility: visible !important;
       opacity: 1 !important;
       transform: none !important;
+    }
+  }
+
+  // PÁGINA 2 - Estilos específicos para imagen
+  .pagina-2 {
+    width: 8.5in !important;
+    min-height: 11in !important;
+    padding: 0.4in !important;
+    background: white !important;
+    box-sizing: border-box !important;
+    font-family: $font-family !important;
+    color: $text-primary !important;
+    line-height: 1.2 !important;
+    font-size: $font-size-sm !important;
+    margin-bottom: 20px !important;
+    
+    .seccion-imagen-referencia {
+      margin-top: 40px;
+      
+      .contenido-imagen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        margin-top: 20px;
+      }
+      
+      .imagen-container {
+        width: 90%;
+        max-width: 500px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        background: #fafafa;
+        text-align: center;
+        
+        .imagen-referencia {
+          max-width: 100%;
+          max-height: 400px;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+      }
+      
+      .info-imagen {
+        width: 100%;
+        max-width: 600px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        
+        .campo-info {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #e9ecef;
+          
+          .etiqueta {
+            font-weight: 600;
+            color: #333;
+          }
+          
+          .valor {
+            color: #666;
+            text-align: right;
+            max-width: 70%;
+          }
+        }
+      }
+    }
+
+    // Reutilizar estilos del encabezado para consistencia
+    .encabezado-moderno,
+    .membrete-empresa,
+    .logo-empresa,
+    .info-empresa,
+    .encabezado-derecho,
+    .badge-tipo,
+    .info-factura,
+    .datos-factura,
+    .dato-factura,
+    .etiqueta,
+    .valor,
+    .pie-pagina {
+      // Estos heredarán los estilos de .formato-factura-pdf automáticamente
     }
   }
 }
@@ -783,6 +869,65 @@
   }
 }
 
+
+// ============ ESTILOS COMPLEMENTARIOS ============
+
+// Estilos para versión compacta
+.compacto {
+  .contenido-seccion {
+    padding: 6px 0 !important;
+  }
+  
+  .grid-cliente {
+    gap: 8px !important;
+  }
+  
+  .campo-cliente {
+    min-height: auto !important;
+    padding: 4px 0 !important;
+  }
+}
+
+// Tablas compactas
+.tabla-moderna.compacta {
+  th, td {
+    padding: 3px 5px !important;
+    font-size: 0.85em !important;
+  }
+}
+
+// Términos compactos
+.terminos-compactos {
+  .linea-termino {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 0.9em;
+  }
+}
+
+// Firmas compactas
+.seccion-final.compacto {
+  margin-top: 15px;
+  
+  .firmas {
+    margin-top: 20px;
+    gap: 40px;
+  }
+}
+
+// Pie de página compacto
+.pie-pagina.compacto {
+  margin-top: 15px;
+  padding: 8px 0;
+  font-size: 0.8em;
+}
+
+
+
+
+
 // Mejor manejo de saltos de página para PDF
 @media print {
   .formato-factura-pdf {
@@ -794,5 +939,15 @@
       position: relative;
       bottom: 0;
     }
+  }
+}
+
+// ✅ ESTILOS PARA SALTO DE PÁGINA
+@media print {
+  .pagina-1 {
+    page-break-after: always !important;
+  }
+  .pagina-2 {
+    page-break-before: always !important;
   }
 }
