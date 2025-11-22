@@ -127,9 +127,20 @@ urlpatterns = [
   # ========================================
     # RUTAS DE CONTABILIDAD
     # ========================================
+    
+
+    
 path('contabilidad/resumen/', views.contabilidad_resumen, name='contabilidad-resumen'),
 path('gastos/mes/', views.gastos_mes, name='gastos-mes'),
 
+# Agregar en urls.py (después de las rutas de contabilidad)
+
+# ========================================
+# RUTAS DE PROVEEDORES
+# ========================================
+path('proveedores/estadisticas/', views.proveedores_estadisticas, name='proveedores-estadisticas'),
+path('proveedores/buscar/', views.proveedores_buscar, name='proveedores-buscar'),
+path('proveedores/<int:codigo_provedor>/detalle/', views.ProvedorViewSet.as_view({'get': 'retrieve'}), name='proveedor-detalle'),
 ]
 
 # Configuración para el nombre de la app

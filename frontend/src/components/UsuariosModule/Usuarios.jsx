@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserPlus, FaSearch, FaFilter, FaTrash, FaEdit, FaArrowLeft, FaSave, FaTimes, FaUser, FaEnvelope, FaUserTag, FaCheckCircle, FaTimesCircle, FaPhone } from 'react-icons/fa';
 import "../../styles/scss/main.scss"
+
 // Componente de Tarjeta de Usuario
 const TarjetaUsuario = ({ empleado, onEditar, onEliminar }) => {
   return (
@@ -486,25 +487,9 @@ const UsuariosModule = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="usuarios-header">
-        <div className="header-content">
-          <div className="header-text">
-            <h1>Gestión de Usuarios</h1>
-            <p>Administra empleados, roles y permisos del sistema</p>
-          </div>
-          <button 
-            className="btn-pill btn-pill-primary btn-nuevo-usuario"
-            onClick={handleNuevoEmpleado}
-          >
-            <FaUserPlus /> Nuevo Empleado
-          </button>
-        </div>
-      </div>
-
       {/* Barra de búsqueda y filtros */}
       <div className="usuarios-filtros">
-        <div className="search-pill-container">
+        <div className="filtros-superiores">
           <div className="search-pill">
             <FaSearch className="search-icon" />
             <input
@@ -515,42 +500,49 @@ const UsuariosModule = () => {
               className="search-input"
             />
           </div>
-        </div>
 
-        <div className="filtros-avanzados">
-          <div className="filtro-grupo">
-            <FaFilter className="filtro-icon" />
-            <select 
-              value={filtroRol} 
-              onChange={(e) => setFiltroRol(e.target.value)}
-              className="filtro-select"
-            >
-              <option value="todos">Todos los roles</option>
-              <option value="administrador">Administrador</option>
-              <option value="vendedor">Vendedor</option>
-              <option value="gerente">Gerente</option>
-              <option value="cajero">Cajero</option>
-              <option value="contador">Contador</option>
-            </select>
+          <div className="filtros-avanzados">
+            <div className="filtro-grupo">
+              <FaFilter className="filtro-icon" />
+              <select 
+                value={filtroRol} 
+                onChange={(e) => setFiltroRol(e.target.value)}
+                className="filtro-select"
+              >
+                <option value="todos">Todos los roles</option>
+                <option value="administrador">Administrador</option>
+                <option value="vendedor">Vendedor</option>
+                <option value="gerente">Gerente</option>
+                <option value="cajero">Cajero</option>
+                <option value="contador">Contador</option>
+              </select>
+            </div>
+
+            <div className="filtro-grupo">
+              <select 
+                value={filtroEstado} 
+                onChange={(e) => setFiltroEstado(e.target.value)}
+                className="filtro-select"
+              >
+                <option value="todos">Todos los estados</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+              </select>
+            </div>
           </div>
 
-          <div className="filtro-grupo">
-            <select 
-              value={filtroEstado} 
-              onChange={(e) => setFiltroEstado(e.target.value)}
-              className="filtro-select"
-            >
-              <option value="todos">Todos los estados</option>
-              <option value="activo">Activos</option>
-              <option value="inactivo">Inactivos</option>
-            </select>
-          </div>
+          <button 
+            className="btn-pill btn-pill-primary btn-nuevo-usuario"
+            onClick={handleNuevoEmpleado}
+          >
+            <FaUserPlus /> Nuevo Empleado
+          </button>
         </div>
 
         <div className="usuarios-stats">
           <div className="stat-badge">
             <span className="stat-number">{empleadosFiltrados.length}</span>
-            <span className="stat-label">Usuarios encontrados</span>
+            <span className="stat-label">usuarios</span>
           </div>
         </div>
       </div>

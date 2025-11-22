@@ -506,6 +506,55 @@ class PerfilEmpleadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilesEmpleados
         fields = ['codigo_perfil', 'perfil', 'rol']
+        
+# Agregar en serializers.py (después de PerfilEmpleadoSerializer)
+
+class ProvedorDetailSerializer(serializers.ModelSerializer):
+    """Serializer detallado para proveedores con información de productos"""
+    total_materiales = serializers.SerializerMethodField()
+    total_insumos = serializers.SerializerMethodField()
+    productos_recientes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TblProvedores
+        fields = [
+            'codigo_provedor', 'nombre', 'telefono', 'direccion',
+            'total_materiales', 'total_insumos', 'productos_recientes'
+        ]
+
+    def get_total_materiales(self, obj):
+        return TblStockMateriales.objects.filter(codigo_provedor=obj).count()
+
+    def get_total_insumos(self, obj):
+        return TblStockInsumos.objects.filter(codigo_provedor=obj).count()
+
+    def get_productos_recientes(self, obj):
+        materiales = TblStockMateriales.objects.filter(
+            codigo_provedor=obj
+        ).order_by('-codigo_material')[:5]
+        
+        insumos = TblStockInsumos.objects.filter(
+            codigo_provedor=obj
+        ).order_by('-codigo_insumo')[:5]
+        
+        productos = []
+        for material in materiales:
+            productos.append({
+                'tipo': 'Material',
+                'nombre': material.nombre,
+                'codigo': material.codigo_material,
+                'costo': material.costo
+            })
+        
+        for insumo in insumos:
+            productos.append({
+                'tipo': 'Insumo',
+                'nombre': insumo.nombre,
+                'codigo': insumo.codigo_insumo,
+                'costo': insumo.costo
+            })
+        
+        return productos[:10]  # Máximo 10 productos
 
 # ========================================
 # SERIALIZADORES PARA CREACIÓN DE FACTURA (ACTUALIZADOS)

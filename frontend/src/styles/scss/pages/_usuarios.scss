@@ -21,54 +21,6 @@
 }
 
 // ========================================
-// HEADER
-// ========================================
-
-.usuarios-header {
-  margin-bottom: $spacing-2xl;
-
-  .header-content {
-    @include flex-between;
-    @include card-base;
-    padding: $spacing-xl;
-    background: linear-gradient(135deg, $bg-primary 0%, lighten($primary-light, 3%) 100%);
-    border-left: 4px solid $primary-color;
-
-    @include responsive(md) {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: $spacing-lg;
-    }
-  }
-
-  .header-text {
-    h1 {
-      color: $text-primary;
-      font-size: $font-size-3xl;
-      font-weight: $font-weight-bold;
-      margin: 0 0 $spacing-xs 0;
-      @include gradient-text;
-    }
-
-    p {
-      color: $text-secondary;
-      font-size: $font-size-lg;
-      margin: 0;
-      font-weight: $font-weight-medium;
-    }
-  }
-
-  .btn-nuevo-usuario {
-    min-width: 200px;
-    box-shadow: $shadow-primary-lg;
-
-    @include responsive(md) {
-      width: 100%;
-    }
-  }
-}
-
-// ========================================
 // FILTROS Y BÚSQUEDA
 // ========================================
 
@@ -80,24 +32,44 @@
   flex-direction: column;
   gap: $spacing-lg;
 
-  .search-pill-container {
+  .filtros-superiores {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+
+    @include responsive(md) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-md;
+    }
   }
 
   .search-pill {
-    max-width: 500px;
+    flex: 1;
+    max-width: 400px;
+    min-width: 250px;
     box-shadow: $shadow-md;
+
+    @include responsive(md) {
+      max-width: 100%;
+    }
   }
 
   .filtros-avanzados {
     display: flex;
     gap: $spacing-md;
-    justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
 
     @include responsive(md) {
+      justify-content: space-between;
+    }
+
+    @include responsive(sm) {
       flex-direction: column;
+      gap: $spacing-sm;
+      width: 100%;
     }
   }
 
@@ -129,40 +101,53 @@
       font-weight: $font-weight-medium;
       cursor: pointer;
       outline: none;
-      min-width: 180px;
+      min-width: 160px;
 
       @include responsive(md) {
+        min-width: 140px;
+      }
+
+      @include responsive(sm) {
         width: 100%;
         min-width: 100%;
       }
     }
   }
 
+  .btn-nuevo-usuario {
+    min-width: 180px;
+    box-shadow: $shadow-primary-lg;
+
+    @include responsive(md) {
+      width: 100%;
+    }
+  }
+
   .usuarios-stats {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     padding-top: $spacing-md;
-    border-top: 2px solid $border-color-light;
+    border-top: 1px solid $border-color-light;
 
     .stat-badge {
-      @include flex-center;
-      gap: $spacing-sm;
-      background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
-      color: $text-light;
-      padding: $spacing-md $spacing-xl;
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-xs;
+      background: $bg-secondary;
+      color: $text-secondary;
+      padding: $spacing-xs $spacing-md;
       border-radius: $border-radius-pill;
-      box-shadow: $shadow-primary-lg;
+      border: 1px solid $border-color-light;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
 
       .stat-number {
-        font-size: $font-size-2xl;
         font-weight: $font-weight-bold;
+        color: $primary-color;
       }
 
       .stat-label {
-        font-size: $font-size-sm;
-        font-weight: $font-weight-medium;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        text-transform: lowercase;
       }
     }
   }

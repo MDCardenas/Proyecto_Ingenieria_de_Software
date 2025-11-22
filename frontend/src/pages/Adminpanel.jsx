@@ -1,6 +1,17 @@
 // src/pages/AdminPanel.jsx
 import { useEffect, useState } from "react";
-import { FaSignOutAlt } from "react-icons/fa";
+import { 
+  FaSignOutAlt, 
+  FaTachometerAlt, 
+  FaUserFriends, 
+  FaShoppingCart, 
+  FaFileInvoiceDollar, 
+  FaClipboardList, 
+  FaBoxes, 
+  FaListAlt, 
+  FaChartLine, 
+  FaTruck  // Agregar esta importación
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import VentasModule from "../components/VentasModule/VentasModule.jsx";
@@ -10,10 +21,10 @@ import Dashboard from "../components/DashboardModule/Dashboard.jsx";
 import Usuarios from "../components/UsuariosModule/Usuarios.jsx";
 import InventarioModule from "../components/InventarioModule/InventarioModule.jsx";
 import CotizacionesModule from "../components/CotizacionesModule/CotizacionesModule.jsx";
-import { menuItems } from "../services/menuItems.js";
 import "../styles/scss/main.scss";
 import OrdenesModule from "../components/OrdenesModule/OrdenesModule.jsx";
 import Contabilidad from "../components/ContabilidadModule/Contabilidad.jsx";
+import ProveedoresModule from "../components/ProveedoresModule/ProveedoresModule.jsx";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -36,12 +47,24 @@ export default function AdminPanel() {
     }
   }, [navigate]);
 
-  const getActiveMenuItem = () => {
-    return menuItems.find(item => item.id === activeButton) || menuItems[0];
+  // Mapeo de íconos para cada módulo
+  const getModuleIcon = () => {
+    const iconMap = {
+      "Dashboard": FaTachometerAlt,
+      "Clientes": FaUserFriends,
+      "Ventas": FaShoppingCart,
+      "Facturacion": FaFileInvoiceDollar,
+      "Cotizaciones": FaClipboardList,
+      "Inventario": FaBoxes,
+      "Ordenes": FaListAlt,
+      "Contabilidad": FaChartLine,
+      "Usuarios": FaUserFriends,
+      "Proveedores": FaTruck
+    };
+    return iconMap[activeButton] || FaTachometerAlt;
   };
 
-  const activeMenuItem = getActiveMenuItem();
-  const ActiveIcon = activeMenuItem.icon;
+  const ActiveIcon = getModuleIcon();
 
   // Obtener título del módulo activo
   const getModuleTitle = () => {
@@ -54,7 +77,8 @@ export default function AdminPanel() {
       "Inventario": "Control de Inventario",
       "Ordenes": "Órdenes de Trabajo",
       "Contabilidad": "Contabilidad y Finanzas",
-      "Usuarios": "Gestión de Usuarios"
+      "Usuarios": "Gestión de Usuarios",
+      "Proveedores": "Gestión de Proveedores"
     };
     return titles[activeButton] || "Panel de Control";
   };
@@ -70,7 +94,8 @@ export default function AdminPanel() {
       "Inventario": "Control de stock y productos",
       "Ordenes": "Seguimiento de órdenes de servicio",
       "Contabilidad": "Informes financieros y contables",
-      "Usuarios": "Administración de usuarios y permisos"
+      "Usuarios": "Administra empleados, roles y permisos del sistema",
+      "Proveedores": "Administración de proveedores y materiales"
     };
     return subtitles[activeButton] || "Gestiona la información del sistema";
   };
@@ -100,6 +125,8 @@ export default function AdminPanel() {
         return <Contabilidad setActiveButton={setActiveButton} />;
       case "Usuarios":
         return <Usuarios setActiveButton={setActiveButton} />;
+      case "Proveedores":
+        return <ProveedoresModule setActiveButton={setActiveButton} />;
       default:
         return <VentasModule setActiveButton={setActiveButton} />;
     }
@@ -142,12 +169,11 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* 🔹 ITEM 3 - Contenido Principal - AQUÍ ESTÁ LA CORRECCIÓN */}
+        {/* 🔹 ITEM 3 - Contenido Principal */}
         <div className="grid-item item-3">
           <div className="modules-content">
             <div className="modules-navbar">
               <div className="module-header">
-                {/* AGREGAR EL ICONO AQUÍ */}
                 <div className="module-title-with-icon">
                   <ActiveIcon className="module-title-icon" />
                   <div className="module-title-text">
@@ -159,7 +185,7 @@ export default function AdminPanel() {
                     </div>
                   </div>
                 </div>
-                </div>
+              </div>
               
               <div className="module-actions">
               </div>

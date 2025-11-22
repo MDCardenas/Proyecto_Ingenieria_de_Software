@@ -1332,6 +1332,107 @@ def gastos_mes(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+    
+# Agregar en views.py (antes de las vistas de contabilidad)
+
+@api_view(['GET'])
+def proveedores_estadisticas(request):
+    """Estadísticas generales de proveedores"""
+    try:
+        total_proveedores = TblProvedores.objects.count()
+        
+        # Proveedores con más productos
+        proveedores_top = TblProvedores.objects.annotate(
+            total_productos=Count('tblstockmateriales') + Count('tblstockinsumos')
+        ).order_by('-total_productos')[:5]
+        
+        # Distribución por cantidad de productos
+        distribucion = TblProvedores.objects.annotate(
+            total_productos=Count('tblstockmateriales') + Count('tblstockinsumos')
+        ).values('total_productos').annotate(
+            cantidad_proveedores=Count('codigo_provedor')
+        ).order_by('total_productos')
+        
+        # Valor total en inventario por proveedor
+        proveedores_valor = []
+        for proveedor in TblProvedores.objects.all():
+            valor_materiales = TblStockMateriales.objects.filter(
+                codigo_provedor=proveedor
+            ).aggregate(total=Sum(F('costo') * F('cantidad_existencia')))['total'] or 0
+            
+            valor_insumos = TblStockInsumos.objects.filter(
+                codigo_provedor=proveedor
+            ).aggregate(total=Sum(F('costo') * F('cantidad_existencia')))['total'] or 0
+            
+            proveedores_valor.append({
+                'proveedor': proveedor.nombre,
+                'valor_total': float(valor_materiales + valor_insumos)
+            })
+        
+        proveedores_valor.sort(key=lambda x: x['valor_total'], reverse=True)
+        
+        return Response({
+            'total_proveedores': total_proveedores,
+            'top_proveedores': [
+                {
+                    'nombre': p.nombre,
+                    'total_productos': p.total_productos
+                } for p in proveedores_top
+            ],
+            'distribucion_productos': list(distribucion),
+            'valor_inventario': proveedores_valor[:10]  # Top 10
+        })
+        
+    except Exception as e:
+        return Response({
+            'error': f'Error al obtener estadísticas: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def proveedores_buscar(request):
+    """Búsqueda avanzada de proveedores"""
+    try:
+        query = request.GET.get('q', '')
+        tipo_busqueda = request.GET.get('tipo', 'todos')
+        
+        proveedores = TblProvedores.objects.all()
+        
+        if query:
+            if tipo_busqueda == 'nombre':
+                proveedores = proveedores.filter(
+                    Q(nombre__icontains=query)
+                )
+            elif tipo_busqueda == 'telefono':
+                proveedores = proveedores.filter(
+                    Q(telefono__icontains=query)
+                )
+            elif tipo_busqueda == 'direccion':
+                proveedores = proveedores.filter(
+                    Q(direccion__icontains=query)
+                )
+            else:  # búsqueda en todos los campos
+                proveedores = proveedores.filter(
+                    Q(nombre__icontains=query) |
+                    Q(telefono__icontains=query) |
+                    Q(direccion__icontains=query)
+                )
+        
+        # Ordenamiento
+        orden = request.GET.get('orden', 'nombre')
+        if orden == 'nombre':
+            proveedores = proveedores.order_by('nombre')
+        elif orden == 'productos':
+            proveedores = proveedores.annotate(
+                total_productos=Count('tblstockmateriales') + Count('tblstockinsumos')
+            ).order_by('-total_productos')
+        
+        serializer = ProvedorSerializer(proveedores, many=True)
+        return Response(serializer.data)
+        
+    except Exception as e:
+        return Response({
+            'error': f'Error en búsqueda: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
 
 
 #RESUMEN CONTABILIDAD - REPORTES
