@@ -15,28 +15,11 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-/*Header y Títulos*/
+/*Header Simplificado*/
 .ordenes-header {
-  @include flex-between;
-  flex-wrap: wrap;
-  gap: $spacing-md;
-
-  .header-content {
-    .ordenes-title {
-      font-size: $font-size-2xl;
-      font-weight: $font-weight-bold;
-      color: $text-primary;
-      margin: 0;
-    }
-
-    .ordenes-subtitle {
-      font-size: $font-size-sm;
-      color: $text-secondary;
-      margin-top: $spacing-xs;
-    }
-  }
-
-  // Botón Pill Principal
+  display: flex;
+  justify-content: flex-end;
+  
   .btn-crear-orden {
     @include button-pill-primary;
     gap: $spacing-sm;
@@ -47,7 +30,7 @@
   }
 }
 
-/* Toolbar (Búsqueda y Filtros) */
+/* Toolbar Unificada con Botón */
 .ordenes-toolbar {
   display: flex;
   align-items: center;
@@ -59,8 +42,8 @@
   .busqueda-wrapper {
     flex: 1 1 300px;
     max-width: 500px;
-    @include search-pill; // Usa tu mixin de search-pill
-    background: $bg-primary; // Asegura fondo blanco
+    @include search-pill;
+    background: $bg-primary;
     
     .icono-busqueda {
       color: $text-muted;
@@ -98,11 +81,12 @@
     display: flex;
     gap: $spacing-sm;
     flex-wrap: wrap;
+    align-items: center;
 
     select {
       appearance: none;
       padding: $spacing-sm $spacing-xl $spacing-sm $spacing-md;
-      border-radius: $border-radius-pill; // Estilo Pill
+      border-radius: $border-radius-pill;
       border: 1px solid $border-color-light;
       background-color: $bg-primary;
       background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23bfa36f%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
@@ -125,12 +109,23 @@
         border-color: $gray-300;
       }
     }
+
+    // Botón integrado en los filtros
+    .btn-crear-orden {
+      @include button-pill-primary;
+      gap: $spacing-sm;
+      margin-left: $spacing-sm;
+      
+      svg {
+        font-size: 1.1em;
+      }
+    }
   }
 }
 
 /* Formulario Inline (Reemplazo del Modal) */
 .crear-orden-form-container {
-  @include card-base; // Estilo base de tarjeta
+  @include card-base;
   padding: $spacing-xl;
   background: $bg-primary;
   animation: slideInRight 0.3s ease-out;
@@ -320,11 +315,11 @@
 }
 
 .orden-card {
-  @include card-interactive; // Mixin de tarjeta interactiva
+  @include card-interactive;
   display: flex;
   flex-direction: column;
   padding: $spacing-lg;
-  border: 1px solid transparent; // Para hover effect
+  border: 1px solid transparent;
   
   .orden-head {
     @include flex-between;
@@ -382,7 +377,7 @@
       
       .progress-fill {
         height: 100%;
-        background: $primary-color; // Usando el dorado
+        background: $primary-color;
         transition: width 1s ease-in-out;
         
         &.proceso { background: $warning-color; }
@@ -486,8 +481,7 @@
 /* Responsive específico */
 @include responsive(sm) {
   .ordenes-header {
-    flex-direction: column;
-    align-items: stretch;
+    justify-content: stretch;
     
     .btn-crear-orden {
       width: 100%;
@@ -500,6 +494,14 @@
     .busqueda-wrapper, .filters, .filters select {
       width: 100%;
       max-width: none;
+    }
+
+    .filters {
+      .btn-crear-orden {
+        width: 100%;
+        margin-left: 0;
+        margin-top: $spacing-sm;
+      }
     }
   }
   

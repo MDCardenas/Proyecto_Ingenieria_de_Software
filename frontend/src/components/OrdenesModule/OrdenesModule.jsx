@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import axios from "axios";
 import { FaPlus, FaSearch, FaTimes, FaCalendarAlt, FaArrowLeft, FaSave } from "react-icons/fa";
-import "../../styles/scss/main.scss"; // Asegúrate que la ruta apunte al nuevo SCSS
+import "../../styles/scss/main.scss";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -390,10 +390,8 @@ function CrearOrdenForm({ onCancel, onCreated }) {
 /* ================= MODAL DETALLE (Aún necesario) ================= */
 function DetalleOrdenModal({ open, orden, onClose }) {
   if (!open || !orden) return null;
-  // Reutilizando clases del modal global, asegúrate que existan en tu CSS global o en forms.scss
   return (
     <div className="image-modal-overlay" onClick={onClose} style={{zIndex: 1050}}>
-       {/* Reutilizando estilos de modal de items-grid para consistencia */}
       <div className="image-modal-content" onClick={(e) => e.stopPropagation()} style={{textAlign: 'left', maxWidth: '600px'}}>
         <button className="btn-close-modal" onClick={onClose}><FaTimes /></button>
         
@@ -435,7 +433,7 @@ export default function OrdenesModule() {
   const [error, setError] = useState("");
   
   // Estados de Vista
-  const [viewMode, setViewMode] = useState("list"); // 'list' | 'create'
+  const [viewMode, setViewMode] = useState("list");
   
   // Filtros
   const [estadoFiltro, setEstadoFiltro] = useState("TODAS");
@@ -485,30 +483,20 @@ export default function OrdenesModule() {
 
   return (
     <div className="ordenes-module">
-      {/* HEADER */}
-      <div className="ordenes-header">
-        <div className="header-content">
-          <h1 className="ordenes-title">Órdenes de Trabajo</h1>
-          <p className="ordenes-subtitle">Gestión de fabricación y reparaciones</p>
-        </div>
-        
-        {viewMode === "list" ? (
-          <button className="btn-crear-orden" onClick={() => setViewMode("create")}>
-            <FaPlus /> Nueva Orden
-          </button>
-        ) : (
-          <button className="btn-crear-orden" style={{background: '#6b7280'}} onClick={() => setViewMode("list")}>
-            <FaArrowLeft /> Volver al listado
-          </button>
-        )}
-      </div>
-
       {/* CONTENIDO PRINCIPAL */}
       {viewMode === "create" ? (
-        <CrearOrdenForm onCancel={() => setViewMode("list")} onCreated={handleCreateSuccess} />
+        <>
+          {/* HEADER SIMPLIFICADO PARA MODO CREACIÓN */}
+          <div className="ordenes-header">
+            <button className="btn-crear-orden" style={{background: '#6b7280'}} onClick={() => setViewMode("list")}>
+              <FaArrowLeft /> Volver al listado
+            </button>
+          </div>
+          <CrearOrdenForm onCancel={() => setViewMode("list")} onCreated={handleCreateSuccess} />
+        </>
       ) : (
         <>
-          {/* TOOLBAR DE FILTROS */}
+          {/* TOOLBAR UNIFICADA CON BOTÓN */}
           <div className="ordenes-toolbar">
             <div className="busqueda-wrapper">
               <FaSearch className="icono-busqueda" />
@@ -533,6 +521,11 @@ export default function OrdenesModule() {
               <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)}>
                 {TIPOS_ORDEN.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
+              
+              {/* BOTÓN AGREGADO EN LA MISMA FILA */}
+              <button className="btn-crear-orden" onClick={() => setViewMode("create")}>
+                <FaPlus /> Nueva Orden
+              </button>
             </div>
           </div>
 
@@ -602,7 +595,7 @@ export default function OrdenesModule() {
         </>
       )}
 
-      {/* MODAL DE DETALLES (Solo visualización) */}
+      {/* MODAL DE DETALLES */}
       <DetalleOrdenModal open={!!ordenDetalle} orden={ordenDetalle} onClose={() => setOrdenDetalle(null)} />
     </div>
   );
