@@ -477,108 +477,139 @@
   font-weight: $font-weight-medium !important;
 }
 
-/* Footer de card - BOTONES PILL UNIFORMES */
+/* Footer de card - BOTONES EN LÍNEA */
 .card-footer {
   padding: $spacing-sm;
   background: $bg-tertiary;
   border-top: 1px solid $border-color-light;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
   min-height: auto;
 }
 
-/* Selector de método de pago con estilo PILL uniforme */
-.selector-metodo-pago {
+.botones-fila {
   display: flex;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.grupo-pago {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* Selector de método de pago - MORADO */
+.selector-pill {
+  @include button-pill-accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  min-height: 28px;
+  min-width: 100px;
+  flex-shrink: 0;
   
-  .selector-pill {
-    @include button-pill-accent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-xs;
-    padding: $spacing-xs $spacing-sm;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-medium;
-    min-height: 32px;
-    min-width: 120px;
+  select {
+    border: none;
+    background: transparent;
+    outline: none;
     flex: 1;
+    color: $text-light;
+    font-size: $font-size-xs;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    text-align: center;
     
-    select {
-      border: none;
-      background: transparent;
-      outline: none;
-      flex: 1;
-      color: $text-light;
-      font-size: $font-size-xs;
-      width: 100%;
-      cursor: pointer;
-      appearance: none;
-      text-align: center;
-      
-      option {
-        background: $bg-primary;
-        color: $text-primary;
-      }
+    option {
+      background: $bg-primary;
+      color: $text-primary;
     }
   }
 }
 
-/* Botones PILL uniformes para las facturas */
+/* Botones COMPACTOS con colores específicos */
+.btn-detalles,
+.btn-marcar-pagada,
+.btn-reabrir,
+.btn-reactivar,
+.btn-limpiar-filtros {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  min-height: 28px;
+  border: none;
+  border-radius: $border-radius-pill;
+  cursor: pointer;
+  transition: all $transition-normal;
+  text-align: center;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+/* Detalles - AZUL */
 .btn-detalles {
-  @include button-pill-info;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  min-height: 32px;
-  width: 100%;
+  background: linear-gradient(135deg, $info-color 0%, $info-dark 100%);
+  color: $text-light;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $info-dark 0%, $info-color 100%);
+    transform: translateY(-1px);
+  }
 }
 
+/* Pagar - VERDE */
 .btn-marcar-pagada {
-  @include button-pill-success;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  min-height: 32px;
-  width: 100%;
+  background: linear-gradient(135deg, $success-color 0%, $success-dark 100%);
+  color: $text-light;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $success-dark 0%, $success-color 100%);
+    transform: translateY(-1px);
+  }
 }
 
+/* Reabrir - NARANJA */
 .btn-reabrir {
-  @include button-pill-warning;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  min-height: 32px;
-  width: 100%;
+  background: linear-gradient(135deg, $warning-color 0%, $warning-dark 100%);
+  color: $text-light;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $warning-dark 0%, $warning-color 100%);
+    transform: translateY(-1px);
+  }
 }
 
+/* Reactivar - NARANJA */
 .btn-reactivar {
-  @include button-pill-warning;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  min-height: 32px;
-  width: 100%;
+  background: linear-gradient(135deg, $warning-color 0%, $warning-dark 100%);
+  color: $text-light;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $warning-dark 0%, $warning-color 100%);
+    transform: translateY(-1px);
+  }
+}
+
+/* Limpiar filtros - COLOR PRIMARIO */
+.btn-limpiar-filtros {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  color: $text-light;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $primary-dark 0%, $primary-color 100%);
+    transform: translateY(-1px);
+  }
 }
 
 /* Estados de carga y sin resultados - COMPACTOS */
@@ -614,7 +645,6 @@
   border: 2px dashed $border-color-light;
   
   .btn-limpiar-filtros {
-    @include button-pill-primary;
     margin-top: $spacing-md;
   }
 }
@@ -743,16 +773,25 @@
     grid-template-columns: 1fr;
   }
   
-  .selector-metodo-pago {
+  .botones-fila {
     flex-direction: column;
     align-items: stretch;
     
-    .selector-pill {
-      max-width: 100%;
+    .btn-detalles,
+    .btn-marcar-pagada,
+    .btn-reabrir,
+    .btn-reactivar {
+      width: 100%;
     }
     
-    .btn-marcar-pagada {
-      width: 100%;
+    .grupo-pago {
+      flex-direction: column;
+      align-items: stretch;
+      
+      .selector-pill,
+      .btn-marcar-pagada {
+        width: 100%;
+      }
     }
   }
 }
@@ -781,9 +820,27 @@
   .btn-detalles,
   .btn-marcar-pagada,
   .btn-reabrir,
-  .btn-reactivar {
+  .btn-reactivar,
+  .btn-limpiar-filtros {
     padding: $spacing-xs $spacing-sm;
     font-size: $font-size-xs;
-    min-height: 32px;
+    min-height: 28px;
+  }
+  
+  .botones-fila {
+    gap: $spacing-xs;
+    
+    .btn-detalles,
+    .btn-marcar-pagada,
+    .btn-reabrir,
+    .btn-reactivar {
+      min-width: 70px;
+      font-size: 0.7rem;
+    }
+    
+    .selector-pill {
+      min-width: 80px;
+      font-size: 0.7rem;
+    }
   }
 }
