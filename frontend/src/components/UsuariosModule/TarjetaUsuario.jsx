@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import { 
   FaUser, 
   FaEnvelope, 
@@ -9,6 +9,7 @@ import {
   FaEdit,
   FaPhone
 } from 'react-icons/fa';
+import api from '../../services/api';
 
 const TarjetaUsuario = ({ empleado, onEditar, onEliminado }) => {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
@@ -17,15 +18,9 @@ const TarjetaUsuario = ({ empleado, onEditar, onEliminado }) => {
   const handleEliminar = async () => {
     setEliminando(true);
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/empleados/${empleado.id_empleado}/eliminar/`,
-        { method: "DELETE" }
-      );
-
-      if (response.ok) {
-        onEliminado();
-        setMostrarConfirmacion(false);
-      }
+      await api.delete(`/empleados/${empleado.id_empleado}/eliminar/`);
+      onEliminado();
+      setMostrarConfirmacion(false);
     } catch (error) {
       console.error("Error al eliminar:", error);
     } finally {

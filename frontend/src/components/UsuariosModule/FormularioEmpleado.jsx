@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
+import api from '../../services/api';
 
 const FormularioNuevoEmpleado = () => {
   const navigate = useNavigate();
@@ -34,20 +35,10 @@ const FormularioNuevoEmpleado = () => {
         codigo_perfil: parseInt(formData.codigo_perfil),
       };
 
-      const response = await fetch('http://127.0.0.1:8000/api/empleados/nuevo/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(empleadoData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
-      }
-
+      await api.post('/empleados/nuevo/', empleadoData);
       navigate('/usuarios');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Error al guardar el empleado');
     } finally {
       setLoading(false);
     }

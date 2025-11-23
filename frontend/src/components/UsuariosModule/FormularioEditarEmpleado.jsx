@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
+import api from '../../services/api';
 
 const FormularioEditarEmpleado = () => {
   const navigate = useNavigate();
@@ -24,12 +25,12 @@ const FormularioEditarEmpleado = () => {
     const cargarDatos = async () => {
       try {
         const [perfilesRes, empleadoRes] = await Promise.all([
-          fetch('http://127.0.0.1:8000/api/perfiles/'),
-          fetch(`http://127.0.0.1:8000/api/empleados/${id}/`)
+          api.get('/perfiles/'),
+          api.get(`/empleados/${id}/`)
         ]);
 
-        const perfilesData = await perfilesRes.json();
-        const empleadoData = await empleadoRes.json();
+        const perfilesData = perfilesRes.data;
+        const empleadoData = empleadoRes.data;
 
         setPerfiles(perfilesData);
 
@@ -71,17 +72,10 @@ const FormularioEditarEmpleado = () => {
         codigo_perfil: parseInt(formData.codigo_perfil)
       };
 
-      const response = await fetch(`http://127.0.0.1:8000/api/empleados/${id}/actualizar/`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(empleadoData)
-      });
-
-      if (!response.ok) throw new Error('Error al actualizar empleado');
-      
+      await api.put(`/empleados/${id}/actualizar/`, empleadoData);
       navigate('/usuarios');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Error al actualizar empleado');
     } finally {
       setLoading(false);
     }

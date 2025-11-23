@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserPlus, FaSearch, FaFilter, FaTrash, FaEdit, FaArrowLeft, FaSave, FaTimes, FaUser, FaEnvelope, FaUserTag, FaCheckCircle, FaTimesCircle, FaPhone } from 'react-icons/fa';
 import "../../styles/scss/main.scss"
+import api from "../../services/api";
 
 // Componente de Tarjeta de Usuario
 const TarjetaUsuario = ({ empleado, onEditar, onEliminar }) => {
@@ -269,8 +270,8 @@ const UsuariosModule = () => {
   const fetchEmpleados = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:8000/api/empleados/");
-      const data = await response.json();
+      const response = await api.get("/empleados/");
+      const data = response.data;
       setEmpleados(Array.isArray(data) ? data : Array.isArray(data.usuarios) ? data.usuarios : []);
       setError(null);
     } catch (err) {
@@ -283,8 +284,8 @@ const UsuariosModule = () => {
 
   const fetchPerfiles = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/perfiles/');
-      const data = await response.json();
+      const response = await api.get('/perfiles/');
+      const data = response.data;
       setPerfiles(data);
     } catch (err) {
       console.error("Error cargando perfiles:", err);
@@ -310,26 +311,13 @@ const UsuariosModule = () => {
 
       let response;
       if (editId) {
-        response = await fetch(`http://127.0.0.1:8000/api/empleados/${editId}/actualizar/`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(empleadoData)
-        });
+        response = await api.put(`/empleados/${editId}/actualizar/`, empleadoData);
         setSuccess('¡Empleado actualizado exitosamente!');
       } else {
-        response = await fetch('http://127.0.0.1:8000/api/empleados/nuevo/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(empleadoData)
-        });
+        response = await api.post('/empleados/nuevo/', empleadoData);
         setSuccess('¡Empleado registrado exitosamente!');
       }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
-      }
-      
       setFormData({
         nombre: '',
         apellido: '',
@@ -344,7 +332,7 @@ const UsuariosModule = () => {
       setAccionActiva(null);
       await fetchEmpleados();
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Error al procesar la solicitud');
     } finally {
       setLoading(false);
     }
@@ -396,18 +384,10 @@ const UsuariosModule = () => {
     setEliminando(true);
 
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/empleados/${empleadoSeleccionado.id_empleado}/eliminar/`,
-        { method: "DELETE" }
-      );
-
-      if (response.ok) {
-        setSuccess('¡Empleado eliminado exitosamente!');
-        await fetchEmpleados();
-        setMostrarConfirmacion(false);
-      } else {
-        setError('Error al eliminar empleado');
-      }
+      await api.delete(`/empleados/${empleadoSeleccionado.id_empleado}/eliminar/`);
+      setSuccess('¡Empleado eliminado exitosamente!');
+      await fetchEmpleados();
+      setMostrarConfirmacion(false);
     } catch (error) {
       console.error("Error al eliminar empleado:", error);
       setError('Error al eliminar empleado');

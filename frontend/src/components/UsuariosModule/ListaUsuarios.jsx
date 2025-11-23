@@ -7,6 +7,7 @@ import {
   FaTimesCircle,
   FaTrash,
 } from "react-icons/fa";
+import api from "../../services/api";
 
 const ListaUsuarios = ({ usuarios, onEditarEmpleado, onEmpleadoEliminado }) => {
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
@@ -20,28 +21,27 @@ const ListaUsuarios = ({ usuarios, onEditarEmpleado, onEmpleadoEliminado }) => {
   };
 
   // 🔹 Confirmar eliminación
-  const confirmarEliminar = async () => {
-    if (!empleadoSeleccionado) return;
-    setEliminando(true);
+  // 🔹 Confirmar eliminación (versión mejorada con api)
+const confirmarEliminar = async () => {
+  if (!empleadoSeleccionado) return;
+  setEliminando(true);
 
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/empleados/${empleadoSeleccionado.id_empleado}/eliminar/`,
-        { method: "DELETE" }
-      );
+  try {
+    // ✅ USANDO EL SERVICIO API (más limpio)
+    const response = await api.delete(`/empleados/${empleadoSeleccionado.id_empleado}/eliminar/`);
 
-      if (response.ok) {
-        onEmpleadoEliminado();
-        setMostrarConfirmacion(false);
-      } else {
-        console.error("Error al eliminar empleado");
-      }
-    } catch (error) {
-      console.error("Error al eliminar empleado:", error);
-    } finally {
-      setEliminando(false);
+    if (response.status === 200) {
+      onEmpleadoEliminado();
+      setMostrarConfirmacion(false);
+    } else {
+      console.error("Error al eliminar empleado");
     }
-  };
+  } catch (error) {
+    console.error("Error al eliminar empleado:", error);
+  } finally {
+    setEliminando(false);
+  }
+};
 
   const styles = {
     gridContainer: {
