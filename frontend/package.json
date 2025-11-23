@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "concurrently -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && python manage.py runserver\"",
-    "start:full": "concurrently -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"vite\" \"cd ../backend && python manage.py runserver 0.0.0.0:8000\""
+    "start:full": "concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"sleep 2 && cd ../backend && source venv/bin/activate && python manage.py runserver 0.0.0.0:8000\""
   },
 
   "dependencies": {
