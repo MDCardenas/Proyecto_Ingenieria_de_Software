@@ -25,12 +25,14 @@ SECRET_KEY = 'django-insecure-7$3l#u!x2*9@r1t%8f!g%_4b^qz0h7m@p&k=1wz5r+3u^d!s0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '20.64.150.5']  # Puedes limitarlo a la IP de tu VM o dominio cuando tengas uno
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '20.64.150.5', '0.0.0.0:8000','0.0.0.0:8001']  # Puedes limitarlo a la IP de tu VM o dominio cuando tengas uno
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://20.64.150.5:5173",
+    "http://20.64.150.5:8000",
+    "http://20.64.150.5:8001",
 ]
 # Application definition
 
