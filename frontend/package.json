@@ -3,16 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+ "scripts": {
   "dev": "vite --port 5173 --host 0.0.0.0 --strict-port",
   "build": "vite build",
   "lint": "eslint .",
   "preview": "vite preview",
-  "start:full": "bash -c 'pkill -f \"runserver 0.0.0.0:8000\" || true; pkill -f \"vite\" || true; sleep 2; concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000\"'",
-  "backend-only": "cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000",
-  "clean-ports": "pkill -f 'runserver' || true && pkill -f 'vite' || true"
+  "start:full": "concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000\"",
+  "backend-only": "cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000"
 },
-
   "dependencies": {
     "axios": "^1.12.2",
     "jspdf": "^3.0.3",
