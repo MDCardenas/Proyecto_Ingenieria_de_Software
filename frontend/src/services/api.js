@@ -1,14 +1,20 @@
 import axios from 'axios';
 
-// 🔴 USA URL RELATIVA para que use el proxy
-const API_BASE_URL = '/api';
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
+  baseURL: '/api',
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Interceptor para manejar errores globalmente
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('Error de API:', error);
+    return Promise.reject(error);
+  }
+);
 
 export default api;

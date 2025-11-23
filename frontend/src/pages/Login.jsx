@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import { useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/scss/main.scss";
 
@@ -92,12 +92,14 @@ function Login({ onLogin }) {
         contrasena: contrasenaSanitizada
       };
 
-
-      const res = await axios.post("http://127.0.0.1:8000/api/login/", payload);
+      console.log("🔐 Enviando login a:", "/api/login/");
+      const res = await api.post("/login/", payload);
       
+      console.log("✅ Respuesta del servidor:", res.data);
 
       if (res.data.success) {
         const empleado = res.data.empleado;
+        
         // Guardar en localStorage
         localStorage.setItem("empleado", JSON.stringify(empleado));
         localStorage.setItem("token", "authenticated");
@@ -106,7 +108,7 @@ function Login({ onLogin }) {
         onLogin(empleado);
 
         // DEBUG: Mostrar todos los datos disponibles para determinar el perfil
-      
+        console.log("📊 Datos del empleado:", empleado);
 
         // Determinar la ruta basada en el código de perfil o nombre
         let redirectPath = "/admin"; // Por defecto
@@ -142,13 +144,16 @@ function Login({ onLogin }) {
           }
         }
 
+        console.log("🔄 Redirigiendo a:", redirectPath);
         navigate(redirectPath, { replace: true });
       } else {
         setError(res.data.error || "Usuario/correo o contraseña incorrectos");
       }
     } catch (err) {
-      console.error("Error completo:", err);
-      console.error("Respuesta del error:", err.response?.data);
+      console.error("❌ Error completo:", err);
+      console.error("📡 URL intentada:", err.config?.url);
+      console.error("📊 Datos enviados:", err.config?.data);
+      console.error("🔧 Configuración:", err.config);
       
       if (err.response?.data?.error) {
         setError(err.response.data.error);
