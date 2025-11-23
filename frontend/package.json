@@ -8,8 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "concurrently -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && python manage.py runserver\""
+    "start": "concurrently -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && python manage.py runserver\"",
+    "start:full": "concurrently -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"vite\" \"cd ../backend && python manage.py runserver 0.0.0.0:8000\""
   },
+
   "dependencies": {
     "axios": "^1.12.2",
     "jspdf": "^3.0.3",

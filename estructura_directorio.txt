@@ -5,6 +5,7 @@ ESTRUCTURA DE DIRECTORIO
 
 backend/
     manage.py
+    requirements.txt
     api/
         admin.py
         apps.py
@@ -39,6 +40,30 @@ backend/
             urls.cpython-313.pyc
             wsgi.cpython-313.pyc
             __init__.cpython-313.pyc
+    dashboard/
+        admin.py
+        apps.py
+        models.py
+        tests.py
+        urls.py
+        views.py
+        __init__.py
+        migrations/
+            __init__.py
+            __pycache__/
+                __init__.cpython-313.pyc
+        __pycache__/
+            admin.cpython-313.pyc
+            apps.cpython-313.pyc
+            models.cpython-313.pyc
+            urls.cpython-313.pyc
+            views.cpython-313.pyc
+            __init__.cpython-313.pyc
+    media/
+        imagenes_cotizaciones/
+            cotizacion_20251121_165658_prueba.jpg
+            cotizacion_20251121_181104_prueba.jpg
+            cotizacion_20251121_181945_prueba.jpg
 
 
 [FRONTEND]
@@ -61,22 +86,66 @@ frontend/
             logo-joyeria.jpg
             react.svg
         components/
-            ClientesModule.jsx
-            Dashboard.jsx
-            FacturacionModule copy.jsx
-            FacturacionModule.jsx
             Navegation.jsx
             Sidebar.jsx
-            Usuarios.jsx
-            VentasList.jsx
-            VentasModule.jsx
-            facturaComponentes/
+            ClientesModule/
+                AccionesRapidas.jsx
+                ClientesBuscar.jsx
+                ClientesEliminar.jsx
+                ClientesModule.jsx
+                ClientesResgistrar.jsx
+            ContabilidadModule/
+                Contabilidad.jsx
+                MovimientoItem.jsx
+                ResumenCard.jsx
+            cotizacionesComponentes/
+                AccionesCotizaciones.jsx
+                FormatoCotizacionFabricacion.jsx
+                FormatoCotizacionReparacion.jsx
+                Material.jsx
+                ModalSeleccionTipo.jsx
+                ModalVerCotizacion.jsx
+                PDFCotizacion.jsx
+                PDFCotizacionReparacion.jsx
+            CotizacionesModule/
+                CotizacionesModule.jsx
+                DatosAdicionalesCotizacion.jsx
+                FiltrosCotizaciones.jsx
+                HeaderCotizaciones.jsx
+                ListaCotizaciones.jsx
+                ProductoCotizacion.jsx
+            DashboardModule/
+                Dashboard.jsx
+            FacturacionModule/
                 DatosAdicionales.jsx
                 DatosCliente.jsx
+                FacturacionModule.jsx
                 FormatoFactura.jsx
                 ListaFacturas.jsx
                 ModalDetalleFactura.jsx
                 Producto.jsx
+            InventarioModule/
+                ActionBar.jsx
+                AlertasBanner.jsx
+                InventarioForm.jsx
+                InventarioModule.jsx
+                ItemsGrid.jsx
+                TabNavigation.jsx
+                Hooks/
+                    useinventario.js
+            OrdenesModule/
+                OrdenesModule.jsx
+            ProveedoresModule/
+                ProveedoresModule.jsx
+            UsuariosModule/
+                FormularioEditarEmpleado.jsx
+                FormularioEmpleado.jsx
+                ListaUsuarios.jsx
+                TarjetaUsuario.jsx
+                Usuarios.jsx
+            VentasModule/
+                VentasList.jsx
+                VentasModule.jsx
         pages/
             Adminpanel.jsx
             EmployeePanel.jsx
@@ -84,16 +153,55 @@ frontend/
             Login.jsx
         services/
             api.js
+            menuItems.js
         styles/
-            Adminpanel.css
-            ClientesModule.css
-            Dashboard.css
-            Facturacion copy.css
-            Facturacion.css
-            login.css
+            Contabilidad.css
+            Ordenes.css
             Usuarios.css
-            VentasList.css
             VentasModule.css
+            scss/
+                main.scss
+                abstracts/
+                    _mixins.scss
+                    _variables.scss
+                base/
+                    _reset.scss
+                components/
+                    _action-bar.scss
+                    _alertas-banner.scss
+                    _cotizacionFabricacion.scss
+                    _cotizacionReparacion.scss
+                    _datosadicionales.scss
+                    _datosclientes.scss
+                    _filtrosCotizaciones.scss
+                    _formatofactura.scss
+                    _forms.scss
+                    _headerCotizaciones.scss
+                    _inventario-form.scss
+                    _inventario-module.scss
+                    _items-grid.scss
+                    _listaCotizaciones.scss
+                    _listafacturas.scss
+                    _modaldetalle.scss
+                    _modales.scss
+                    _modalSeleccionTipo.scss
+                    _producto.scss
+                    _tab-navigation.scss
+                layout/
+                pages/
+                    _admin.scss
+                    _clientes.scss
+                    _cotizacion.scss
+                    _dashboard.scss
+                    _facturacion.scss
+                    _inventario.scss
+                    _login.scss
+                    _ordenes.scss
+                    _proveedoresmodule.scss
+                    _usuarios.scss
+                    _ventaslist.scss
+                    _ventasmodule.scss
+                themes/
         utils/
             normalize.js
     vite.config.js
