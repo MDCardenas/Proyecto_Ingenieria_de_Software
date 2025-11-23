@@ -4,6 +4,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import VentasList from './VentasList';
 import "../../styles/VentasModule.css";
+import api from "../../services/api"
 
 export default function VentasModule({ setActiveButton }) {
   const [ventasMes, setVentasMes] = useState(0);
@@ -21,7 +22,7 @@ export default function VentasModule({ setActiveButton }) {
   const fetchVentasData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/api/dashboard/');
+      const response = await api.get('/dashboard/');
       const data = response.data.estadisticas;
       
       setVentasMes(data.ventas_mes_actual || 0);

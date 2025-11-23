@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { FaFileInvoice, FaSearch, FaFilter, FaSync, FaMoneyBillWave, FaTimes, FaEye } from 'react-icons/fa';
-import axios from 'axios';
+import api  from "../../services/api";
 import PropTypes from 'prop-types';
 import ModalDetalleFactura from '../FacturacionModule/ModalDetalleFactura'; // Importar el modal
 import "../../styles/scss/pages/_ventaslist.scss";
+
 
 export default function VentasList({ onVolver }) {
   const [facturas, setFacturas] = useState([]);
@@ -20,7 +21,7 @@ export default function VentasList({ onVolver }) {
   const fetchFacturas = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/api/facturas/completas/');
+      const response = await api.get('/facturas/completas/');
       setFacturas(response.data);
     } catch (error) {
       console.error('Error al cargar facturas:', error);
