@@ -13,22 +13,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#s90ola08_$q@fr#h8$=331!_u-qryk9qbc#b7qx&xf6ineb&l'
+SECRET_KEY = 'django-insecure-7$3l#u!x2*9@r1t%8f!g%_4b^qz0h7m@p&k=1wz5r+3u^d!s0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-
+ALLOWED_HOSTS = ['*']  # Puedes limitarlo a la IP de tu VM o dominio cuando tengas uno
 
 # Application definition
 
@@ -40,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api',
     'corsheaders',
+    'api',
     'dashboard',
 ]
 
@@ -75,19 +72,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# Configuración para SQL Server en Azure
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'JOYERIA',
-        'USER': 'sa',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
+        'USER': 'adminjoyas',
+        'PASSWORD': 'Joyas2025/',
+        'HOST': 'joyas-app.database.windows.net',
         'PORT': '1433',
-
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
             'extra_params': 'TrustServerCertificate=yes;',
@@ -95,10 +89,7 @@ DATABASES = {
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -114,31 +105,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # Para producción
 
-STATIC_URL = 'static/'
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CORS configuration
 CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -147,9 +132,3 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
-
-
-# Tu carpeta de imágenes estará en: backend/imagenes_cotizaciones/
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
