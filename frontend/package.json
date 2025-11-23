@@ -8,9 +8,9 @@
   "build": "vite build",
   "lint": "eslint .",
   "preview": "vite preview",
-  "start:full": "npm run clean-ports && sleep 3 && concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000\"",
+  "start:full": "bash -c 'pkill -f \"runserver 0.0.0.0:8000\" || true; pkill -f \"vite\" || true; sleep 2; concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000\"'",
   "backend-only": "cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000",
-  "clean-ports": "sudo pkill -f 'runserver 0.0.0.0:8000' || true && sudo pkill -f 'vite' || true && sudo pkill -f 'node.*5173' || true && sudo fuser -k 5173/tcp 2>/dev/null || true && sudo fuser -k 8000/tcp 2>/dev/null || true"
+  "clean-ports": "pkill -f 'runserver' || true && pkill -f 'vite' || true"
 },
 
   "dependencies": {
