@@ -4,15 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "concurrently -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && python manage.py runserver\"",
-    "start:full": "npm run clean-ports && sleep 2 && concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000\"",
-    "backend-only": "cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000",
-    "clean-ports": "sudo pkill -f 'runserver 0.0.0.0:8000' || true && sudo pkill -f 'vite' || true && sudo pkill -f 'node.*5173' || true && sleep 1"
-  },
+  "dev": "vite --port 5173 --host 0.0.0.0 --strict-port",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "start:full": "npm run clean-ports && sleep 3 && concurrently -k -n \"FRONTEND,BACKEND\" -c \"green,blue\" \"npm run dev\" \"cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000\"",
+  "backend-only": "cd ../backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000",
+  "clean-ports": "sudo pkill -f 'runserver 0.0.0.0:8000' || true && sudo pkill -f 'vite' || true && sudo pkill -f 'node.*5173' || true && sudo fuser -k 5173/tcp 2>/dev/null || true && sudo fuser -k 8000/tcp 2>/dev/null || true"
+},
 
   "dependencies": {
     "axios": "^1.12.2",
