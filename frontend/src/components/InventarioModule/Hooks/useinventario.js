@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-
-const API_URL = 'http://localhost:8000/api';
+import api from '../services/api';
 
 const useInventario = (activeTab) => {
   const [data, setData] = useState([]);
@@ -11,9 +10,9 @@ const useInventario = (activeTab) => {
   const [loading, setLoading] = useState(false);
 
   const endpoints = {
-    joyas: `${API_URL}/joyas/`,
-    materiales: `${API_URL}/materiales/`,
-    insumos: `${API_URL}/insumos/`
+    joyas: '/joyas/',
+    materiales: '/materiales/',
+    insumos: '/insumos/'
   };
 
   const cargarDatos = async () => {
@@ -22,25 +21,14 @@ const useInventario = (activeTab) => {
     setLoading(true);
     try {
       const [dataRes, alertasRes, proveedoresRes] = await Promise.all([
-        fetch(endpoints[activeTab]),
-        fetch(`${API_URL}/inventario/alertas/`),
-        fetch(`${API_URL}/proveedores/`)
+        api.get(endpoints[activeTab]),
+        api.get('/inventario/alertas/'),
+        api.get('/proveedores/')
       ]);
 
-      // Verificar si las respuestas son OK
-      if (!dataRes.ok || !alertasRes.ok || !proveedoresRes.ok) {
-        throw new Error('Error en la respuesta del servidor');
-      }
-
-      const [dataJson, alertasJson, proveedoresJson] = await Promise.all([
-        dataRes.json(),
-        alertasRes.json(),
-        proveedoresRes.json()
-      ]);
-
-      setData(dataJson);
-      setAlertas(alertasJson);
-      setProveedores(proveedoresJson);
+      setData(dataRes.data);
+      setAlertas(alertasRes.data);
+      setProveedores(proveedoresRes.data);
     } catch (error) {
       console.error('Error cargando datos:', error);
       // Inicializar estados vacíos en caso de error
@@ -71,7 +59,7 @@ const useInventario = (activeTab) => {
     if (!window.confirm('¿Está seguro de eliminar este elemento?')) return;
     
     try {
-      await fetch(`${endpoints[activeTab]}${id}/`, { method: 'DELETE' });
+      await api.delete(`${endpoints[activeTab]}${id}/`);
       cargarDatos();
     } catch (error) {
       console.error('Error eliminando:', error);
@@ -80,19 +68,16 @@ const useInventario = (activeTab) => {
 
   const handleFormSubmit = async (formData, mode, selectedItem) => {
     try {
-      const url = mode === 'create' 
-        ? endpoints[activeTab] 
-        : `${endpoints[activeTab]}${selectedItem[`codigo_${activeTab.slice(0, -1)}`]}/`;
-
-      await fetch(url, {
-        method: mode === 'create' ? 'POST' : 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      if (mode === 'create') {
+        await api.post(endpoints[activeTab], formData);
+      } else {
+        await api.put(`${endpoints[activeTab]}${selectedItem[`codigo_${activeTab.slice(0, -1)}`]}/`, formData);
+      }
 
       cargarDatos();
     } catch (error) {
       console.error('Error guardando:', error);
+      throw error; // Propagar el error para manejarlo en el componente
     }
   };
 

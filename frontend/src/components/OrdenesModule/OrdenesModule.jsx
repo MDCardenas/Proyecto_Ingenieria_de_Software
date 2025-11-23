@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import axios from "axios";
 import { FaPlus, FaSearch, FaTimes, FaCalendarAlt, FaArrowLeft, FaSave } from "react-icons/fa";
 import "../../styles/scss/main.scss";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import api from "../../services/api";
 
 // Constantes
 const ESTADOS = ["Pendiente", "En Proceso", "Completada"];
@@ -116,8 +114,8 @@ function CrearOrdenForm({ onCancel, onCreated }) {
       try {
         setLoadingLookups(true);
         const [empRes, facRes] = await Promise.allSettled([
-          axios.get(`${API}/api/empleados/`),
-          axios.get(`${API}/api/facturas/`),
+          api.get("/empleados/"),
+          api.get("/facturas/"),
         ]);
         if (!cancel) {
           setEmpleados(empRes.status === "fulfilled" ? empRes.value.data || [] : []);
@@ -179,10 +177,10 @@ function CrearOrdenForm({ onCancel, onCreated }) {
     try {
       setSaveLoading(true);
       const payload = { ...form, costo_mano_obra: Number(form.costo_mano_obra) || 0 };
-      await axios.post(`${API}/api/ordenes-trabajo/`, payload);
+      await api.post("/ordenes-trabajo/", payload);
       onCreated();
     } catch (err) {
-      setError("Error al crear la orden.");
+      setError(err.response?.data?.error || err.message || "Error al crear la orden.");
     } finally {
       setSaveLoading(false);
     }
@@ -445,7 +443,7 @@ export default function OrdenesModule() {
   const fetchOrdenes = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${API}/api/ordenes-trabajo/`);
+      const { data } = await api.get("/ordenes-trabajo/");
       setOrdenes(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       setError("No se pudieron cargar las órdenes.");
@@ -463,7 +461,7 @@ export default function OrdenesModule() {
 
   const actualizarEstado = async (id_orden, nuevoEstado) => {
     try {
-      await axios.post(`${API}/api/ordenes-trabajo/${id_orden}/actualizar-estado/`, { estado: nuevoEstado });
+      await api.post(`/ordenes-trabajo/${id_orden}/actualizar-estado/`, { estado: nuevoEstado });
       fetchOrdenes();
     } catch (err) {
       alert("Error al actualizar estado");

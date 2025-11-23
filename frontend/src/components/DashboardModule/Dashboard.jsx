@@ -7,7 +7,7 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import api from "../../services/api";
 
 // Paleta (coincide con tus variables de CSS)
 const COLORS = {
@@ -57,15 +57,14 @@ export default function Dashboard({ setActiveButton }) {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [r1, r2, r3] = await Promise.all([
-          fetch(`${API}/api/dashboard/kpis/`),
-          fetch(`${API}/api/dashboard/ventas-mensuales/`),
-          fetch(`${API}/api/dashboard/ordenes-estado/`),
+        const [k, vm, oe] = await Promise.all([
+          api.get("/dashboard/kpis/"),
+          api.get("/dashboard/ventas-mensuales/"),
+          api.get("/dashboard/ordenes-estado/"),
         ]);
-        const [k, vm, oe] = await Promise.all([r1.json(), r2.json(), r3.json()]);
-        setKpis(k);
-        setVentas(vm?.ventas_mensuales || []);
-        setEstados(oe?.ordenes_por_estado || {});
+        setKpis(k.data);
+        setVentas(vm.data?.ventas_mensuales || []);
+        setEstados(oe.data?.ordenes_por_estado || {});
       } catch (e) {
         console.error("Error cargando dashboard:", e);
       } finally {

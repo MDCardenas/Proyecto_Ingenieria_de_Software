@@ -47,6 +47,7 @@ const FormularioEditarEmpleado = () => {
         });
       } catch (err) {
         setError('Error al cargar los datos del empleado');
+        console.error('Error cargando datos:', err);
       } finally {
         setCargando(false);
       }
@@ -66,19 +67,84 @@ const FormularioEditarEmpleado = () => {
     setError('');
 
     try {
+      // Preparar los datos para enviar al backend
       const empleadoData = {
-        ...formData,
-        salario: parseFloat(formData.salario) || 0,
+        nombre: formData.nombre.trim(),
+        apellido: formData.apellido.trim(),
+        usuario: formData.usuario.trim(),
+        telefono: formData.telefono.trim() || null,
+        correo: formData.correo.trim(),
+        salario: formData.salario ? parseFloat(formData.salario) : 0,
         codigo_perfil: parseInt(formData.codigo_perfil)
       };
 
-      await api.put(`/empleados/${id}/actualizar/`, empleadoData);
+      console.log('Enviando datos:', empleadoData); // Para debug
+
+      const response = await api.put(`/empleados/${id}/actualizar/`, empleadoData);
+      
+      console.log('Respuesta del servidor:', response.data); // Para debug
+      
       navigate('/usuarios');
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error al actualizar empleado');
+      console.error('Error completo:', err);
+      
+      // Mejor manejo de errores
+      if (err.response?.data) {
+        // Mostrar errores específicos del backend
+        const errorData = err.response.data;
+        
+        if (typeof errorData === 'object') {
+          // Si el error es un objeto con campos específicos
+          const errorMessages = Object.values(errorData).flat().join(', ');
+          setError(`Errores: ${errorMessages}`);
+        } else if (typeof errorData === 'string') {
+          // Si el error es un string
+          setError(errorData);
+        } else if (errorData.error) {
+          // Si el error tiene propiedad 'error'
+          setError(errorData.error);
+        } else {
+          setError('Error al actualizar empleado');
+        }
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Error al actualizar empleado');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  // Validar formulario antes de enviar
+  const validarFormulario = () => {
+    const errores = [];
+    
+    if (!formData.nombre.trim()) errores.push('El nombre es requerido');
+    if (!formData.apellido.trim()) errores.push('El apellido es requerido');
+    if (!formData.usuario.trim()) errores.push('El usuario es requerido');
+    if (!formData.correo.trim()) errores.push('El correo es requerido');
+    if (!formData.codigo_perfil) errores.push('El perfil es requerido');
+    
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.correo && !emailRegex.test(formData.correo)) {
+      errores.push('El formato del correo electrónico no es válido');
+    }
+    
+    return errores;
+  };
+
+  const onSubmitValidado = async (e) => {
+    e.preventDefault();
+    
+    const errores = validarFormulario();
+    if (errores.length > 0) {
+      setError(errores.join(', '));
+      return;
+    }
+    
+    await handleSubmit(e);
   };
 
   if (cargando) {
@@ -110,11 +176,18 @@ const FormularioEditarEmpleado = () => {
         </div>
 
         {/* Formulario */}
-        <form className="formulario-content" onSubmit={handleSubmit}>
+        <form className="formulario-content" onSubmit={onSubmitValidado}>
           {error && (
             <div className="alert-error">
               <span className="alert-icon">⚠️</span>
               <span>{error}</span>
+              <button 
+                onClick={() => setError('')} 
+                className="error-close"
+                style={{ marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                ×
+              </button>
             </div>
           )}
 
@@ -132,6 +205,7 @@ const FormularioEditarEmpleado = () => {
                     value={formData.nombre}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                   />
                 </div>
 
@@ -143,6 +217,7 @@ const FormularioEditarEmpleado = () => {
                     value={formData.apellido}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -155,6 +230,7 @@ const FormularioEditarEmpleado = () => {
                     name="telefono"
                     value={formData.telefono}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
 
@@ -166,6 +242,7 @@ const FormularioEditarEmpleado = () => {
                     value={formData.correo}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -184,6 +261,7 @@ const FormularioEditarEmpleado = () => {
                     value={formData.usuario}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                   />
                 </div>
 
@@ -194,6 +272,7 @@ const FormularioEditarEmpleado = () => {
                     value={formData.codigo_perfil}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                   >
                     <option value="">Seleccione un perfil</option>
                     {perfiles.map((perfil) => (
@@ -214,6 +293,8 @@ const FormularioEditarEmpleado = () => {
                     value={formData.salario}
                     onChange={handleChange}
                     step="0.01"
+                    min="0"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -226,6 +307,7 @@ const FormularioEditarEmpleado = () => {
               type="button"
               className="btn-pill btn-pill-secondary"
               onClick={() => navigate('/usuarios')}
+              disabled={loading}
             >
               <FaTimes /> Cancelar
             </button>
