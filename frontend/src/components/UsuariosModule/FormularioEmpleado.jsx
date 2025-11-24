@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
   const [formData, setFormData] = useState({
@@ -9,11 +9,40 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
     telefono: '',
     correo: '',
     salario: '',
-    codigo_perfil: '1',
+    codigo_perfil: ''
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [perfiles, setPerfiles] = useState([]);
+  const [cargandoPerfiles, setCargandoPerfiles] = useState(true);
+
+  // Cargar perfiles disponibles
+  useEffect(() => {
+    const cargarPerfiles = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/perfiles/');
+        if (response.ok) {
+          const data = await response.json();
+          setPerfiles(data);
+          // Establecer el primer perfil como valor por defecto
+          if (data.length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              codigo_perfil: data[0].codigo_perfil.toString()
+            }));
+          }
+        }
+      } catch (err) {
+        console.error('Error cargando perfiles:', err);
+        setError('Error al cargar los perfiles disponibles');
+      } finally {
+        setCargandoPerfiles(false);
+      }
+    };
+
+    cargarPerfiles();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,30 +54,46 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
     setLoading(true);
     setError('');
 
+    // Validaciones básicas
+    if (!formData.nombre || !formData.apellido || !formData.usuario || !formData.contrasena || !formData.correo) {
+      setError('Todos los campos marcados con * son obligatorios');
+      setLoading(false);
+      return;
+    }
+
     try {
       const empleadoData = {
         ...formData,
-        salario: parseFloat(formData.salario) || 0,
+        salario: formData.salario ? parseFloat(formData.salario) : 0,
         codigo_perfil: parseInt(formData.codigo_perfil),
+        telefono: formData.telefono || null
       };
 
       console.log('🚀 Enviando empleado:', empleadoData);
 
       const response = await fetch('http://127.0.0.1:8000/api/empleados/nuevo/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(empleadoData),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
+        throw new Error(result.error || result.details || `Error ${response.status}`);
       }
 
-      const result = await response.json();
       console.log('✅ Empleado guardado:', result);
-      onEmpleadoAgregado();
-      onClose();
+      
+      if (result.success) {
+        onEmpleadoAgregado();
+        onClose();
+      } else {
+        setError(result.error || 'Error desconocido al crear empleado');
+      }
     } catch (err) {
       console.error('❌ Error al crear empleado:', err);
       setError(err.message);
@@ -90,6 +135,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.nombre}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -101,6 +147,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.apellido}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -113,6 +160,8 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   name="telefono"
                   value={formData.telefono}
                   onChange={handleChange}
+                  disabled={loading}
+                  placeholder="Opcional"
                 />
               </div>
 
@@ -124,6 +173,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.correo}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -141,6 +191,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.usuario}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -152,6 +203,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.contrasena}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -165,6 +217,9 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.salario}
                   onChange={handleChange}
                   placeholder="0.00"
+                  disabled={loading}
+                  step="0.01"
+                  min="0"
                 />
               </div>
 
@@ -174,23 +229,36 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   name="codigo_perfil"
                   value={formData.codigo_perfil}
                   onChange={handleChange}
+                  required
+                  disabled={loading || cargandoPerfiles}
                 >
-                  <option value="1">Administrador</option>
-                  <option value="2">Vendedor</option>
-                  <option value="3">Gerente</option>
-                  <option value="4">Cajero</option>
-                  <option value="5">Contador</option>
+                  <option value="">Seleccione un perfil</option>
+                  {perfiles.map((perfil) => (
+                    <option key={perfil.codigo_perfil} value={perfil.codigo_perfil}>
+                      {perfil.perfil}
+                    </option>
+                  ))}
                 </select>
+                {cargandoPerfiles && <small>Cargando perfiles...</small>}
               </div>
             </div>
           </div>
         </div>
 
         <div className="formulario-acciones">
-          <button type="button" className="btn-pill secondary" onClick={onClose}>
+          <button 
+            type="button" 
+            className="btn-pill secondary" 
+            onClick={onClose}
+            disabled={loading}
+          >
             Cancelar
           </button>
-          <button type="submit" className="btn-pill primary" disabled={loading}>
+          <button 
+            type="submit" 
+            className="btn-pill primary" 
+            disabled={loading || cargandoPerfiles}
+          >
             {loading ? 'Guardando...' : 'Guardar Empleado'}
           </button>
         </div>

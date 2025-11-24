@@ -1307,48 +1307,41 @@ def empleado_detalle(request, pk):
 @api_view(['POST'])
 def crear_empleado(request):
     try:
-        data = request.data
-        print(">>> Recibido en backend:", data)
+        print(">>> Recibido en backend:", request.data)
 
-        # Validar campos
-        required = ['nombre', 'apellido', 'usuario', 'contrasena', 'correo']
-        for f in required:
-            if f not in data or not data[f]:
-                return Response({'error': f'Campo {f} es obligatorio'}, status=400)
-
-        # Buscar perfil (CORREGIDO)
-        perfil_id = data.get('codigo_perfil')
-        try:
-            perfil = PerfilesEmpleados.objects.get(codigo_perfil=perfil_id)
-        except PerfilesEmpleados.DoesNotExist:
-            return Response({'error': f'Perfil con código {perfil_id} no existe'}, status=400)
-
-        # Crear empleado
-        empleado = TblEmpleados.objects.create(
-            codigo_perfil=perfil,
-            nombre=data['nombre'],
-            apellido=data['apellido'],
-            usuario=data['usuario'],
-            contrasena=data['contrasena'],
-            telefono=data.get('telefono', ''),
-            correo=data['correo'],
-            salario=data.get('salario', 0)
-        )
-
-        return Response({
-            'message': 'Empleado creado exitosamente',
-            'empleado': {
-                'id_empleado': empleado.id_empleado,
-                'nombre': empleado.nombre,
-                'apellido': empleado.apellido,
-                'correo': empleado.correo
-            }
-        }, status=status.HTTP_201_CREATED)
+        # Usar el serializer para validar y crear
+        serializer = EmpleadoSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            empleado = serializer.save()
+            
+            return Response({
+                'success': True,
+                'message': 'Empleado creado exitosamente',
+                'empleado': {
+                    'id_empleado': empleado.id_empleado,
+                    'nombre': empleado.nombre,
+                    'apellido': empleado.apellido,
+                    'correo': empleado.correo,
+                    'usuario': empleado.usuario
+                }
+            }, status=status.HTTP_201_CREATED)
+        else:
+            print(">>> Errores de validación:", serializer.errors)
+            return Response({
+                'success': False,
+                'error': 'Datos inválidos',
+                'details': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
-        print(">>> Error:", str(e))
-        return Response({'error': str(e)}, status=500)
-
+        print(">>> Error en crear_empleado:", str(e))
+        return Response({
+            'success': False,
+            'error': f'Error del servidor: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
 
 @api_view(['PUT'])
 def actualizar_empleado(request, pk):

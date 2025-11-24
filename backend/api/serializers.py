@@ -112,7 +112,7 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 class EmpleadoSerializer(serializers.ModelSerializer):
     perfil_nombre = serializers.CharField(source='codigo_perfil.perfil', read_only=True)
-    codigo_perfil = serializers.PrimaryKeyRelatedField(queryset=PerfilesEmpleados.objects.all())  # AGREGAR ESTO
+    codigo_perfil = serializers.PrimaryKeyRelatedField(queryset=PerfilesEmpleados.objects.all())
     
     class Meta:
         model = TblEmpleados
@@ -121,10 +121,11 @@ class EmpleadoSerializer(serializers.ModelSerializer):
             'apellido', 'usuario', 'telefono', 'correo', 'salario', 'contrasena'
         ]
         extra_kwargs = {
-            'contrasena': {'write_only': True}
-        }
-        
-        
+            'contrasena': {'write_only': True},
+            'telefono': {'required': False, 'allow_null': True},
+            'salario': {'required': False, 'allow_null': True}
+        }   
+             
     
 class StockJoyaSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()

@@ -66,7 +66,8 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
       const empleadoData = {
         ...formData,
         salario: parseFloat(formData.salario) || 0,
-        codigo_perfil: parseInt(formData.codigo_perfil)
+        codigo_perfil: parseInt(formData.codigo_perfil),
+        telefono: formData.telefono || null  // Asegurar que teléfono sea null si está vacío
       };
 
       const response = await fetch(`http://127.0.0.1:8000/api/empleados/${empleado.id_empleado}/actualizar/`, {
