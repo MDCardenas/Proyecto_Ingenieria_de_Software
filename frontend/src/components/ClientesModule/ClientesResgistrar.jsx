@@ -19,13 +19,13 @@ const ClientesRegistrar = ({
     
     switch(name) {
       case 'telefono':
-        // Solo números y guiones, máximo 9 caracteres (8 dígitos + guión)
-        newValue = value.replace(/[^\d-]/g, '');
-        // Formato automático xxxx-xxxx
-        if (newValue.length > 4 && !newValue.includes('-')) {
-          newValue = newValue.slice(0, 4) + '-' + newValue.slice(4);
+        // Solo números, máximo 8 dígitos
+        newValue = value.replace(/[^\d]/g, '');
+        // Formato automático xxxx-xxxx después de 4 dígitos
+        if (newValue.length > 4) {
+          newValue = newValue.slice(0, 4) + '-' + newValue.slice(4, 8);
         }
-        // Limitar a 9 caracteres (8 dígitos + guión)
+        // Limitar a 8 dígitos + guión = 9 caracteres
         if (newValue.length > 9) {
           newValue = newValue.slice(0, 9);
         }
@@ -33,18 +33,18 @@ const ClientesRegistrar = ({
         
       case 'nombre':
       case 'apellido':
-        // Solo letras, espacios y caracteres especiales comunes en nombres
-        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        // Permitir letras, espacios, acentos, apostrofes, guiones
+        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]/g, '');
         break;
         
       case 'correo':
-        // Permitir solo caracteres válidos para email
+        // Permitir caracteres válidos para email
         newValue = value.replace(/[^\w@.-]/g, '');
         break;
         
       case 'direccion':
-        // Permitir letras, números, espacios y caracteres comunes en direcciones
-        newValue = value.replace(/[^\wáéíóúÁÉÍÓÚñÑ\s.,#-]/g, '');
+        // Permitir caracteres más comunes en direcciones
+        newValue = value.replace(/[^\wáéíóúÁÉÍÓÚñÑ\s.,#\-/]/g, '');
         break;
         
       default:
@@ -81,11 +81,11 @@ const ClientesRegistrar = ({
     }
     
     // Validar nombre y apellido (solo letras y espacios)
-    if (form.nombre && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(form.nombre)) {
+    if (form.nombre && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]+$/.test(form.nombre)) {
       errors.nombre = "El nombre solo puede contener letras y espacios";
     }
     
-    if (form.apellido && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(form.apellido)) {
+    if (form.apellido && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]+$/.test(form.apellido)) {
       errors.apellido = "El apellido solo puede contener letras y espacios";
     }
     
