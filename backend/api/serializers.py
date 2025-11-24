@@ -529,6 +529,15 @@ class OrdenTrabajoSerializer(serializers.ModelSerializer):
     cliente_nombre = serializers.SerializerMethodField()
     tipo_orden_display = serializers.CharField(source='get_tipo_orden_display', read_only=True)
     estado_display = serializers.CharField(source='get_estado_display', read_only=True)
+    estado = EstadoOrdenChoiceField(
+        choices=[
+            ('PENDIENTE', 'Pendiente'),
+            ('EN_PROCESO', 'En Proceso'),
+            ('COMPLETADA', 'Completada'),
+            ('CANCELADA', 'Cancelada'),
+        ],
+        required=False
+    )
 
     class Meta:
         model = TblOrdenesTrabajo
@@ -539,6 +548,10 @@ class OrdenTrabajoSerializer(serializers.ModelSerializer):
             'fecha_inicio', 'fecha_estimada',
             'estado', 'estado_display', 'costo_mano_obra'
         ]
+        extra_kwargs = {
+            'fecha_inicio': {'read_only': True},  # auto_now_add handles this
+            'estado': {'required': False, 'default': 'PENDIENTE'}
+        }
 
     def get_empleado_nombre(self, obj):
         try:
@@ -561,6 +574,17 @@ class OrdenTrabajoSerializer(serializers.ModelSerializer):
         apellido = cliente.apellido or ""
         return (nombre + " " + apellido).strip()
 
+    def create(self, validated_data):
+        """Crear orden de trabajo sin pasar fecha_inicio (auto_now_add)"""
+        # Remover fecha_inicio si viene en los datos (el campo es auto_now_add)
+        validated_data.pop('fecha_inicio', None)
+
+        # Establecer estado por defecto si no viene o está vacío
+        if not validated_data.get('estado'):
+            validated_data['estado'] = 'PENDIENTE'
+
+        return super().create(validated_data)
+
 class StockInsumoSerializer(serializers.ModelSerializer):
     provedor_nombre = serializers.CharField(source='codigo_provedor.nombre', read_only=True)
 
@@ -572,6 +596,30 @@ class StockInsumoSerializer(serializers.ModelSerializer):
             'descripcion', 'costo', 'fecha_vencimiento', 'requiere_control_vencimiento'
         ]
 
+    def validate_codigo_provedor(self, value):
+        """Validar que se haya seleccionado un proveedor"""
+        if not value:
+            raise serializers.ValidationError("Debe seleccionar un proveedor")
+        return value
+
+    def validate(self, data):
+        """Validaciones adicionales"""
+        # Validar que cantidad sea positiva
+        cantidad = data.get('cantidad_existencia')
+        if cantidad is not None and cantidad < 0:
+            raise serializers.ValidationError({
+                'cantidad_existencia': 'La cantidad no puede ser negativa'
+            })
+
+        # Validar que el costo sea positivo
+        costo = data.get('costo')
+        if costo is not None and costo < 0:
+            raise serializers.ValidationError({
+                'costo': 'El costo no puede ser negativo'
+            })
+
+        return data
+
 class StockMaterialSerializer(serializers.ModelSerializer):
     provedor_nombre = serializers.CharField(source='codigo_provedor.nombre', read_only=True)
 
@@ -582,6 +630,30 @@ class StockMaterialSerializer(serializers.ModelSerializer):
             'tipo_material', 'peso', 'quilates', 'pureza', 'tipo_piedra',
             'color', 'dimensiones', 'cantidad_existencia', 'descripcion', 'costo'
         ]
+
+    def validate_codigo_provedor(self, value):
+        """Validar que se haya seleccionado un proveedor"""
+        if not value:
+            raise serializers.ValidationError("Debe seleccionar un proveedor")
+        return value
+
+    def validate(self, data):
+        """Validaciones adicionales"""
+        # Validar que cantidad sea positiva
+        cantidad = data.get('cantidad_existencia')
+        if cantidad is not None and cantidad < 0:
+            raise serializers.ValidationError({
+                'cantidad_existencia': 'La cantidad no puede ser negativa'
+            })
+
+        # Validar que el costo sea positivo
+        costo = data.get('costo')
+        if costo is not None and costo < 0:
+            raise serializers.ValidationError({
+                'costo': 'El costo no puede ser negativo'
+            })
+
+        return data
 
 class ProvedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -937,32 +1009,44 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
     def create(self, validated_data):
         try:
             print("Creando factura simple...")
-            
+
             # Extraer datos
             productos_data = validated_data.pop('productos', [])
             materiales_data = validated_data.pop('materiales', [])
-            
+            fecha_factura = validated_data.pop('fecha', None)
+
             print("Datos validados:", validated_data)
             print("Productos:", len(productos_data))
             print("Materiales:", len(materiales_data))
-            
+
+            # Preparar datos para crear factura
+            factura_data = {
+                'id_cliente_id': validated_data['id_cliente'],
+                'id_empleado_id': validated_data['id_empleado'],
+                'direccion': validated_data.get('direccion', 'No especificada'),
+                'telefono': validated_data.get('telefono', 'No especificado'),
+                'rtn': validated_data.get('rtn', ''),
+                'subtotal': validated_data.get('subtotal', 0),
+                'descuento': validated_data.get('descuento', 0),
+                'isv': validated_data.get('isv', 0),
+                'total': validated_data.get('total', 0),
+                'tipo_venta': validated_data.get('tipo_venta', 'VENTA'),
+                'observaciones': validated_data.get('observaciones', ''),
+                'estado_pago': 'PENDIENTE'
+            }
+
+            # Solo agregar fecha si se proporciona (sino auto_now_add se encarga)
+            if fecha_factura:
+                from django.utils import timezone
+                # Convertir fecha a datetime con timezone
+                import datetime
+                if isinstance(fecha_factura, datetime.date) and not isinstance(fecha_factura, datetime.datetime):
+                    fecha_factura = timezone.make_aware(datetime.datetime.combine(fecha_factura, datetime.time()))
+                factura_data['fecha'] = fecha_factura
+
             # Crear factura principal
-            factura = TblFacturas.objects.create(
-                id_cliente_id=validated_data['id_cliente'],
-                id_empleado_id=validated_data['id_empleado'],
-                fecha=validated_data.get('fecha'),
-                direccion=validated_data.get('direccion', 'No especificada'),
-                telefono=validated_data.get('telefono', 'No especificado'),
-                rtn=validated_data.get('rtn', ''),
-                subtotal=validated_data.get('subtotal', 0),
-                descuento=validated_data.get('descuento', 0),
-                isv=validated_data.get('isv', 0),
-                total=validated_data.get('total', 0),
-                tipo_venta=validated_data.get('tipo_venta', 'VENTA'),
-                observaciones=validated_data.get('observaciones', ''),
-                estado_pago='PENDIENTE'
-            )
-            
+            factura = TblFacturas.objects.create(**factura_data)
+
             print("Factura #{} creada".format(factura.numero_factura))
             
             # Crear detalles de productos - USAR 'JOYA' EN LUGAR DE 'PRODUCTO'

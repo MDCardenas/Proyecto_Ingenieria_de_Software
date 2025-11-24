@@ -9,7 +9,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from django.db.models import Sum, Count, Q, F, Avg
-from datetime import date,datetime, timedelta
+from datetime import date, timedelta
+from django.utils import timezone
 from decimal import Decimal
 from django.db.models import Value, CharField, DecimalField,F, ExpressionWrapper
 from django.db.models.functions import Coalesce
@@ -136,24 +137,24 @@ class CotizacionViewSet(viewsets.ModelViewSet):
             # Procesar imagen si viene en la request
             imagen_file = request.FILES.get('imagen_referencia')
             imagen_path = None
-            
+
             if imagen_file:
                 # Guardar la imagen en la carpeta que creaste
-                filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+                filename = f"cotizacion_{timezone.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
                 filepath = os.path.join('imagenes_cotizaciones', filename)
-                
+
                 # Guardar el archivo
                 saved_path = default_storage.save(filepath, imagen_file)
                 imagen_path = saved_path  # Esta es la ruta que guardaremos en la BD
-                
+
                 # Reemplazar el archivo por la ruta en los datos
                 request.data._mutable = True
                 request.data['imagen_referencia'] = imagen_path
                 request.data._mutable = False
-            
+
             # Continuar con la creación normal
             return super().create(request, *args, **kwargs)
-            
+
         except Exception as e:
             return Response({
                 'success': False,
@@ -166,24 +167,24 @@ class CotizacionViewSet(viewsets.ModelViewSet):
             # Procesar imagen si viene en la request
             imagen_file = request.FILES.get('imagen_referencia')
             imagen_path = None
-            
+
             if imagen_file:
                 # Guardar la imagen en la carpeta que creaste
-                filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+                filename = f"cotizacion_{timezone.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
                 filepath = os.path.join('imagenes_cotizaciones', filename)
-                
+
                 # Guardar el archivo
                 saved_path = default_storage.save(filepath, imagen_file)
                 imagen_path = saved_path
-                
+
                 # Reemplazar el archivo por la ruta en los datos
                 request.data._mutable = True
                 request.data['imagen_referencia'] = imagen_path
                 request.data._mutable = False
-            
+
             # Continuar con la actualización normal
             return super().update(request, *args, **kwargs)
-            
+
         except Exception as e:
             return Response({
                 'success': False,
@@ -204,13 +205,12 @@ class CotizacionViewSet(viewsets.ModelViewSet):
     def convertir_a_factura(self, request, pk=None):
         """Convertir cotización a factura - acción personalizada"""
         cotizacion = self.get_object()
-        
+
         try:
             # Crear factura a partir de la cotización
             factura = TblFacturas.objects.create(
                 id_cliente=cotizacion.id_cliente,
                 id_empleado=cotizacion.id_empleado,
-                fecha=datetime.now(),
                 direccion=cotizacion.direccion,
                 telefono=cotizacion.telefono,
                 rtn=cotizacion.rtn,
@@ -222,20 +222,20 @@ class CotizacionViewSet(viewsets.ModelViewSet):
                 observaciones=cotizacion.observaciones,
                 estado_pago='PENDIENTE'
             )
-            
+
             # Actualizar cotización
             cotizacion.numero_factura_conversion = factura
-            cotizacion.fecha_conversion = datetime.now()
+            cotizacion.fecha_conversion = timezone.now()
             cotizacion.estado = 'CONVERTIDA'
             cotizacion.save()
-            
+
             return Response({
                 'success': True,
                 'message': 'Cotización convertida a factura exitosamente',
                 'factura': FacturaSerializer(factura).data,
                 'numero_factura': factura.numero_factura
             })
-            
+
         except Exception as e:
             return Response({
                 'success': False,
@@ -252,7 +252,7 @@ class CotizacionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def vencidas(self, request):
         """Obtener cotizaciones vencidas"""
-        hoy = datetime.now().date()
+        hoy = timezone.now().date()
         cotizaciones = TblCotizaciones.objects.filter(
             fecha_vencimiento__lt=hoy,
             estado='ACTIVA'
@@ -393,9 +393,9 @@ def dashboard_general(request):
         total_clientes = TblClientes.objects.count()
         total_empleados = TblEmpleados.objects.count()
         total_facturas = TblFacturas.objects.count()
-        
+
         # Ventas del mes actual
-        hoy = datetime.now()
+        hoy = timezone.now()
         primer_dia_mes = hoy.replace(day=1)
         ventas_mes = TblFacturas.objects.filter(
             fecha__gte=primer_dia_mes
@@ -403,17 +403,17 @@ def dashboard_general(request):
             total_ventas=Sum('total'),
             cantidad_ventas=Count('numero_factura')
         )
-        
+
         # Facturas pendientes de pago
         facturas_pendientes = TblFacturas.objects.filter(
             estado_pago='PENDIENTE'
         ).count()
-        
+
         # Órdenes de trabajo pendientes
         ordenes_pendientes = TblOrdenesTrabajo.objects.filter(
             estado='PENDIENTE'
         ).count()
-        
+
         return Response({
             'estadisticas': {
                 'total_clientes': total_clientes,
@@ -425,7 +425,7 @@ def dashboard_general(request):
                 'ordenes_trabajo_pendientes': ordenes_pendientes
             }
         })
-        
+
     except Exception as e:
         return Response({
             'error': f'Error al generar dashboard: {str(e)}'
@@ -440,9 +440,9 @@ def ventas_dashboard(request):
             total=Sum('total'),
             cantidad=Count('numero_factura')
         )
-        
+
         # Ventas últimos 7 días
-        fecha_inicio = datetime.now() - timedelta(days=7)
+        fecha_inicio = timezone.now() - timedelta(days=7)
         ventas_ultima_semana = TblFacturas.objects.filter(
             fecha__gte=fecha_inicio
         ).values('fecha__date').annotate(
@@ -542,14 +542,14 @@ def inventario_alertas(request):
         materiales_stock_bajo = TblStockMateriales.objects.filter(
             cantidad_existencia__lt=10
         ).values('codigo_material', 'nombre', 'cantidad_existencia')
-        
+
         # Insumos con stock bajo (menos de 5 unidades)
         insumos_stock_bajo = TblStockInsumos.objects.filter(
             cantidad_existencia__lt=5
         ).values('codigo_insumo', 'nombre', 'cantidad_existencia')
-        
+
         # Insumos próximos a vencer (en los próximos 30 días)
-        hoy = datetime.now().date()
+        hoy = timezone.now().date()
         fecha_limite = hoy + timedelta(days=30)
         insumos_proximos_vencer = TblStockInsumos.objects.filter(
             fecha_vencimiento__gte=hoy,
@@ -699,12 +699,11 @@ def convertir_cotizacion_a_factura(request, numero_cotizacion):
     """Convertir cotización a factura"""
     try:
         cotizacion = TblCotizaciones.objects.get(numero_cotizacion=numero_cotizacion)
-        
+
         # Crear factura a partir de la cotización
         factura = TblFacturas.objects.create(
             id_cliente=cotizacion.id_cliente,
             id_empleado=cotizacion.id_empleado,
-            fecha=datetime.now(),
             direccion=cotizacion.direccion,
             telefono=cotizacion.telefono,
             rtn=cotizacion.rtn,
@@ -716,19 +715,19 @@ def convertir_cotizacion_a_factura(request, numero_cotizacion):
             observaciones=cotizacion.observaciones,
             estado_pago='PENDIENTE'
         )
-        
+
         # Actualizar cotización
         cotizacion.numero_factura_conversion = factura
-        cotizacion.fecha_conversion = datetime.now()
+        cotizacion.fecha_conversion = timezone.now()
         cotizacion.estado = 'CONVERTIDA'
         cotizacion.save()
-        
+
         return Response({
             'success': True,
             'message': 'Cotización convertida a factura exitosamente',
             'factura': FacturaSerializer(factura).data
         })
-        
+
     except TblCotizaciones.DoesNotExist:
         return Response({
             'error': 'Cotización no encontrada'
@@ -737,7 +736,7 @@ def convertir_cotizacion_a_factura(request, numero_cotizacion):
 @api_view(['GET'])
 def cotizaciones_vencidas(request):
     """Obtener cotizaciones vencidas"""
-    hoy = datetime.now().date()
+    hoy = timezone.now().date()
     cotizaciones = TblCotizaciones.objects.filter(
         fecha_vencimiento__lt=hoy,
         estado='ACTIVA'
@@ -752,12 +751,12 @@ def crear_cotizacion_completa(request):
         # Procesar imagen si viene en la request
         imagen_file = request.FILES.get('imagen_referencia')
         imagen_path = None
-        
+
         if imagen_file:
             # Guardar la imagen en la carpeta que creaste
-            filename = f"cotizacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
+            filename = f"cotizacion_{timezone.now().strftime('%Y%m%d_%H%M%S')}_{imagen_file.name}"
             filepath = os.path.join('imagenes_cotizaciones', filename)
-            
+
             # Guardar el archivo
             saved_path = default_storage.save(filepath, imagen_file)
             imagen_path = saved_path
@@ -898,9 +897,9 @@ def dashboard_cotizaciones(request):
         total_cotizaciones = TblCotizaciones.objects.count()
         cotizaciones_activas = TblCotizaciones.objects.filter(estado='ACTIVA').count()
         cotizaciones_convertidas = TblCotizaciones.objects.filter(estado='CONVERTIDA').count()
-        
+
         # Cotizaciones del mes actual
-        hoy = datetime.now()
+        hoy = timezone.now()
         primer_dia_mes = hoy.replace(day=1)
         cotizaciones_mes = TblCotizaciones.objects.filter(
             fecha_creacion__gte=primer_dia_mes
@@ -908,7 +907,7 @@ def dashboard_cotizaciones(request):
             total=Count('numero_cotizacion'),
             valor_total=Sum('total')
         )
-        
+
         # Cotizaciones próximas a vencer (próximos 7 días)
         fecha_limite = hoy.date() + timedelta(days=7)
         cotizaciones_proximas_vencer = TblCotizaciones.objects.filter(
@@ -1313,14 +1312,20 @@ def crear_empleado(request):
         required = ['nombre', 'apellido', 'usuario', 'contrasena', 'correo']
         for f in required:
             if f not in data or not data[f]:
-                return Response({'error': f'Campo {f} es obligatorio'}, status=400)
+                return Response({
+                    'success': False,
+                    'error': f'Campo {f} es obligatorio'
+                }, status=400)
 
         # Buscar perfil (CORREGIDO)
         perfil_id = data.get('codigo_perfil')
         try:
             perfil = PerfilesEmpleados.objects.get(codigo_perfil=perfil_id)
         except PerfilesEmpleados.DoesNotExist:
-            return Response({'error': f'Perfil con código {perfil_id} no existe'}, status=400)
+            return Response({
+                'success': False,
+                'error': f'Perfil con código {perfil_id} no existe'
+            }, status=400)
 
         # Crear empleado
         empleado = TblEmpleados.objects.create(
@@ -1335,6 +1340,7 @@ def crear_empleado(request):
         )
 
         return Response({
+            'success': True,
             'message': 'Empleado creado exitosamente',
             'empleado': {
                 'id_empleado': empleado.id_empleado,
@@ -1346,7 +1352,12 @@ def crear_empleado(request):
 
     except Exception as e:
         print(">>> Error:", str(e))
-        return Response({'error': str(e)}, status=500)
+        import traceback
+        print(traceback.format_exc())
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 
 @api_view(['PUT'])
@@ -1387,7 +1398,7 @@ def eliminar_empleado(request, pk):
 @api_view(['GET'])
 def gastos_mes(request):
     try:
-        hoy = datetime.now()
+        hoy = timezone.now()
         inicio_mes = hoy.replace(day=1)
 
         gastos = TblGastos.objects.filter(
@@ -1525,7 +1536,7 @@ def proveedores_buscar(request):
 def contabilidad_resumen(request):
     """Resumen contable: ingresos, gastos y movimientos recientes."""
 
-    hoy = datetime.now().date()
+    hoy = timezone.now().date()
     inicio_mes = hoy.replace(day=1)
 
     # ========== INGRESOS DEL MES ==========

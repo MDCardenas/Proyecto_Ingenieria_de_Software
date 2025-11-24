@@ -200,10 +200,48 @@ const InventarioForm = ({ mode, type, initialData, onSubmit, onCancel, proveedor
     try {
       // Preparar datos para enviar
       const submitData = { ...formData };
-      
+
+      // Limpiar campos vacíos - solo enviar los que tienen valor
+      Object.keys(submitData).forEach(key => {
+        if (submitData[key] === '' || submitData[key] === null || submitData[key] === undefined) {
+          delete submitData[key];
+        }
+      });
+
+      // Asegurarse de que codigo_provedor sea un número si está presente
+      if (submitData.codigo_provedor) {
+        submitData.codigo_provedor = parseInt(submitData.codigo_provedor);
+      }
+
+      // Convertir valores numéricos apropiadamente
+      if (submitData.cantidad_existencia !== undefined) {
+        submitData.cantidad_existencia = parseInt(submitData.cantidad_existencia) || 0;
+      }
+      if (submitData.costo !== undefined) {
+        submitData.costo = parseFloat(submitData.costo) || 0;
+      }
+      if (submitData.precio_venta !== undefined) {
+        submitData.precio_venta = parseFloat(submitData.precio_venta) || 0;
+      }
+      if (submitData.peso !== undefined && submitData.peso !== '') {
+        submitData.peso = parseFloat(submitData.peso);
+      }
+      if (submitData.quilates !== undefined && submitData.quilates !== '') {
+        submitData.quilates = parseFloat(submitData.quilates);
+      }
+
       await onSubmit(submitData);
     } catch (error) {
       console.error('Error al enviar formulario:', error);
+      // Mostrar el error al usuario
+      if (error.response && error.response.data) {
+        const errorMsg = typeof error.response.data === 'object'
+          ? JSON.stringify(error.response.data, null, 2)
+          : error.response.data;
+        alert('Error al guardar: ' + errorMsg);
+      } else {
+        alert('Error al guardar. Verifique que todos los campos requeridos estén completos.');
+      }
     } finally {
       setLoading(false);
     }
