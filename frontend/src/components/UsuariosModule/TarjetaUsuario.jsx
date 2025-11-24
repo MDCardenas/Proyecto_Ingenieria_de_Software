@@ -7,10 +7,12 @@ import {
   FaTimesCircle, 
   FaTrash,
   FaEdit,
-  FaPhone
+  FaPhone,
+  FaUserCircle,
+  FaEye // <--- Importar icono de ojo
 } from 'react-icons/fa';
 
-const TarjetaUsuario = ({ empleado, onEditar, onEliminado }) => {
+const TarjetaUsuario = ({ empleado, onEditar, onEliminado, onVerDetalles }) => {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [eliminando, setEliminando] = useState(false);
 
@@ -35,73 +37,70 @@ const TarjetaUsuario = ({ empleado, onEditar, onEliminado }) => {
 
   return (
     <>
-      <div className="usuario-card">
-        <div className="usuario-card-header">
-          <div className="usuario-avatar">
-            <FaUser />
+      <div className="usuario-card-compact">
+        {/* Header super compacto */}
+        <div className="usuario-header-super-compact">
+          <div className="avatar-mini">
+            <FaUserCircle />
           </div>
-          <div className="usuario-info-principal">
-            <h3 className="usuario-nombre">{empleado.nombre_completo}</h3>
-            <p className="usuario-email">
-              <FaEnvelope /> {empleado.correo || "Sin correo"}
-            </p>
-          </div>
-        </div>
-
-        <div className="usuario-detalles">
-          <div className="detalle-item">
-            <FaUserTag className="detalle-icon" />
-            <div className="detalle-content">
-              <span className="detalle-label">Perfil</span>
-              <span className="detalle-valor perfil-badge">
-                {empleado.perfil || "Sin perfil"}
+          <div className="usuario-info-super-compact">
+            <h4 className="nombre-super-compact">{empleado.nombre_completo}</h4>
+            <div className="info-lineas">
+              <span className="info-linea">
+                <FaEnvelope /> {empleado.correo || "Sin correo"}
+              </span>
+              <span className="info-linea">
+                <FaUser /> {empleado.usuario || "Sin usuario"}
               </span>
             </div>
           </div>
-
-          <div className="detalle-item">
-            <FaPhone className="detalle-icon" />
-            <div className="detalle-content">
-              <span className="detalle-label">Teléfono</span>
-              <span className="detalle-valor">{empleado.telefono || "—"}</span>
-            </div>
-          </div>
-
-          <div className="detalle-item">
-            <div className="detalle-content estado-content">
-              <span className="detalle-label">Estado</span>
-              <span className={`estado-badge ${empleado.estado?.toLowerCase()}`}>
-                {empleado.estado === "Activo" ? (
-                  <>
-                    <FaCheckCircle /> Activo
-                  </>
-                ) : (
-                  <>
-                    <FaTimesCircle /> Inactivo
-                  </>
-                )}
-              </span>
-            </div>
+          <div className={`estado-mini ${empleado.estado?.toLowerCase() === 'activo' ? 'activo' : 'inactivo'}`}>
+            {empleado.estado?.toLowerCase() === 'activo' ? <FaCheckCircle /> : <FaTimesCircle />}
           </div>
         </div>
 
-        <div className="usuario-acciones">
+        {/* Detalles en línea */}
+        <div className="detalles-linea">
+          <div className="detalle-chip">
+            <FaUserTag className="icono-chip" />
+            <span>{empleado.perfil || "Sin perfil"}</span>
+          </div>
+          <div className="detalle-chip">
+            <FaPhone className="icono-chip" />
+            <span>{empleado.telefono || "Sin teléfono"}</span>
+          </div>
+        </div>
+
+        {/* Botones de acción */}
+        <div className="acciones-compact">
+          {/* Botón VER DETALLES */}
           <button 
-            className="btn-pill btn-pill-info btn-accion"
-            onClick={() => onEditar(empleado)}
+            className="btn-mini btn-ver" 
+            onClick={() => onVerDetalles(empleado)}
+            title="Ver detalles completos"
           >
-            <FaEdit /> Editar
+            <FaEye />
           </button>
+
           <button 
-            className="btn-pill btn-pill-danger btn-accion"
-            onClick={() => setMostrarConfirmacion(true)}
+            className="btn-mini btn-editar-azul" 
+            onClick={() => onEditar(empleado)}
+            title="Editar empleado"
           >
-            <FaTrash /> Eliminar
+            <FaEdit />
+          </button>
+          
+          <button 
+            className="btn-mini btn-eliminar" 
+            onClick={() => setMostrarConfirmacion(true)}
+            title="Eliminar empleado"
+          >
+            <FaTrash />
           </button>
         </div>
       </div>
 
-      {/* Modal de confirmación */}
+      {/* Modal de confirmación de eliminación */}
       {mostrarConfirmacion && (
         <div className="modal-overlay" onClick={() => setMostrarConfirmacion(false)}>
           <div className="modal-confirmacion" onClick={(e) => e.stopPropagation()}>
@@ -114,13 +113,13 @@ const TarjetaUsuario = ({ empleado, onEditar, onEliminado }) => {
             </p>
             <div className="modal-acciones">
               <button
-                className="btn-pill btn-pill-secondary"
+                className="btn-pill secondary"
                 onClick={() => setMostrarConfirmacion(false)}
               >
                 Cancelar
               </button>
               <button
-                className="btn-pill btn-pill-danger"
+                className="btn-pill danger"
                 onClick={handleEliminar}
                 disabled={eliminando}
               >

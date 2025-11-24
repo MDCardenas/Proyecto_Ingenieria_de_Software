@@ -2,390 +2,45 @@
 // ESTILOS PARA FORMÁTO DE FACTURA Y PDF
 // ========================================
 
-// ============ ESTILOS BASE DEL COMPONENTE ============
+@import '../abstracts/_variables';
+@import '../abstracts/_mixins';
+
+// ============ ESTILOS POR DEFECTO (OCULTO EN MÓDULO) ============
 .formato-factura-pdf {
-  width: 100%;
-  background: white;
-  color: #333;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.4;
-  font-size: 12px;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  
-  // Reset para todos los elementos
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: inherit;
-    color: inherit;
-    line-height: inherit;
-  }
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
-// ============ ESTILOS PARA VISUALIZACIÓN NORMAL ============
-.formato-factura-visible {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  left: 0 !important;
-  top: 0 !important;
-  width: 100% !important;
-  background: white !important;
-  color: #333 !important;
-  padding: 15px !important;
-  border: 1px solid #e0e0e0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-  margin: 0 auto !important;
-  transform: scale(0.9) !important;
-  transform-origin: top center !important;
-
-  // Encabezado
-  .encabezado-moderno {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: flex-start !important;
-    margin-bottom: 15px !important;
-    padding-bottom: 10px !important;
-    border-bottom: 2px solid #e0e0e0 !important;
-    width: 100% !important;
-  }
-
-  .membrete-empresa {
-    flex: 1 !important;
-    max-width: 65% !important;
-  }
-
-  .logo-empresa {
-    h1 {
-      font-size: 20px !important;
-      font-weight: 700 !important;
-      color: #2d3748 !important;
-      margin: 0 0 5px 0 !important;
-      letter-spacing: 0.5px !important;
-    }
-  }
-
-  .linea-decorativa {
-    width: 45px !important;
-    height: 2px !important;
-    background: linear-gradient(135deg, #667eea, #764ba2) !important;
-    margin-bottom: 8px !important;
-  }
-
-  .info-empresa {
-    p {
-      margin: 2px 0 !important;
-      font-size: 9px !important;
-      color: #718096 !important;
-      line-height: 1.3 !important;
-    }
-  }
-
-  .encabezado-derecho {
-    text-align: right !important;
-    max-width: 30% !important;
-  }
-
-  .badge-tipo {
-    display: inline-block !important;
-    background: linear-gradient(135deg, #667eea, #764ba2) !important;
-    color: white !important;
-    padding: 4px 12px !important;
-    border-radius: 12px !important;
-    font-size: 9px !important;
-    font-weight: 600 !important;
-    margin-bottom: 8px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-  }
-
-  .info-factura {
-    h2 {
-      font-size: 16px !important;
-      font-weight: 700 !important;
-      color: #2d3748 !important;
-      margin: 0 0 8px 0 !important;
-    }
-  }
-
-  .datos-factura {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 3px !important;
-  }
-
-  .dato-factura {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 10px !important;
-    font-size: 9px !important;
-  }
-
-  .etiqueta {
-    font-weight: 600 !important;
-    color: #718096 !important;
-    white-space: nowrap !important;
-  }
-
-  .valor {
-    color: #2d3748 !important;
-    text-align: right !important;
-  }
-
-  // Secciones
-  .titulo-seccion {
-    background: linear-gradient(135deg, #667eea, #764ba2) !important;
-    color: white !important;
-    padding: 6px 12px !important;
-    margin: 12px 0 8px 0 !important;
-    border-radius: 4px !important;
-    font-weight: 600 !important;
-    font-size: 9px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.3px !important;
-    width: 100% !important;
-  }
-
-  .contenido-seccion {
-    padding: 0 !important;
-    width: 100% !important;
-  }
-
-  // Grid cliente
-  .grid-cliente {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px 12px !important;
-    width: 100% !important;
-  }
-
-  .campo-cliente {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    border-bottom: 1px dashed #e0e0e0 !important;
-    padding: 3px 0 !important;
-    font-size: 9px !important;
-    width: 100% !important;
-  }
-
-  // Tablas
-  .tabla-moderna {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    margin: 8px 0 !important;
-    font-size: 9px !important;
-    table-layout: fixed !important;
-
-    th {
-      background: #f7fafc !important;
-      padding: 6px 8px !important;
-      text-align: left !important;
-      font-weight: 600 !important;
-      color: #2d3748 !important;
-      border-bottom: 2px solid #667eea !important;
-      text-transform: uppercase !important;
-      font-size: 8px !important;
-      letter-spacing: 0.3px !important;
-    }
-
-    td {
-      padding: 6px !important;
-      border-bottom: 1px solid #e0e0e0 !important;
-      font-size: 9px !important;
-      vertical-align: top !important;
-    }
-
-    // Anchos de columna específicos
-    th:nth-child(1),
-    td:nth-child(1) {
-      width: 12% !important;
-    }
-
-    th:nth-child(2),
-    td:nth-child(2) {
-      width: 18% !important;
-    }
-
-    th:nth-child(3),
-    td:nth-child(3) {
-      width: 30% !important;
-    }
-
-    th:nth-child(4),
-    td:nth-child(4) {
-      width: 10% !important;
-    }
-
-    th:nth-child(5),
-    td:nth-child(5) {
-      width: 15% !important;
-    }
-
-    th:nth-child(6),
-    td:nth-child(6) {
-      width: 15% !important;
-    }
-  }
-
-  .texto-centro {
-    text-align: center !important;
-  }
-
-  .texto-derecha {
-    text-align: right !important;
-  }
-
-  .texto-izquierda {
-    text-align: left !important;
-  }
-
-  // Resumen financiero
-  .resumen-grid {
-    max-width: 280px !important;
-    margin-left: auto !important;
-    margin-right: 0 !important;
-  }
-
-  .linea-resumen {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 6px 0 !important;
-    border-bottom: 1px solid #e0e0e0 !important;
-    font-size: 9px !important;
-    width: 100% !important;
-
-    &.total {
-      border-top: 2px solid #667eea !important;
-      border-bottom: none !important;
-      font-weight: 700 !important;
-      font-size: 10px !important;
-      color: #2d3748 !important;
-      margin-top: 8px !important;
-      padding-top: 8px !important;
-    }
-  }
-
-  // Firmas y pie de página
-  .seccion-final {
-    margin-top: 15px !important;
-    padding-top: 12px !important;
-    border-top: 2px solid #e0e0e0 !important;
-    width: 100% !important;
-  }
-
-  .contenido-observaciones {
-    padding: 8px !important;
-    background: #f7fafc !important;
-    border-radius: 4px !important;
-    min-height: 35px !important;
-    font-size: 9px !important;
-    margin-bottom: 12px !important;
-  }
-
-  .firmas {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    margin-top: 25px !important;
-    width: 100% !important;
-  }
-
-  .firma-cliente,
-  .firma-empresa {
-    text-align: center !important;
-    width: 45% !important;
-  }
-
-  .linea-firma {
-    width: 100% !important;
-    height: 1px !important;
-    background: #2d3748 !important;
-    margin-bottom: 3px !important;
-  }
-
-  .firmas p {
-    margin: 0 !important;
-    font-size: 8px !important;
-    color: #718096 !important;
-  }
-
-  .pie-pagina {
-    margin-top: 15px !important;
-    padding-top: 8px !important;
-    border-top: 1px solid #e0e0e0 !important;
-    text-align: center !important;
-    font-size: 8px !important;
-    color: #718096 !important;
-    width: 100% !important;
-
-    p {
-      margin: 1px 0 !important;
-    }
-  }
-
-  // Materiales y descripciones
-  .materiales-utilizados {
-    margin-top: 12px !important;
-
-    h4 {
-      margin: 0 0 8px 0 !important;
-      font-size: 10px !important;
-      color: #2d3748 !important;
-      font-weight: 600 !important;
-    }
-  }
-
-  .descripcion-boceto h4 {
-    margin: 0 0 5px 0 !important;
-    font-size: 10px !important;
-    color: #2d3748 !important;
-    font-weight: 600 !important;
-  }
-
-  .descripcion-dano .etiqueta {
-    display: block !important;
-    margin-bottom: 8px !important;
-    font-weight: 600 !important;
-    font-size: 10px !important;
-  }
-
-  .contenido-descripcion {
-    padding: 8px !important;
-    background: #f7fafc !important;
-    border-radius: 4px !important;
-    border-left: 3px solid #667eea !important;
-    font-size: 9px !important;
-    margin-bottom: 8px !important;
-  }
-}
-
-// ============ ESTILOS ESPECÍFICOS PARA PDF ============
+// ============ ESTILOS ESPECÍFICOS PARA PDF - CORREGIDOS ============
 .overlay-pdf {
+  // CORRECCIÓN: Apuntar a la clase real del componente FormatoFactura
   .formato-factura-pdf {
+    width: 100% !important;
+    max-width: 8.5in !important;
+    
+    // CAMBIO IMPORTANTE: Usar altura fija y ocultar desbordamiento para evitar página 2
+    height: 11in !important; 
+    overflow: hidden !important; 
+    
+    padding: 0.4in !important;
+    background: $bg-primary !important;
+    box-sizing: border-box !important;
+    font-family: $font-family !important;
+    color: $text-primary !important;
+    line-height: 1.2 !important;
+    font-size: $font-size-sm !important;
+    margin: 0 auto !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
     position: relative !important;
     left: 0 !important;
     top: 0 !important;
-    width: 8.5in !important;
-    min-height: 11in !important;
-    padding: 0.4in !important;
-    background: white !important;
-    box-sizing: border-box !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    color: #333 !important;
-    line-height: 1.2 !important;
-    font-size: 11px !important;
-    margin: 0 auto !important;
+    transform: none !important;
 
     // Reset for PDF elements
     * {
@@ -396,21 +51,20 @@
       color: inherit !important;
       line-height: inherit !important;
       visibility: visible !important;
-      opacity: 1 !important;
-      transform: none !important;
     }
 
-    // Aplicar todos los mismos estilos que en formato-factura-visible
+    // Encabezado compacto
     .encabezado-moderno {
-      display: flex !important;
+      @include flex-center;
       justify-content: space-between !important;
       align-items: flex-start !important;
-      margin-bottom: 15px !important;
-      padding-bottom: 10px !important;
-      border-bottom: 2px solid #e0e0e0 !important;
+      margin-bottom: $spacing-sm !important;
+      padding-bottom: $spacing-xs !important;
+      border-bottom: 2px solid $gray-200 !important;
       width: 100% !important;
     }
 
+    
     .membrete-empresa {
       flex: 1 !important;
       max-width: 65% !important;
@@ -418,10 +72,10 @@
 
     .logo-empresa {
       h1 {
-        font-size: 20px !important;
-        font-weight: 700 !important;
-        color: #2d3748 !important;
-        margin: 0 0 5px 0 !important;
+        font-size: $font-size-xl !important;
+        font-weight: $font-weight-bold !important;
+        color: $gray-800 !important;
+        margin: 0 0 $spacing-xs 0 !important;
         letter-spacing: 0.5px !important;
       }
     }
@@ -429,15 +83,15 @@
     .linea-decorativa {
       width: 45px !important;
       height: 2px !important;
-      background: linear-gradient(135deg, #667eea, #764ba2) !important;
-      margin-bottom: 8px !important;
+      background: $blue-gradient !important;
+      margin-bottom: $spacing-xs !important;
     }
 
     .info-empresa {
       p {
         margin: 2px 0 !important;
-        font-size: 9px !important;
-        color: #718096 !important;
+        font-size: $font-size-xs !important;
+        color: $gray-600 !important;
         line-height: 1.3 !important;
       }
     }
@@ -449,60 +103,58 @@
 
     .badge-tipo {
       display: inline-block !important;
-      background: linear-gradient(135deg, #667eea, #764ba2) !important;
-      color: white !important;
-      padding: 4px 12px !important;
+      background: $blue-gradient !important;
+      color: $text-light !important;
+      padding: $spacing-xs $spacing-sm !important;
       border-radius: 12px !important;
-      font-size: 9px !important;
-      font-weight: 600 !important;
-      margin-bottom: 8px !important;
+      font-size: $font-size-xs !important;
+      font-weight: $font-weight-semibold !important;
+      margin-bottom: $spacing-xs !important;
       text-transform: uppercase !important;
       letter-spacing: 0.5px !important;
     }
 
     .info-factura {
       h2 {
-        font-size: 16px !important;
-        font-weight: 700 !important;
-        color: #2d3748 !important;
-        margin: 0 0 8px 0 !important;
+        font-size: $font-size-lg !important;
+        font-weight: $font-weight-bold !important;
+        color: $gray-800 !important;
+        margin: 0 0 $spacing-xs 0 !important;
       }
     }
 
     .datos-factura {
-      display: flex !important;
-      flex-direction: column !important;
+      @include flex-column;
       gap: 3px !important;
     }
 
     .dato-factura {
-      display: flex !important;
-      align-items: center !important;
+      @include flex-center;
       justify-content: space-between !important;
-      gap: 10px !important;
-      font-size: 9px !important;
+      gap: $spacing-sm !important;
+      font-size: $font-size-xs !important;
     }
 
     .etiqueta {
-      font-weight: 600 !important;
-      color: #718096 !important;
+      font-weight: $font-weight-semibold !important;
+      color: $gray-600 !important;
       white-space: nowrap !important;
     }
 
     .valor {
-      color: #2d3748 !important;
+      color: $gray-800 !important;
       text-align: right !important;
     }
 
     // Secciones compactas
     .titulo-seccion {
-      background: linear-gradient(135deg, #667eea, #764ba2) !important;
-      color: white !important;
-      padding: 6px 12px !important;
-      margin: 12px 0 8px 0 !important;
-      border-radius: 4px !important;
-      font-weight: 600 !important;
-      font-size: 9px !important;
+      background: $blue-gradient !important;
+      color: $text-light !important;
+      padding: $spacing-xs $spacing-sm !important;
+      margin: $spacing-sm 0 $spacing-xs 0 !important;
+      border-radius: $border-radius-sm !important;
+      font-weight: $font-weight-semibold !important;
+      font-size: $font-size-xs !important;
       text-transform: uppercase !important;
       letter-spacing: 0.3px !important;
       width: 100% !important;
@@ -517,17 +169,16 @@
     .grid-cliente {
       display: grid !important;
       grid-template-columns: 1fr 1fr !important;
-      gap: 8px 12px !important;
+      gap: $spacing-xs $spacing-sm !important;
       width: 100% !important;
     }
 
     .campo-cliente {
-      display: flex !important;
-      align-items: center !important;
+      @include flex-center;
       justify-content: space-between !important;
-      border-bottom: 1px dashed #e0e0e0 !important;
+      border-bottom: 1px dashed $gray-200 !important;
       padding: 3px 0 !important;
-      font-size: 9px !important;
+      font-size: $font-size-xs !important;
       width: 100% !important;
     }
 
@@ -535,26 +186,26 @@
     .tabla-moderna {
       width: 100% !important;
       border-collapse: collapse !important;
-      margin: 8px 0 !important;
-      font-size: 9px !important;
+      margin: $spacing-xs 0 !important;
+      font-size: $font-size-xs !important;
       table-layout: fixed !important;
 
       th {
-        background: #f7fafc !important;
-        padding: 6px 8px !important;
+        background: $gray-50 !important;
+        padding: $spacing-xs $spacing-xs !important;
         text-align: left !important;
-        font-weight: 600 !important;
-        color: #2d3748 !important;
-        border-bottom: 2px solid #667eea !important;
+        font-weight: $font-weight-semibold !important;
+        color: $gray-800 !important;
+        border-bottom: 2px solid $blue-primary !important;
         text-transform: uppercase !important;
-        font-size: 8px !important;
+        font-size: 9px !important;
         letter-spacing: 0.3px !important;
       }
 
       td {
-        padding: 6px !important;
-        border-bottom: 1px solid #e0e0e0 !important;
-        font-size: 9px !important;
+        padding: $spacing-xs !important;
+        border-bottom: 1px solid $gray-200 !important;
+        font-size: $font-size-xs !important;
         vertical-align: top !important;
       }
 
@@ -610,45 +261,43 @@
     }
 
     .linea-resumen {
-      display: flex !important;
-      align-items: center !important;
+      @include flex-center;
       justify-content: space-between !important;
-      padding: 6px 0 !important;
-      border-bottom: 1px solid #e0e0e0 !important;
-      font-size: 9px !important;
+      padding: $spacing-xs 0 !important;
+      border-bottom: 1px solid $gray-200 !important;
+      font-size: $font-size-xs !important;
       width: 100% !important;
 
       &.total {
-        border-top: 2px solid #667eea !important;
+        border-top: 2px solid $blue-primary !important;
         border-bottom: none !important;
-        font-weight: 700 !important;
-        font-size: 10px !important;
-        color: #2d3748 !important;
-        margin-top: 8px !important;
-        padding-top: 8px !important;
+        font-weight: $font-weight-bold !important;
+        font-size: $font-size-xs !important;
+        color: $gray-800 !important;
+        margin-top: $spacing-xs !important;
+        padding-top: $spacing-xs !important;
       }
     }
 
     // Firmas y pie de página
     .seccion-final {
       margin-top: 15px !important;
-      padding-top: 12px !important;
-      border-top: 2px solid #e0e0e0 !important;
+      padding-top: $spacing-sm !important;
+      border-top: 2px solid $gray-200 !important;
       width: 100% !important;
     }
 
     .contenido-observaciones {
-      padding: 8px !important;
-      background: #f7fafc !important;
-      border-radius: 4px !important;
+      padding: $spacing-xs !important;
+      background: $gray-50 !important;
+      border-radius: $border-radius-sm !important;
       min-height: 35px !important;
-      font-size: 9px !important;
-      margin-bottom: 12px !important;
+      font-size: $font-size-xs !important;
+      margin-bottom: $spacing-sm !important;
     }
 
     .firmas {
-      display: flex !important;
-      align-items: center !important;
+      @include flex-center;
       justify-content: space-between !important;
       margin-top: 25px !important;
       width: 100% !important;
@@ -663,23 +312,23 @@
     .linea-firma {
       width: 100% !important;
       height: 1px !important;
-      background: #2d3748 !important;
+      background: $gray-800 !important;
       margin-bottom: 3px !important;
     }
 
     .firmas p {
       margin: 0 !important;
-      font-size: 8px !important;
-      color: #718096 !important;
+      font-size: 9px !important;
+      color: $gray-600 !important;
     }
 
     .pie-pagina {
       margin-top: 15px !important;
-      padding-top: 8px !important;
-      border-top: 1px solid #e0e0e0 !important;
+      padding-top: $spacing-xs !important;
+      border-top: 1px solid $gray-200 !important;
       text-align: center !important;
-      font-size: 8px !important;
-      color: #718096 !important;
+      font-size: 9px !important;
+      color: $gray-600 !important;
       width: 100% !important;
 
       p {
@@ -689,82 +338,237 @@
 
     // Materiales y descripciones
     .materiales-utilizados {
-      margin-top: 12px !important;
+      margin-top: $spacing-sm !important;
 
       h4 {
-        margin: 0 0 8px 0 !important;
-        font-size: 10px !important;
-        color: #2d3748 !important;
-        font-weight: 600 !important;
+        margin: 0 0 $spacing-xs 0 !important;
+        font-size: $font-size-xs !important;
+        color: $gray-800 !important;
+        font-weight: $font-weight-semibold !important;
       }
     }
 
     .descripcion-boceto h4 {
       margin: 0 0 5px 0 !important;
-      font-size: 10px !important;
-      color: #2d3748 !important;
-      font-weight: 600 !important;
+      font-size: $font-size-xs !important;
+      color: $gray-800 !important;
+      font-weight: $font-weight-semibold !important;
     }
 
     .descripcion-dano .etiqueta {
       display: block !important;
-      margin-bottom: 8px !important;
-      font-weight: 600 !important;
-      font-size: 10px !important;
+      margin-bottom: $spacing-xs !important;
+      font-weight: $font-weight-semibold !important;
+      font-size: $font-size-xs !important;
     }
 
     .contenido-descripcion {
-      padding: 8px !important;
-      background: #f7fafc !important;
-      border-radius: 4px !important;
-      border-left: 3px solid #667eea !important;
-      font-size: 9px !important;
-      margin-bottom: 8px !important;
+      padding: $spacing-xs !important;
+      background: $gray-50 !important;
+      border-radius: $border-radius-sm !important;
+      border-left: 3px solid $blue-primary !important;
+      font-size: $font-size-xs !important;
+      margin-bottom: $spacing-xs !important;
     }
   }
 }
 
-// ============ ESTILOS PARA CONTENEDOR OCULTO ============
-.formato-factura-oculto {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 8.5in !important;
-  min-height: 11in !important;
-  background: white !important;
-  padding: 0.4in !important;
-  box-sizing: border-box !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  z-index: -1 !important;
+// ============ ESTILOS PARA EL MODAL DE FACTURA ============
+.modal-overlay-factura {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  @include flex-center;
+  z-index: $z-index-modal !important;
+  padding: $spacing-xl !important;
 }
 
-// ============ ESTILOS PARA IMPRESIÓN ============
-@media print {
-  .formato-factura-pdf {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 8.5in !important;
-    min-height: 11in !important;
-    padding: 0.4in !important;
-    background: white !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
+.modal-contenido-factura {
+  background: $bg-primary !important;
+  border-radius: $border-radius-lg !important;
+  width: 95% !important;
+  max-width: 1000px !important;
+  max-height: 95vh !important;
+  @include flex-column;
+  box-shadow: $shadow-xl !important;
+  z-index: $z-index-modal + 1 !important;
+}
+
+.modal-header-factura {
+  @include flex-center;
+  justify-content: space-between !important;
+  padding: $spacing-xl $spacing-2xl !important;
+  background: $gray-50 !important;
+  border-bottom: 1px solid $gray-200 !important;
+  border-radius: $border-radius-lg $border-radius-lg 0 0 !important;
+
+  h2 {
     margin: 0 !important;
-    
-    .seccion-final {
-      page-break-inside: avoid;
-    }
-    
-    .pie-pagina {
-      position: relative;
-      bottom: 0;
-    }
+    color: $gray-800 !important;
+    font-size: $font-size-2xl !important;
+    font-weight: $font-weight-bold !important;
+  }
+}
+
+.btn-cerrar {
+  background: none !important;
+  border: none !important;
+  font-size: $font-size-xl !important;
+  color: $gray-500 !important;
+  cursor: pointer !important;
+  padding: $spacing-xs !important;
+  border-radius: $border-radius-sm !important;
+  transition: all $transition-fast !important;
+
+  &:hover {
+    color: $gray-700 !important;
+    background: $gray-200 !important;
+  }
+}
+
+.modal-body-factura {
+  flex: 1 !important;
+  overflow: auto !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.modal-footer-factura {
+  @include flex-center;
+  justify-content: flex-end !important;
+  gap: $spacing-md !important;
+  padding: $spacing-xl $spacing-2xl !important;
+  background: $gray-50 !important;
+  border-top: 1px solid $gray-200 !important;
+  border-radius: 0 0 $border-radius-lg $border-radius-lg !important;
+}
+
+// Botones del footer del modal
+.btn-descargar,
+.btn-imprimir,
+.btn-cerrar-footer {
+  padding: $spacing-sm $spacing-xl !important;
+  border: none !important;
+  border-radius: $border-radius !important;
+  font-weight: $font-weight-semibold !important;
+  font-size: $font-size-sm !important;
+  cursor: pointer !important;
+  @include flex-center;
+  gap: $spacing-xs !important;
+  transition: all $transition-fast !important;
+}
+
+.btn-descargar {
+  background: $success-color !important;
+  color: $text-light !important;
+
+  &:hover {
+    background: $success-dark !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+.btn-imprimir {
+  background: $info-color !important;
+  color: $text-light !important;
+
+  &:hover {
+    background: $info-dark !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+.btn-cerrar-footer {
+  background: $gray-500 !important;
+  color: $text-light !important;
+
+  &:hover {
+    background: $gray-600 !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+// Vista previa de la factura en el modal
+.vista-previa-factura {
+  padding: $spacing-xl !important;
+  background: $bg-primary !important;
+  overflow: auto !important;
+  max-height: calc(95vh - 200px) !important;
+}
+
+// Estilos para el formato de factura dentro del modal (Vista Previa)
+.modal-body-factura .vista-previa-factura .formato-factura-pdf {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  background: $bg-primary !important;
+  color: $text-primary !important;
+  padding: $spacing-xl !important;
+  transform: scale(0.9) !important;
+  transform-origin: top center !important;
+  min-height: auto !important;
+  margin: 0 auto !important;
+  border: 1px solid $gray-200 !important;
+  border-radius: $border-radius !important;
+  box-shadow: $shadow-md !important;
+
+  // Reset para elementos dentro del formato de factura
+  * {
+    box-sizing: border-box !important;
+    color: inherit !important;
+    font-family: inherit !important;
+    visibility: visible !important;
+  }
+  
+  // Reutilizamos estilos del PDF pero ajustados
+  .encabezado-moderno {
+    @include flex-center;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: $spacing-xl !important;
+    padding-bottom: $spacing-md !important;
+    border-bottom: 2px solid $gray-200 !important;
+  }
+  // ... resto de estilos de vista previa ...
+}
+
+// ============ RESPONSIVE DESIGN ============
+@include responsive(md) {
+  .modal-overlay-factura {
+    padding: $spacing-sm !important;
+  }
+
+  .modal-contenido-factura {
+    width: 98% !important;
+    max-height: 98vh !important;
+  }
+
+  .modal-header-factura,
+  .modal-footer-factura {
+    padding: $spacing-md $spacing-xl !important;
+  }
+
+  .modal-body-factura .formato-factura-pdf {
+    padding: $spacing-md !important;
+    transform: scale(0.95) !important;
+  }
+
+  .modal-footer-factura {
+    flex-direction: column !important;
+    gap: $spacing-xs !important;
+  }
+
+  .btn-descargar,
+  .btn-imprimir,
+  .btn-cerrar-footer {
+    width: 100% !important;
+    justify-content: center !important;
   }
 }
