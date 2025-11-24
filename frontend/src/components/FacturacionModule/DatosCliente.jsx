@@ -2,6 +2,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { normalizeText, normalizeSearch } from "../../utils/normalize";
+import {
+  validarTelefono,
+  validarDireccion,
+  validarRTN,
+  formatearTelefono,
+  formatearRTN
+} from "../../utils/validaciones";
 
 export default function DatosCliente({ 
   datosFactura, 
@@ -353,19 +360,25 @@ export default function DatosCliente({
         </div>
         <div className="campo-formulario">
           <label htmlFor="telefono">Teléfono *</label>
-          <input 
-            type="tel" 
-            id="telefono" 
-            placeholder="Teléfono del cliente" 
+          <input
+            type="tel"
+            id="telefono"
+            placeholder="9999-9999"
             value={datosFactura.telefono}
             onChange={(e) => {
-              onActualizar('telefono', e.target.value);
+              let valor = e.target.value;
+              // Formatear automáticamente si no está readonly
+              if (!datosFactura.id_cliente) {
+                valor = formatearTelefono(valor);
+              }
+              onActualizar('telefono', valor);
               onCambioCampo && onCambioCampo('telefono');
             }}
-            required 
+            required
             className={errores?.telefono ? 'campo-error' : ''}
             readOnly={!!datosFactura.id_cliente}
             style={datosFactura.id_cliente ? { backgroundColor: '#f9fafb', cursor: 'not-allowed' } : {}}
+            maxLength="9"
           />
           {errores?.telefono && <span className="mensaje-error">{errores.telefono}</span>}
           {datosFactura.id_cliente && (
@@ -379,19 +392,20 @@ export default function DatosCliente({
       <div className="fila-formulario">
         <div className="campo-formulario">
           <label htmlFor="direccion">Dirección *</label>
-          <input 
-            type="text" 
-            id="direccion" 
-            placeholder="Dirección del cliente" 
+          <input
+            type="text"
+            id="direccion"
+            placeholder="Colonia, calle, número de casa (mín. 10 caracteres)"
             value={datosFactura.direccion}
             onChange={(e) => {
               onActualizar('direccion', e.target.value);
               onCambioCampo && onCambioCampo('direccion');
             }}
-            required 
+            required
             className={errores?.direccion ? 'campo-error' : ''}
             readOnly={!!datosFactura.id_cliente}
             style={datosFactura.id_cliente ? { backgroundColor: '#f9fafb', cursor: 'not-allowed' } : {}}
+            minLength="10"
           />
           {errores?.direccion && <span className="mensaje-error">{errores.direccion}</span>}
           {datosFactura.id_cliente && (
@@ -402,18 +416,25 @@ export default function DatosCliente({
         </div>
         <div className="campo-formulario">
           <label htmlFor="rtn">RTN</label>
-          <input 
-            type="text" 
-            id="rtn" 
-            placeholder="RTN del cliente" 
+          <input
+            type="text"
+            id="rtn"
+            placeholder="0801-1234-567890"
             value={datosFactura.rtn}
             onChange={(e) => {
-              onActualizar('rtn', e.target.value);
+              let valor = e.target.value;
+              // Formatear automáticamente si no está readonly
+              if (!datosFactura.id_cliente) {
+                valor = formatearRTN(valor);
+              }
+              onActualizar('rtn', valor);
               onCambioCampo && onCambioCampo('rtn');
             }}
             readOnly={!!datosFactura.id_cliente}
             style={datosFactura.id_cliente ? { backgroundColor: '#f9fafb', cursor: 'not-allowed' } : {}}
+            maxLength="18"
           />
+          {errores?.rtn && <span className="mensaje-error">{errores.rtn}</span>}
           {datosFactura.id_cliente && datosFactura.rtn && (
             <small className="form-hint" style={{ color: '#059669' }}>
               ✓ Cargado automáticamente del cliente

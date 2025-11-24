@@ -238,11 +238,7 @@ export default function FormatoCotizacionFabricacion({
             subtotalProductos: redondear(subtotalProductos)
         };
 
-        console.log("=== RESULTADOS FINALES ===");
-        console.log("Subtotal (con descuento):", resultadosFinales.subtotal);
-        console.log("Descuentos:", descuentos);
-        console.log("ISV:", resultadosFinales.isv);
-        console.log("Total:", resultadosFinales.total);
+       
 
         return resultadosFinales;
     };

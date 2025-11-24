@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { X, Save, ArrowLeft, Upload, Image } from 'lucide-react';
+import {
+  validarNombreProducto,
+  validarNumeroEntero,
+  validarNumeroDecimal,
+  REGEX_PATTERNS
+} from '../../utils/validaciones';
 
 const InventarioForm = ({ mode, type, initialData, onSubmit, onCancel, proveedores }) => {
   const [formData, setFormData] = useState({
@@ -149,11 +155,33 @@ const InventarioForm = ({ mode, type, initialData, onSubmit, onCancel, proveedor
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
+    let { name, value, type, checked } = e.target;
+
     if (type === 'checkbox') {
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
+      // Validaciones en tiempo real
+      if (name === 'nombre' && value) {
+        // Permitir letras, números, espacios y caracteres básicos
+        if (!REGEX_PATTERNS.NOMBRE_PRODUCTO.test(value)) {
+          return; // No permitir la entrada
+        }
+      }
+
+      // Validación para campos numéricos enteros
+      if (['cantidad_existencia'].includes(name) && value) {
+        if (!/^\d*$/.test(value)) {
+          return; // Solo números enteros
+        }
+      }
+
+      // Validación para campos numéricos decimales
+      if (['costo', 'precio_venta', 'peso', 'quilates'].includes(name) && value) {
+        if (!/^\d*\.?\d{0,2}$/.test(value)) {
+          return; // Solo números con máximo 2 decimales
+        }
+      }
+
       setFormData(prev => ({ ...prev, [name]: value }));
     }
 
@@ -167,21 +195,59 @@ const InventarioForm = ({ mode, type, initialData, onSubmit, onCancel, proveedor
     const newErrors = {};
     const config = fieldConfig[type];
 
+    // Validar campos requeridos
     config.required.forEach(field => {
       if (!formData[field] || formData[field] === '') {
         newErrors[field] = 'Este campo es requerido';
       }
     });
 
-    // Validaciones específicas
-    if (formData.precio_venta && formData.precio_venta <= 0) {
-      newErrors.precio_venta = 'El precio debe ser mayor a 0';
+    // Validar nombre del producto
+    if (formData.nombre) {
+      const validNombre = validarNombreProducto(formData.nombre);
+      if (!validNombre.valido) {
+        newErrors.nombre = validNombre.error;
+      }
     }
-    if (formData.costo && formData.costo <= 0) {
-      newErrors.costo = 'El costo debe ser mayor a 0';
+
+    // Validar precio_venta (solo para joyas)
+    if (type === 'joyas' && formData.precio_venta) {
+      const validPrecio = validarNumeroDecimal(formData.precio_venta, 0.01);
+      if (!validPrecio.valido) {
+        newErrors.precio_venta = 'El precio debe ser mayor a 0';
+      }
     }
-    if (formData.cantidad_existencia && formData.cantidad_existencia < 0) {
-      newErrors.cantidad_existencia = 'La cantidad no puede ser negativa';
+
+    // Validar costo
+    if (formData.costo) {
+      const validCosto = validarNumeroDecimal(formData.costo, 0.01);
+      if (!validCosto.valido) {
+        newErrors.costo = 'El costo debe ser mayor a 0';
+      }
+    }
+
+    // Validar cantidad_existencia
+    if (formData.cantidad_existencia !== undefined && formData.cantidad_existencia !== '') {
+      const validCantidad = validarNumeroEntero(formData.cantidad_existencia, 0);
+      if (!validCantidad.valido) {
+        newErrors.cantidad_existencia = validCantidad.error;
+      }
+    }
+
+    // Validar peso (si aplica)
+    if (formData.peso && formData.peso !== '') {
+      const validPeso = validarNumeroDecimal(formData.peso, 0);
+      if (!validPeso.valido) {
+        newErrors.peso = 'El peso debe ser un número válido';
+      }
+    }
+
+    // Validar quilates (si aplica)
+    if (formData.quilates && formData.quilates !== '') {
+      const validQuilates = validarNumeroDecimal(formData.quilates, 0);
+      if (!validQuilates.valido) {
+        newErrors.quilates = 'Los quilates deben ser un número válido';
+      }
     }
 
     setErrors(newErrors);

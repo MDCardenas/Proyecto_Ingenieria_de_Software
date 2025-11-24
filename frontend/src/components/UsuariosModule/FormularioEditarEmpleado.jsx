@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import {
+  validarFormularioEmpleado,
+  formatearTelefono,
+  REGEX_PATTERNS
+} from '../../utils/validaciones';
 
 const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +18,7 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [erroresCampos, setErroresCampos] = useState({});
   const [cargandoDatos, setCargandoDatos] = useState(true);
   const [perfiles, setPerfiles] = useState([]);
 
@@ -47,27 +53,88 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
     cargarDatos();
   }, [empleado.id_empleado]);
 
-  // Cambios de input
+  // Cambios de input con validación
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+
+    // Formateo automático de teléfono
+    if (name === 'telefono' && value) {
+      value = formatearTelefono(value);
+    }
+
+    // Validación en tiempo real para nombres (solo letras)
+    if ((name === 'nombre' || name === 'apellido') && value) {
+      if (!REGEX_PATTERNS.SOLO_LETRAS.test(value)) {
+        return; // No permitir la entrada
+      }
+    }
+
+    // Validación para usuario (letras, números, guión bajo)
+    if (name === 'usuario' && value) {
+      if (!/^[a-zA-Z0-9_]*$/.test(value)) {
+        return; // No permitir la entrada
+      }
+    }
+
+    // Validación para salario (solo números y punto decimal)
+    if (name === 'salario' && value) {
+      if (!/^\d*\.?\d{0,2}$/.test(value)) {
+        return; // No permitir la entrada
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+
+    // Limpiar error del campo cuando el usuario escribe
+    if (erroresCampos[name]) {
+      setErroresCampos(prev => {
+        const nuevos = { ...prev };
+        delete nuevos[name];
+        return nuevos;
+      });
+    }
   };
 
-  // Enviar cambios
+  // Enviar cambios con validación
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setErroresCampos({});
+
+    // Validar datos del formulario (sin contraseña para edición)
+    const datosParaValidar = { ...formData };
+    delete datosParaValidar.contrasena; // No validar contraseña en edición
+
+    const validacion = validarFormularioEmpleado(datosParaValidar);
+
+    if (!validacion.valido) {
+      setErroresCampos(validacion.errores);
+      setError('Por favor corrija los errores en el formulario');
+      setLoading(false);
+      return;
+    }
+
+    // Validar que se haya seleccionado un perfil
+    if (!formData.codigo_perfil) {
+      setErroresCampos({ ...erroresCampos, codigo_perfil: 'Debe seleccionar un perfil' });
+      setError('Todos los campos marcados con * son obligatorios');
+      setLoading(false);
+      return;
+    }
 
     try {
       const empleadoData = {
-        ...formData,
+        nombre: formData.nombre.trim(),
+        apellido: formData.apellido.trim(),
+        usuario: formData.usuario.trim(),
+        correo: formData.correo.trim().toLowerCase(),
         salario: parseFloat(formData.salario) || 0,
         codigo_perfil: parseInt(formData.codigo_perfil),
-        telefono: formData.telefono || null  // Asegurar que teléfono sea null si está vacío
+        telefono: formData.telefono ? formData.telefono.replace(/-/g, '') : null
       };
 
       const response = await fetch(`http://20.64.150.5:8000/api/empleados/${empleado.id_empleado}/actualizar/`, {
