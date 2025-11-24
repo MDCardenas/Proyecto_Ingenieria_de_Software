@@ -25,15 +25,16 @@ router.register(r'proveedores', views.ProvedorViewSet, basename='proveedores')
 router.register(r'perfiles', views.PerfilEmpleadoViewSet, basename='perfiles')
 
 urlpatterns = [
-
-    path('empleados/<int:pk>/eliminar/', views.eliminar_empleado, name='eliminar_empleado'),
-    path('empleados/<int:pk>/actualizar/', views.actualizar_empleado, name='actualizar_empleado'),
+    # ========================================
+    # RUTAS DE EMPLEADOS (ORDEN CORRECTO - MUY IMPORTANTE)
+    # ========================================
     path('empleados/nuevo/', views.crear_empleado, name='crear_empleado'),
+    path('empleados/<int:pk>/actualizar/', views.actualizar_empleado, name='actualizar_empleado'),
+    path('empleados/<int:pk>/eliminar/', views.eliminar_empleado, name='eliminar_empleado'),
     path('empleados/<int:pk>/', views.empleado_detalle, name='empleado_detalle'),
     path('empleados/', views.lista_empleados, name='lista_empleados'),
+    path('perfiles/', views.lista_perfiles, name='lista_perfiles'),
     
-    
-    path('empleados/<int:pk>/', views.empleado_detalle, name='empleado_detalle'),
     # ========================================
     # RUTAS DE FACTURAS (DEBEN IR ANTES DEL ROUTER)
     # ========================================
@@ -44,6 +45,9 @@ urlpatterns = [
     # RUTAS DEL ROUTER (VIEWSETS)
     # ========================================
     path('', include(router.urls)),
+    
+    
+
     
     # ========================================
     # OTRAS RUTAS API VIEW (ENDPOINTS ESPECIALES)

@@ -26,7 +26,7 @@ export default function FormatoFactura({
     : `FAC-${tipoFactura}-${Date.now().toString().slice(-6)}`;
 
   return (
-    <div className="formato-factura-pdf">
+    <div className="formato-factura-pdf formato-factura-visible">
       {/* Encabezado moderno */}
       <div className="encabezado-moderno">
         <div className="membrete-empresa">

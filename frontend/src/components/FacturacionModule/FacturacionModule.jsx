@@ -9,7 +9,8 @@ import DatosAdicionales from "./DatosAdicionales";
 import FormatoFactura from "./FormatoFactura";
 import ListaFacturas from "./ListaFacturas";
 
-import "../../styles/scss/pages/_facturacion.scss";
+import "../../styles/scss/main.scss";
+import "../../styles/scss/components/_formatofactura.scss";
 
 export default function Facturacion({ onCancel }) {
   const facturaRef = useRef();
@@ -21,6 +22,9 @@ export default function Facturacion({ onCancel }) {
   const [productosStock, setProductosStock] = useState([]);
   const [insumosStock, setInsumosStock] = useState([]);
   const [mostrarLista, setMostrarLista] = useState(true);
+
+  // Estado para controlar la visualización del formato de factura
+  const [mostrarFormatoFactura, setMostrarFormatoFactura] = useState(false);
 
   // Estado para los productos
   const [productos, setProductos] = useState(() => [{ 
@@ -181,7 +185,6 @@ export default function Facturacion({ onCancel }) {
     console.log("Formulario limpiado exitosamente");
   };
 
-  // Resto de funciones existentes (validarCampos, limpiarError, guardarFacturaEnBD, etc.)
   const validarCampos = () => {
     const nuevosErrores = {};
 
@@ -334,6 +337,12 @@ export default function Facturacion({ onCancel }) {
     try {
       handleCalcular();
 
+      // Mostrar temporalmente el formato de factura para captura
+      setMostrarFormatoFactura(true);
+      
+      // Esperar a que se renderice el componente
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       const overlay = document.createElement('div');
       overlay.className = 'overlay-pdf';
       overlay.style.position = 'fixed';
@@ -382,6 +391,9 @@ export default function Facturacion({ onCancel }) {
       });
 
       document.body.removeChild(overlay);
+      
+      // Ocultar el formato de factura después de la captura
+      setMostrarFormatoFactura(false);
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF({
@@ -429,6 +441,8 @@ export default function Facturacion({ onCancel }) {
       if (existingOverlay) {
         document.body.removeChild(existingOverlay);
       }
+      // Asegurarse de ocultar el formato de factura en caso de error
+      setMostrarFormatoFactura(false);
       alert(`❌ Error al generar la factura: ${error.message}\nEl formulario se mantiene para que pueda corregir los errores.`);
     }
   };
@@ -901,30 +915,32 @@ export default function Facturacion({ onCancel }) {
         )}
       </div>
 
-      {/* Contenedor para PDF */}
-      <div style={{ 
-        position: 'fixed',
-        top: '0',
-        left: '0', 
-        width: '8.5in',
-        minHeight: '11in',
-        backgroundColor: 'white',
-        zIndex: '9998',
-        visibility: 'hidden',
-        pointerEvents: 'none'
-      }}>
-        <div ref={facturaRef} style={{ visibility: 'visible' }}>
-          <FormatoFactura
-            tipoFactura={tipoFactura}
-            datosCliente={obtenerDatosCliente()}
-            productos={productos}
-            materiales={materiales}
-            resultados={resultados}
-            descuentos={descuentos}
-            datosFactura={datosFactura}
-          />
+      {/* Contenedor para PDF - MEJORADO: Solo se muestra cuando es necesario */}
+      {mostrarFormatoFactura && (
+        <div style={{ 
+          position: 'fixed',
+          top: '0',
+          left: '0', 
+          width: '8.5in',
+          minHeight: '11in',
+          backgroundColor: 'white',
+          zIndex: '9998',
+          visibility: 'visible',
+          pointerEvents: 'none'
+        }}>
+          <div ref={facturaRef} style={{ visibility: 'visible' }}>
+            <FormatoFactura
+              tipoFactura={tipoFactura}
+              datosCliente={obtenerDatosCliente()}
+              productos={productos}
+              materiales={materiales}
+              resultados={resultados}
+              descuentos={descuentos}
+              datosFactura={datosFactura}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
