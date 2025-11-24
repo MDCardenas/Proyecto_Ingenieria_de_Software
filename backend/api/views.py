@@ -43,9 +43,12 @@ class EmpleadoViewSet(viewsets.ModelViewSet):
     serializer_class = EmpleadoSerializer
 
 class StockJoyaViewSet(viewsets.ModelViewSet):
-    queryset = TblStockJoyas.objects.all()
     serializer_class = StockJoyaSerializer
-    
+
+    def get_queryset(self):
+        """Optimizar query - solo campos necesarios y ordenar"""
+        return TblStockJoyas.objects.all().order_by('-codigo_joya')
+
     # AGREGAR ESTOS MÉTODOS PARA MEJORAR LAS ACTUALIZACIONES:
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', True)  # Permitir actualizaciones parciales
@@ -286,12 +289,18 @@ class OrdenTrabajoViewSet(viewsets.ModelViewSet):
 
 # ViewSets de inventario
 class StockInsumoViewSet(viewsets.ModelViewSet):
-    queryset = TblStockInsumos.objects.all()
     serializer_class = StockInsumoSerializer
 
+    def get_queryset(self):
+        """Optimizar query con select_related para cargar proveedor en una sola query"""
+        return TblStockInsumos.objects.select_related('codigo_provedor').order_by('-codigo_insumo')
+
 class StockMaterialViewSet(viewsets.ModelViewSet):
-    queryset = TblStockMateriales.objects.all()
     serializer_class = StockMaterialSerializer
+
+    def get_queryset(self):
+        """Optimizar query con select_related para cargar proveedor en una sola query"""
+        return TblStockMateriales.objects.select_related('codigo_provedor').order_by('-codigo_material')
 
 class ProvedorViewSet(viewsets.ModelViewSet):
     queryset = TblProvedores.objects.all()

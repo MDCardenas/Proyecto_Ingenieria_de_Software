@@ -71,7 +71,22 @@ const useInventario = (activeTab) => {
       if (mode === 'create') {
         await api.post(endpoints[activeTab], formData);
       } else {
-        await api.put(`${endpoints[activeTab]}${selectedItem[`codigo_${activeTab.slice(0, -1)}`]}/`, formData);
+        // Mapeo correcto de IDs por tipo
+        const idFieldMap = {
+          joyas: 'codigo_joya',
+          materiales: 'codigo_material',
+          insumos: 'codigo_insumo'
+        };
+
+        const idField = idFieldMap[activeTab];
+        const itemId = selectedItem[idField];
+
+        if (!itemId) {
+          throw new Error(`No se encontró el ID del item (${idField})`);
+        }
+
+        console.log(`Actualizando ${activeTab}/${itemId}`, formData);
+        await api.put(`${endpoints[activeTab]}${itemId}/`, formData);
       }
 
       cargarDatos();
