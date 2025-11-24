@@ -80,10 +80,10 @@ export default function Facturacion({ onCancel }) {
       console.log("Iniciando carga de datos para facturación...");
       
       const endpoints = {
-        clientes: 'http://localhost:8000/api/clientes/',
-        empleados: 'http://localhost:8000/api/empleados/',
-        materiales: 'http://localhost:8000/api/materiales/',
-        productos: 'http://localhost:8000/api/joyas/'
+        clientes: 'http://20.64.150.5:8000/api/clientes/',
+        empleados: 'http://20.64.150.5:8000/api/empleados/',
+        materiales: 'http://20.64.150.5:8000/api/materiales/',
+        productos: 'http://20.64.150.5:8000/api/joyas/'
       };
 
       const [clientesRes, empleadosRes, materialesRes, productosRes] = await Promise.all([
@@ -285,7 +285,7 @@ export default function Facturacion({ onCancel }) {
 
       console.log("Enviando datos de factura:", JSON.stringify(facturaData, null, 2));
 
-      const endpoint = 'http://localhost:8000/api/facturas/crear-simple/';
+      const endpoint = 'http://20.64.150.5:8000/api/facturas/crear-simple/';
       
       const response = await fetch(endpoint, {
         method: 'POST',

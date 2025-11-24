@@ -21,7 +21,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
   useEffect(() => {
     const cargarPerfiles = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/perfiles/');
+        const response = await fetch('http://20.64.150.5:8000/api/perfiles/');
         if (response.ok) {
           const data = await response.json();
           setPerfiles(data);
@@ -71,7 +71,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
 
       console.log('🚀 Enviando empleado:', empleadoData);
 
-      const response = await fetch('http://127.0.0.1:8000/api/empleados/nuevo/', {
+      const response = await fetch('http://20.64.150.5:8000/api/empleados/nuevo/', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

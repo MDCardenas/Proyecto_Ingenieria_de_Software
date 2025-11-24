@@ -124,9 +124,9 @@ export default function FormatoCotizacionFabricacion({
             setLoading(true);
             
             const [clientesRes, empleadosRes, materialesRes] = await Promise.all([
-                axios.get('http://localhost:8000/api/clientes/'),
-                axios.get('http://localhost:8000/api/empleados/'),
-                axios.get('http://localhost:8000/api/materiales/')
+                axios.get('http://20.64.150.5:8000/api/clientes/'),
+                axios.get('http://20.64.150.5:8000/api/empleados/'),
+                axios.get('http://20.64.150.5:8000/api/materiales/')
             ]);
 
             setClientes(clientesRes.data);
@@ -138,7 +138,7 @@ export default function FormatoCotizacionFabricacion({
             console.log("✅ Materiales cargados:", materialesRes.data.length);
             
             try {
-                const productosRes = await axios.get('http://localhost:8000/api/joyas/');
+                const productosRes = await axios.get('http://20.64.150.5:8000/api/joyas/');
                 setProductosStock(productosRes.data);
                 console.log("✅ Productos cargados:", productosRes.data.length);
             } catch (productosError) {
@@ -289,7 +289,7 @@ export default function FormatoCotizacionFabricacion({
 
             console.log("📤 Enviando datos:", cotizacionData);
 
-            const endpoint = 'http://localhost:8000/api/cotizaciones/';
+            const endpoint = 'http://20.64.150.5:8000/api/cotizaciones/';
             
             const response = await fetch(endpoint, {
                 method: 'POST',

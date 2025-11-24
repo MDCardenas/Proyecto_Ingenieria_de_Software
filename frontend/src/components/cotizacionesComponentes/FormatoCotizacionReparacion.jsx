@@ -137,9 +137,9 @@ export default function FormatoCotizacionReparacion({
             setLoading(true);
             
             const [clientesRes, empleadosRes, materialesRes] = await Promise.all([
-                axios.get('http://localhost:8000/api/clientes/'),
-                axios.get('http://localhost:8000/api/empleados/'),
-                axios.get('http://localhost:8000/api/materiales/')
+                axios.get('http://20.64.150.5:8000/api/clientes/'),
+                axios.get('http://20.64.150.5:8000/api/empleados/'),
+                axios.get('http://20.64.150.5:8000/api/materiales/')
             ]);
 
             setClientes(clientesRes.data);
@@ -423,7 +423,7 @@ export default function FormatoCotizacionReparacion({
 
             console.log("Enviando FormData con imagen...");
 
-            const endpoint = 'http://localhost:8000/api/cotizaciones/';
+            const endpoint = 'http://20.64.150.5:8000/api/cotizaciones/';
             
             // ✅ CORREGIR: Usar fetch correctamente con FormData
             const response = await fetch(endpoint, {

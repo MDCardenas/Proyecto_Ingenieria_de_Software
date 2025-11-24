@@ -20,7 +20,7 @@ const TarjetaUsuario = ({ empleado, onEditar, onEliminado, onVerDetalles }) => {
     setEliminando(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/empleados/${empleado.id_empleado}/eliminar/`,
+        `http://20.64.150.5:8000/api/empleados/${empleado.id_empleado}/eliminar/`,
         { method: "DELETE" }
       );
 

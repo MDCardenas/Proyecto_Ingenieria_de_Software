@@ -19,7 +19,7 @@ const Usuarios = () => {
   // Cargar empleados
   const fetchEmpleados = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/empleados/");
+      const response = await fetch("http://20.64.150.5:8000/api/empleados/");
       const data = await response.json();
 
       if (Array.isArray(data)) {

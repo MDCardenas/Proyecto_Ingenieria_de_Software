@@ -128,7 +128,7 @@ export default function ModalVerCotizacion({ cotizacion, onClose }) {
         }
         
         // Ya que Django está sirviendo las imágenes correctamente
-        const baseUrl = 'http://localhost:8000';
+        const baseUrl = 'http://20.64.150.5:8000';
         const urlImagen = `${baseUrl}/media/${cotizacion.imagen_referencia}`;
         
         console.log('✅ URL imagen funcionando:', urlImagen);
