@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import {
+  validarFormularioEmpleado,
+  formatearTelefono,
+  REGEX_PATTERNS
+} from '../../utils/validaciones';
 
 const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
   const [formData, setFormData] = useState({
@@ -14,6 +19,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [erroresCampos, setErroresCampos] = useState({});
   const [perfiles, setPerfiles] = useState([]);
   const [cargandoPerfiles, setCargandoPerfiles] = useState(true);
 
@@ -45,17 +51,65 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+
+    // Formateo automático de teléfono
+    if (name === 'telefono' && value) {
+      value = formatearTelefono(value);
+    }
+
+    // Validación en tiempo real para nombres (solo letras)
+    if ((name === 'nombre' || name === 'apellido') && value) {
+      if (!REGEX_PATTERNS.SOLO_LETRAS.test(value)) {
+        return; // No permitir la entrada
+      }
+    }
+
+    // Validación para usuario (letras, números, guión bajo)
+    if (name === 'usuario' && value) {
+      if (!/^[a-zA-Z0-9_]*$/.test(value)) {
+        return; // No permitir la entrada
+      }
+    }
+
+    // Validación para salario (solo números y punto decimal)
+    if (name === 'salario' && value) {
+      if (!/^\d*\.?\d{0,2}$/.test(value)) {
+        return; // No permitir la entrada
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Limpiar error del campo cuando el usuario escribe
+    if (erroresCampos[name]) {
+      setErroresCampos(prev => {
+        const nuevos = { ...prev };
+        delete nuevos[name];
+        return nuevos;
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setErroresCampos({});
 
-    // Validaciones básicas
-    if (!formData.nombre || !formData.apellido || !formData.usuario || !formData.contrasena || !formData.correo) {
+    // Validar todos los campos con las funciones de validación
+    const validacion = validarFormularioEmpleado(formData);
+
+    if (!validacion.valido) {
+      setErroresCampos(validacion.errores);
+      setError('Por favor corrija los errores en el formulario');
+      setLoading(false);
+      return;
+    }
+
+    // Validar que se haya seleccionado un perfil
+    if (!formData.codigo_perfil) {
+      setErroresCampos({ ...erroresCampos, codigo_perfil: 'Debe seleccionar un perfil' });
       setError('Todos los campos marcados con * son obligatorios');
       setLoading(false);
       return;
@@ -63,17 +117,21 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
 
     try {
       const empleadoData = {
-        ...formData,
+        nombre: formData.nombre.trim(),
+        apellido: formData.apellido.trim(),
+        usuario: formData.usuario.trim(),
+        contrasena: formData.contrasena,
+        correo: formData.correo.trim().toLowerCase(),
         salario: formData.salario ? parseFloat(formData.salario) : 0,
         codigo_perfil: parseInt(formData.codigo_perfil),
-        telefono: formData.telefono || null
+        telefono: formData.telefono ? formData.telefono.replace(/-/g, '') : null
       };
 
       console.log('🚀 Enviando empleado:', empleadoData);
 
       const response = await fetch('http://20.64.150.5:8000/api/empleados/nuevo/', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -87,7 +145,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
       }
 
       console.log('✅ Empleado guardado:', result);
-      
+
       if (result.success) {
         onEmpleadoAgregado();
         onClose();
@@ -136,7 +194,12 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className={erroresCampos.nombre ? 'input-error' : ''}
+                  placeholder="Solo letras"
                 />
+                {erroresCampos.nombre && (
+                  <span className="error-message">{erroresCampos.nombre}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -148,7 +211,12 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className={erroresCampos.apellido ? 'input-error' : ''}
+                  placeholder="Solo letras"
                 />
+                {erroresCampos.apellido && (
+                  <span className="error-message">{erroresCampos.apellido}</span>
+                )}
               </div>
             </div>
 
@@ -161,8 +229,13 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   value={formData.telefono}
                   onChange={handleChange}
                   disabled={loading}
-                  placeholder="Opcional"
+                  className={erroresCampos.telefono ? 'input-error' : ''}
+                  placeholder="9999-9999"
+                  maxLength="9"
                 />
+                {erroresCampos.telefono && (
+                  <span className="error-message">{erroresCampos.telefono}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -174,7 +247,12 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className={erroresCampos.correo ? 'input-error' : ''}
+                  placeholder="correo@ejemplo.com"
                 />
+                {erroresCampos.correo && (
+                  <span className="error-message">{erroresCampos.correo}</span>
+                )}
               </div>
             </div>
           </div>
@@ -192,7 +270,13 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className={erroresCampos.usuario ? 'input-error' : ''}
+                  placeholder="usuario123"
+                  maxLength="20"
                 />
+                {erroresCampos.usuario && (
+                  <span className="error-message">{erroresCampos.usuario}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -204,7 +288,13 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className={erroresCampos.contrasena ? 'input-error' : ''}
+                  placeholder="Mínimo 6 caracteres"
+                  minLength="6"
                 />
+                {erroresCampos.contrasena && (
+                  <span className="error-message">{erroresCampos.contrasena}</span>
+                )}
               </div>
             </div>
 
@@ -212,15 +302,17 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
               <div className="form-group">
                 <label>Salario</label>
                 <input
-                  type="number"
+                  type="text"
                   name="salario"
                   value={formData.salario}
                   onChange={handleChange}
                   placeholder="0.00"
                   disabled={loading}
-                  step="0.01"
-                  min="0"
+                  className={erroresCampos.salario ? 'input-error' : ''}
                 />
+                {erroresCampos.salario && (
+                  <span className="error-message">{erroresCampos.salario}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -231,6 +323,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   required
                   disabled={loading || cargandoPerfiles}
+                  className={erroresCampos.codigo_perfil ? 'input-error' : ''}
                 >
                   <option value="">Seleccione un perfil</option>
                   {perfiles.map((perfil) => (
@@ -240,6 +333,9 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   ))}
                 </select>
                 {cargandoPerfiles && <small>Cargando perfiles...</small>}
+                {erroresCampos.codigo_perfil && (
+                  <span className="error-message">{erroresCampos.codigo_perfil}</span>
+                )}
               </div>
             </div>
           </div>

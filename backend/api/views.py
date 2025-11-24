@@ -38,6 +38,31 @@ class ClienteViewSet(viewsets.ModelViewSet):
     queryset = TblClientes.objects.all()
     serializer_class = ClienteSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        """Verificar que el cliente no tenga facturas o cotizaciones antes de eliminar"""
+        cliente = self.get_object()
+
+        # Verificar si tiene facturas
+        facturas_count = TblFacturas.objects.filter(id_cliente=cliente).count()
+        if facturas_count > 0:
+            return Response({
+                'success': False,
+                'error': f'No se puede eliminar este cliente porque tiene {facturas_count} factura(s) asociada(s).',
+                'detail': 'Los clientes con historial de facturas no pueden ser eliminados para mantener la integridad de los registros contables.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verificar si tiene cotizaciones
+        cotizaciones_count = TblCotizaciones.objects.filter(id_cliente=cliente).count()
+        if cotizaciones_count > 0:
+            return Response({
+                'success': False,
+                'error': f'No se puede eliminar este cliente porque tiene {cotizaciones_count} cotizacion(es) asociada(s).',
+                'detail': 'Los clientes con historial de cotizaciones no pueden ser eliminados. Considere anular las cotizaciones primero.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Si no tiene facturas ni cotizaciones, permitir eliminación
+        return super().destroy(request, *args, **kwargs)
+
 class EmpleadoViewSet(viewsets.ModelViewSet):
     queryset = TblEmpleados.objects.all()
     serializer_class = EmpleadoSerializer
