@@ -10,7 +10,6 @@ import FormatoFactura from "./FormatoFactura";
 import ListaFacturas from "./ListaFacturas";
 
 import "../../styles/scss/pages/_facturacion.scss";
-import api from "../../services/api";
 
 export default function Facturacion({ onCancel }) {
   const facturaRef = useRef();
@@ -80,22 +79,50 @@ export default function Facturacion({ onCancel }) {
     try {
       console.log("Iniciando carga de datos para facturación...");
       
+      const endpoints = {
+        clientes: 'http://localhost:8000/api/clientes/',
+        empleados: 'http://localhost:8000/api/empleados/',
+        materiales: 'http://localhost:8000/api/materiales/',
+        productos: 'http://localhost:8000/api/joyas/'
+      };
+
       const [clientesRes, empleadosRes, materialesRes, productosRes] = await Promise.all([
-        api.get('/clientes/'),
-        api.get('/empleados/'),
-        api.get('/materiales/'),
-        api.get('/joyas/')
+        fetch(endpoints.clientes).then(res => {
+          if (!res.ok) throw new Error('Error al cargar clientes');
+          return res.json();
+        }),
+        fetch(endpoints.empleados).then(res => {
+          if (!res.ok) {
+            console.warn("API de empleados no disponible");
+            return [];
+          }
+          return res.json();
+        }),
+        fetch(endpoints.materiales).then(res => {
+          if (!res.ok) {
+            console.warn("API de materiales no disponible");
+            return [];
+          }
+          return res.json();
+        }),
+        fetch(endpoints.productos).then(res => {
+          if (!res.ok) {
+            console.warn("API de productos no disponible");
+            return [];
+          }
+          return res.json();
+        })
       ]);
 
-      console.log("Clientes cargados:", clientesRes.data.length);
-      console.log("Empleados cargados:", empleadosRes.data.length);
-      console.log("Materiales cargados:", materialesRes.data.length);
-      console.log("Productos cargados:", productosRes.data.length);
+      console.log("Clientes cargados:", clientesRes.length);
+      console.log("Empleados cargados:", empleadosRes.length);
+      console.log("Materiales cargados:", materialesRes.length);
+      console.log("Productos cargados:", productosRes.length);
 
-      setClientes(clientesRes.data);
-      setEmpleados(empleadosRes.data);
-      setMaterialesStock(materialesRes.data);
-      setProductosStock(productosRes.data);
+      setClientes(clientesRes);
+      setEmpleados(empleadosRes);
+      setMaterialesStock(materialesRes);
+      setProductosStock(productosRes);
       
     } catch (error) {
       console.error("Error cargando datos:", error);
@@ -258,9 +285,32 @@ export default function Facturacion({ onCancel }) {
 
       console.log("Enviando datos de factura:", JSON.stringify(facturaData, null, 2));
 
-      const response = await api.post('/facturas/crear-simple/', facturaData);
+      const endpoint = 'http://localhost:8000/api/facturas/crear-simple/';
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(facturaData)
+      });
 
-      const responseData = response.data;
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error del servidor:", response.status, errorText);
+        
+        // Intentar parsear como JSON para ver el error detallado
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.error("Error detallado del backend:", errorJson);
+        } catch {
+          console.error("Error en texto plano:", errorText);
+        }
+        
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
       console.log('Factura guardada en BD:', responseData);
       return responseData;
       

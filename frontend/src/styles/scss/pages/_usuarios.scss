@@ -6,17 +6,17 @@
 // ========================================
 
 .usuarios-page {
-  padding: $spacing-2xl $spacing-xl;
+  padding: $spacing-lg $spacing-md;
   min-height: 100vh;
   background: $bg-secondary;
   @include fade-in;
 
   @include responsive(lg) {
-    padding: $spacing-xl $spacing-lg;
+    padding: $spacing-md $spacing-sm;
   }
 
   @include responsive(md) {
-    padding: $spacing-lg $spacing-md;
+    padding: $spacing-sm;
   }
 }
 
@@ -26,11 +26,11 @@
 
 .usuarios-filtros {
   @include card-base;
-  padding: $spacing-xl;
-  margin-bottom: $spacing-2xl;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: $spacing-md;
 
   .filtros-superiores {
     display: flex;
@@ -46,10 +46,10 @@
   }
 
   .search-pill {
+    @include search-pill;
     flex: 1;
     max-width: 400px;
     min-width: 250px;
-    box-shadow: $shadow-md;
 
     @include responsive(md) {
       max-width: 100%;
@@ -73,50 +73,13 @@
     }
   }
 
-  .filtro-grupo {
-    @include flex-center;
-    gap: $spacing-sm;
-    background: $bg-secondary;
-    padding: $spacing-sm $spacing-md;
-    border-radius: $border-radius-pill;
-    border: 2px solid $border-color-light;
-    transition: all $transition-normal;
-
-    &:focus-within {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-    }
-
-    .filtro-icon {
-      color: $primary-color;
-      font-size: $font-size-lg;
-    }
-
-    .filtro-select {
-      border: none;
-      background: transparent;
-      padding: $spacing-sm;
-      font-size: $font-size-base;
-      color: $text-primary;
-      font-weight: $font-weight-medium;
-      cursor: pointer;
-      outline: none;
-      min-width: 160px;
-
-      @include responsive(md) {
-        min-width: 140px;
-      }
-
-      @include responsive(sm) {
-        width: 100%;
-        min-width: 100%;
-      }
-    }
-  }
-
   .btn-nuevo-usuario {
-    min-width: 180px;
-    box-shadow: $shadow-primary-lg;
+    @include button-pill-primary;
+    min-width: 160px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
     @include responsive(md) {
       width: 100%;
@@ -126,7 +89,7 @@
   .usuarios-stats {
     display: flex;
     justify-content: flex-end;
-    padding-top: $spacing-md;
+    padding-top: $spacing-sm;
     border-top: 1px solid $border-color-light;
 
     .stat-badge {
@@ -159,40 +122,57 @@
 
 .usuarios-content {
   @include card-base;
-  padding: $spacing-xl;
+  padding: $spacing-lg;
   min-height: 400px;
+  overflow: visible;
 }
 
-.usuarios-grid {
-  @include grid-responsive(3, $spacing-xl);
+// Grid compacto para tarjetas pequeñas
+.usuarios-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-md;
+  align-items: start;
 
   @include responsive(xl) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  @include responsive(lg) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 
   @include responsive(md) {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  @include responsive(sm) {
     grid-template-columns: 1fr;
   }
 }
 
 // ========================================
-// TARJETA DE USUARIO
+// TARJETA DE USUARIO SUPER COMPACTA
 // ========================================
 
-.usuario-card {
+.usuario-card-compact {
   @include card-interactive;
-  padding: $spacing-xl;
+  padding: $spacing-md;
   position: relative;
   overflow: hidden;
   background: linear-gradient(145deg, $bg-primary 0%, lighten($primary-light, 5%) 100%);
   @include slide-in-left;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
 
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 3px;
     height: 100%;
     background: linear-gradient(180deg, $primary-color 0%, $accent-color 100%);
   }
@@ -202,169 +182,190 @@
   }
 }
 
-.usuario-card-header {
+// Header super compacto
+.usuario-header-super-compact {
   display: flex;
-  align-items: center;
-  gap: $spacing-lg;
-  margin-bottom: $spacing-xl;
-  padding-bottom: $spacing-lg;
-  border-bottom: 2px solid $border-color-light;
-}
+  align-items: flex-start;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
 
-.usuario-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
-  @include flex-center;
-  color: $text-light;
-  font-size: $font-size-2xl;
-  box-shadow: $shadow-primary-lg;
-  flex-shrink: 0;
-}
-
-.usuario-info-principal {
-  flex: 1;
-  min-width: 0;
-
-  .usuario-nombre {
-    font-size: $font-size-xl;
-    font-weight: $font-weight-bold;
-    color: $text-primary;
-    margin: 0 0 $spacing-xs 0;
-    @include text-ellipsis;
-  }
-
-  .usuario-email {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xs;
-    color: $text-secondary;
+  .avatar-mini {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+    @include flex-center;
+    color: $text-light;
     font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-    @include text-ellipsis;
+    flex-shrink: 0;
 
     svg {
-      color: $primary-color;
-      flex-shrink: 0;
-    }
-  }
-}
-
-// ========================================
-// DETALLES DEL USUARIO
-// ========================================
-
-.usuario-detalles {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  margin-bottom: $spacing-xl;
-}
-
-.detalle-item {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-md;
-  background: $bg-secondary;
-  border-radius: $border-radius;
-  transition: all $transition-fast;
-
-  &:hover {
-    background: lighten($bg-secondary, 2%);
-    transform: translateX(4px);
-  }
-
-  .detalle-icon {
-    color: $primary-color;
-    font-size: $font-size-lg;
-    flex-shrink: 0;
-  }
-
-  .detalle-content {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: $spacing-sm;
-
-    &.estado-content {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: $spacing-xs;
+      display: block !important;
     }
   }
 
-  .detalle-label {
-    font-size: $font-size-sm;
-    color: $text-secondary;
-    font-weight: $font-weight-semibold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .detalle-valor {
-    font-size: $font-size-base;
-    color: $text-primary;
-    font-weight: $font-weight-medium;
-  }
-}
-
-// Badges específicos
-.perfil-badge {
-  background: linear-gradient(135deg, lighten($primary-color, 35%) 0%, lighten($primary-color, 30%) 100%);
-  color: $primary-dark;
-  padding: $spacing-xs $spacing-md;
-  border-radius: $border-radius-pill;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-bold;
-  border: 2px solid $primary-color;
-  box-shadow: $shadow-sm;
-}
-
-.estado-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  border-radius: $border-radius-pill;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: $shadow-sm;
-
-  &.activo {
-    background: linear-gradient(135deg, lighten($success-color, 40%) 0%, lighten($success-color, 35%) 100%);
-    color: $success-dark;
-    border: 2px solid $success-color;
-  }
-
-  &.inactivo {
-    background: linear-gradient(135deg, lighten($error-color, 40%) 0%, lighten($error-color, 35%) 100%);
-    color: $error-dark;
-    border: 2px solid $error-color;
-  }
-
-  svg {
-    font-size: $font-size-sm;
-  }
-}
-
-// ========================================
-// ACCIONES DE USUARIO
-// ========================================
-
-.usuario-acciones {
-  display: flex;
-  gap: $spacing-md;
-
-  .btn-accion {
+  .usuario-info-super-compact {
     flex: 1;
-    font-size: $font-size-sm;
-    padding: $spacing-md;
     min-width: 0;
+
+    .nombre-super-compact {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+      margin: 0 0 4px 0;
+      @include text-ellipsis;
+      line-height: 1.2;
+    }
+
+    .info-lineas {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-linea {
+      font-size: 10px; // $font-size-xs - 1
+      color: $text-muted;
+      @include text-ellipsis;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      svg {
+        font-size: 10px;
+        color: $primary-color;
+        flex-shrink: 0;
+        display: block !important;
+      }
+    }
+  }
+
+  .estado-mini {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    @include flex-center;
+    font-size: $font-size-xs;
+    flex-shrink: 0;
+
+    &.activo {
+      background: rgba($success-color, 0.15);
+      color: $success-color;
+    }
+
+    &.inactivo {
+      background: rgba($error-color, 0.15);
+      color: $error-color;
+    }
+
+    svg {
+      display: block !important;
+    }
+  }
+}
+
+// Detalles en línea
+.detalles-linea {
+  display: flex;
+  gap: $spacing-xs;
+  margin: $spacing-xs 0;
+  flex-wrap: wrap;
+
+  .detalle-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba($primary-color, 0.08);
+    padding: 2px 8px;
+    border-radius: $border-radius-pill;
+    font-size: 10px; // $font-size-xs - 1
+    color: $text-secondary;
+    border: 1px solid rgba($primary-color, 0.1);
+
+    .icono-chip {
+      font-size: 10px;
+      color: $primary-color;
+      display: block !important;
+    }
+  }
+}
+
+// Acciones compactas (CORREGIDO PARA MOSTRAR ICONOS)
+.acciones-compact {
+  display: flex;
+  gap: $spacing-xs;
+  justify-content: flex-end;
+  margin-top: auto;
+
+  .btn-mini {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: $border-radius;
+    // Flexbox explícito para centrar el icono
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px; // Tamaño base del icono
+    transition: all $transition-fast;
+    flex-shrink: 0;
+    padding: 0;
+
+    // Regla específica para el SVG dentro del botón
+    svg {
+      display: block;
+      width: 1em;
+      height: 1em;
+      min-width: 14px; 
+      min-height: 14px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    // Botón Ver Detalles
+    &.btn-ver {
+      background: rgba($primary-color, 0.15);
+      color: $primary-color;
+      border: 1px solid rgba($primary-color, 0.3);
+      
+      &:hover {
+        background: $primary-color;
+        color: $text-light;
+        border-color: $primary-color;
+        box-shadow: 0 4px 8px rgba($primary-color, 0.3);
+      }
+    }
+
+    &.btn-editar-azul {
+      background: rgba($info-color, 0.15);
+      color: $info-dark;
+      border: 1px solid rgba($info-color, 0.3);
+
+      &:hover {
+        background: $info-color;
+        color: $text-light;
+        border-color: $info-color;
+        box-shadow: 0 4px 8px rgba($info-color, 0.3);
+      }
+    }
+
+    &.btn-eliminar {
+      background: rgba($error-color, 0.15);
+      color: $error-dark;
+      border: 1px solid rgba($error-color, 0.3);
+
+      &:hover {
+        background: $error-color;
+        color: $text-light;
+        border-color: $error-color;
+        box-shadow: 0 4px 8px rgba($error-color, 0.3);
+      }
+    }
   }
 }
 
@@ -374,25 +375,25 @@
 
 .no-resultados {
   text-align: center;
-  padding: $spacing-3xl;
+  padding: $spacing-2xl;
   @include flex-column;
   align-items: center;
-  gap: $spacing-lg;
+  gap: $spacing-md;
 
   .no-resultados-icon {
-    font-size: 80px;
+    font-size: 48px;
     opacity: 0.3;
   }
 
   h3 {
-    font-size: $font-size-2xl;
+    font-size: $font-size-xl;
     color: $text-primary;
     margin: 0;
     font-weight: $font-weight-bold;
   }
 
   p {
-    font-size: $font-size-lg;
+    font-size: $font-size-base;
     color: $text-secondary;
     margin: 0;
   }
@@ -403,21 +404,21 @@
   @include flex-column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
-  gap: $spacing-xl;
+  min-height: 200px;
+  gap: $spacing-lg;
   text-align: center;
 
   .spinner {
-    width: 60px;
-    height: 60px;
-    border: 4px solid $border-color-light;
+    width: 40px;
+    height: 40px;
+    border: 3px solid $border-color-light;
     border-top-color: $primary-color;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
 
   p {
-    font-size: $font-size-xl;
+    font-size: $font-size-lg;
     color: $text-secondary;
     font-weight: $font-weight-medium;
   }
@@ -429,12 +430,12 @@
 
 .error-state {
   .error-icon {
-    font-size: 80px;
+    font-size: 48px;
     color: $error-color;
   }
 
   h3 {
-    font-size: $font-size-2xl;
+    font-size: $font-size-xl;
     color: $error-color;
     margin: 0;
     font-weight: $font-weight-bold;
@@ -451,23 +452,34 @@
 
 .modal-overlay {
   @include modal-backdrop;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: fadeIn 0.2s ease;
 }
 
 .modal-confirmacion {
   @include modal-content;
-  padding: $spacing-2xl;
-  max-width: 450px;
+  padding: $spacing-xl;
+  max-width: 400px;
   text-align: center;
+  background: $bg-primary;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
   animation: slideUp 0.3s ease;
 
   .modal-icon-warning {
-    font-size: 60px;
-    margin-bottom: $spacing-lg;
+    font-size: 48px;
+    margin-bottom: $spacing-md;
   }
 
   h3 {
-    font-size: $font-size-2xl;
+    font-size: $font-size-xl;
     color: $text-primary;
     margin: 0 0 $spacing-md 0;
     font-weight: $font-weight-bold;
@@ -476,7 +488,7 @@
   p {
     font-size: $font-size-base;
     color: $text-secondary;
-    margin: 0 0 $spacing-xl 0;
+    margin: 0 0 $spacing-lg 0;
     line-height: 1.6;
 
     strong {
@@ -486,39 +498,180 @@
   }
 
   .modal-acciones {
+    @include pill-button-group;
     display: flex;
-    gap: $spacing-md;
     justify-content: center;
-
+    gap: $spacing-md;
+    
     .btn-pill {
-      min-width: 140px;
-    }
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(30px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
+      min-width: 120px;
     }
   }
 }
 
 // ========================================
-// PÁGINA DE FORMULARIO
+// MODAL DE DETALLES (NUEVO)
+// ========================================
+
+.modal-detalles {
+  @include modal-content;
+  width: 90%;
+  max-width: 500px;
+  padding: 0;
+  overflow: hidden;
+  background: $bg-primary;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-md $spacing-lg;
+    background: $bg-secondary;
+    border-bottom: 1px solid $border-color-light;
+
+    h2 {
+      margin: 0;
+      font-size: $font-size-lg;
+      color: $text-primary;
+      font-weight: $font-weight-bold;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: $text-secondary;
+      font-size: $font-size-lg;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: rgba($error-color, 0.1);
+        color: $error-color;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: $spacing-lg;
+    overflow-y: auto;
+    max-height: 70vh;
+
+    .perfil-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      margin-bottom: $spacing-xl;
+      padding-bottom: $spacing-md;
+      border-bottom: 1px dashed $border-color-light;
+
+      .perfil-avatar-large {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $text-light;
+        font-size: 28px;
+      }
+
+      .perfil-titulos {
+        h3 {
+          margin: 0 0 4px 0;
+          font-size: $font-size-xl;
+          color: $text-primary;
+        }
+
+        .badge-estado {
+          display: inline-block;
+          padding: 2px 8px;
+          border-radius: $border-radius-pill;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-bold;
+          text-transform: uppercase;
+
+          &.activo {
+            background: rgba($success-color, 0.15);
+            color: $success-color;
+          }
+
+          &.inactivo {
+            background: rgba($error-color, 0.15);
+            color: $error-color;
+          }
+        }
+      }
+    }
+
+    .detalles-grid {
+      display: grid;
+      gap: $spacing-md;
+
+      .detalle-item {
+        background: $bg-secondary;
+        padding: $spacing-md;
+        border-radius: $border-radius;
+        border: 1px solid $border-color-light;
+        transition: border-color $transition-fast;
+        
+        &:hover {
+            border-color: rgba($primary-color, 0.3);
+        }
+
+        .label {
+          font-size: $font-size-xs;
+          color: $text-secondary;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: bold;
+          
+          svg { color: $primary-color; }
+        }
+
+        .valor {
+          font-size: $font-size-base;
+          color: $text-primary;
+          font-weight: $font-weight-medium;
+          word-break: break-all;
+        }
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: $spacing-md $spacing-lg;
+    border-top: 1px solid $border-color-light;
+    text-align: right;
+    background: $bg-primary;
+  }
+}
+
+// ========================================
+// PÁGINA DE FORMULARIO (RESTAURADO)
 // ========================================
 
 .formulario-page {
-  padding: $spacing-2xl;
+  padding: $spacing-lg;
   min-height: 100vh;
   background: $bg-secondary;
   @include fade-in;
 
   @include responsive(md) {
-    padding: $spacing-lg;
+    padding: $spacing-md;
   }
 }
 
@@ -528,21 +681,21 @@
 }
 
 // ========================================
-// HEADER DEL FORMULARIO
+// HEADER DEL FORMULARIO (RESTAURADO)
 // ========================================
 
 .formulario-header {
-  margin-bottom: $spacing-2xl;
+  margin-bottom: $spacing-lg;
   @include flex-start;
-  gap: $spacing-xl;
+  gap: $spacing-md;
   @include card-base;
-  padding: $spacing-xl;
+  padding: $spacing-lg;
   background: linear-gradient(135deg, $bg-primary 0%, lighten($primary-light, 3%) 100%);
   border-left: 4px solid $primary-color;
 
   @include responsive(md) {
     flex-direction: column;
-    gap: $spacing-lg;
+    gap: $spacing-md;
   }
 
   .btn-volver {
@@ -551,7 +704,7 @@
     background: linear-gradient(135deg, $gray-500 0%, $gray-600 100%);
     color: $text-light;
     border: none;
-    padding: $spacing-md $spacing-lg;
+    padding: $spacing-sm $spacing-md;
     border-radius: $border-radius-pill;
     font-weight: $font-weight-semibold;
     cursor: pointer;
@@ -576,7 +729,7 @@
 
     h1 {
       color: $text-primary;
-      font-size: $font-size-3xl;
+      font-size: $font-size-2xl;
       font-weight: $font-weight-bold;
       margin: 0 0 $spacing-xs 0;
       @include gradient-text;
@@ -584,7 +737,7 @@
 
     p {
       color: $text-secondary;
-      font-size: $font-size-lg;
+      font-size: $font-size-base;
       margin: 0;
       font-weight: $font-weight-medium;
     }
@@ -592,16 +745,16 @@
 }
 
 // ========================================
-// CONTENIDO DEL FORMULARIO
+// CONTENIDO DEL FORMULARIO (RESTAURADO)
 // ========================================
 
 .formulario-content {
   @include card-base;
-  padding: $spacing-2xl;
+  padding: $spacing-lg;
   @include slide-in-left;
 
   @include responsive(md) {
-    padding: $spacing-xl;
+    padding: $spacing-md;
   }
 }
 
@@ -610,41 +763,41 @@
   background: linear-gradient(135deg, lighten($error-color, 40%) 0%, lighten($error-color, 35%) 100%);
   border-left: 4px solid $error-color;
   color: $error-dark;
-  padding: $spacing-lg;
+  padding: $spacing-md;
   border-radius: $border-radius;
-  margin-bottom: $spacing-xl;
+  margin-bottom: $spacing-lg;
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: $spacing-sm;
   box-shadow: $shadow-md;
   font-weight: $font-weight-medium;
 
   .alert-icon {
-    font-size: $font-size-2xl;
+    font-size: $font-size-lg;
     flex-shrink: 0;
   }
 }
 
 // ========================================
-// GRID Y SECCIONES
+// GRID Y SECCIONES FORMULARIO
 // ========================================
 
 .formulario-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-2xl;
-  margin-bottom: $spacing-2xl;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
 
   @include responsive(lg) {
     grid-template-columns: 1fr;
-    gap: $spacing-xl;
+    gap: $spacing-md;
   }
 }
 
 .formulario-seccion {
   @include flex-column;
-  gap: $spacing-lg;
-  padding: $spacing-xl;
+  gap: $spacing-md;
+  padding: $spacing-lg;
   background: linear-gradient(145deg, $bg-secondary 0%, lighten($bg-secondary, 2%) 100%);
   border-radius: $border-radius-lg;
   border: 2px solid $border-color-light;
@@ -656,11 +809,11 @@
   }
 
   .seccion-titulo {
-    font-size: $font-size-xl;
+    font-size: $font-size-lg;
     font-weight: $font-weight-bold;
     color: $text-primary;
-    margin: 0 0 $spacing-md 0;
-    padding-bottom: $spacing-md;
+    margin: 0 0 $spacing-sm 0;
+    padding-bottom: $spacing-sm;
     border-bottom: 2px solid $primary-color;
     @include gradient-text;
   }
@@ -673,7 +826,7 @@
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-lg;
+  gap: $spacing-md;
 
   @include responsive(md) {
     grid-template-columns: 1fr;
@@ -682,7 +835,7 @@
 
 .form-group {
   @include flex-column;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
 
   label {
     font-size: $font-size-sm;
@@ -694,7 +847,7 @@
 
   input,
   select {
-    padding: $spacing-md;
+    padding: $spacing-sm;
     border: 2px solid $border-color-light;
     border-radius: $border-radius;
     font-size: $font-size-base;
@@ -732,8 +885,8 @@
 .formulario-acciones {
   display: flex;
   justify-content: flex-end;
-  gap: $spacing-lg;
-  padding-top: $spacing-2xl;
+  gap: $spacing-md;
+  padding-top: $spacing-lg;
   border-top: 2px solid $border-color-light;
 
   @include responsive(md) {
@@ -741,13 +894,38 @@
   }
 
   .btn-pill {
-    min-width: 180px;
+    min-width: 160px;
     box-shadow: $shadow-lg;
 
     @include responsive(md) {
       width: 100%;
       min-width: 0;
     }
+  }
+}
+
+// ========================================
+// RESPONSIVE FINAL
+// ========================================
+
+@include responsive(sm) {
+  .usuarios-page,
+  .formulario-page {
+    padding: $spacing-sm;
+  }
+
+  .usuarios-filtros,
+  .usuarios-content,
+  .formulario-content {
+    padding: $spacing-md;
+  }
+
+  .formulario-seccion {
+    padding: $spacing-md;
+  }
+  
+  .usuario-card-compact {
+    padding: $spacing-sm;
   }
 }
 
@@ -766,32 +944,13 @@
   }
 }
 
-// ========================================
-// RESPONSIVE FINAL
-// ========================================
-
-@include responsive(sm) {
-  .usuarios-page,
-  .formulario-page {
-    padding: $spacing-lg $spacing-md;
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
   }
-
-  .usuarios-header .header-content,
-  .formulario-header {
-    padding: $spacing-lg;
-  }
-
-  .usuarios-filtros,
-  .usuarios-content,
-  .formulario-content {
-    padding: $spacing-lg;
-  }
-
-  .usuario-card {
-    padding: $spacing-lg;
-  }
-
-  .formulario-seccion {
-    padding: $spacing-lg;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
