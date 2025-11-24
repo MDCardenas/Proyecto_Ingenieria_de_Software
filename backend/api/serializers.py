@@ -538,6 +538,13 @@ class OrdenTrabajoSerializer(serializers.ModelSerializer):
         ],
         required=False
     )
+    tipo_orden = serializers.ChoiceField(
+        choices=[
+            ('FABRICACION', 'Fabricación'),
+            ('REPARACION', 'Reparación'),
+            ('AJUSTE', 'Ajuste'),
+        ]
+    )
 
     class Meta:
         model = TblOrdenesTrabajo
@@ -1014,8 +1021,10 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
             productos_data = validated_data.pop('productos', [])
             materiales_data = validated_data.pop('materiales', [])
             fecha_factura = validated_data.pop('fecha', None)
+            tipo_venta = validated_data.get('tipo_venta', 'VENTA')
 
             print("Datos validados:", validated_data)
+            print("Tipo venta:", tipo_venta)
             print("Productos:", len(productos_data))
             print("Materiales:", len(materiales_data))
 
@@ -1030,7 +1039,7 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
                 'descuento': validated_data.get('descuento', 0),
                 'isv': validated_data.get('isv', 0),
                 'total': validated_data.get('total', 0),
-                'tipo_venta': validated_data.get('tipo_venta', 'VENTA'),
+                'tipo_venta': tipo_venta,
                 'observaciones': validated_data.get('observaciones', ''),
                 'estado_pago': 'PENDIENTE'
             }
@@ -1048,7 +1057,7 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
             factura = TblFacturas.objects.create(**factura_data)
 
             print("Factura #{} creada".format(factura.numero_factura))
-            
+
             # Crear detalles de productos - USAR 'JOYA' EN LUGAR DE 'PRODUCTO'
             for index, producto in enumerate(productos_data):
                 TblDetallesFactura.objects.create(
@@ -1063,7 +1072,7 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
                     precio_unitario=producto.get('precio', 0)
                 )
                 print("Producto {} agregado como JOYA".format(index + 1))
-            
+
             # Crear detalles de materiales
             for index, material in enumerate(materiales_data):
                 TblDetallesFactura.objects.create(
@@ -1078,9 +1087,46 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
                     precio_unitario=material.get('costo', 0)
                 )
                 print("Material {} agregado".format(index + 1))
-            
+
+            # CREAR ORDEN DE TRABAJO AUTOMÁTICAMENTE PARA FABRICACION Y REPARACION
+            if tipo_venta in ['FABRICACION', 'REPARACION']:
+                try:
+                    # Calcular costo de mano de obra (puedes ajustar esta lógica)
+                    costo_mano_obra = Decimal('0')
+
+                    # Crear descripción basada en los productos
+                    descripcion_orden = "Orden generada automáticamente para {}. ".format(tipo_venta.lower())
+                    if productos_data:
+                        descripcion_orden += "Productos: {}. ".format(
+                            ", ".join([p.get('producto', 'Sin nombre') for p in productos_data[:3]])
+                        )
+                    if validated_data.get('observaciones'):
+                        descripcion_orden += "Observaciones: {}".format(validated_data['observaciones'])
+
+                    orden_trabajo = TblOrdenesTrabajo.objects.create(
+                        numero_factura=factura,
+                        id_empleado_id=validated_data['id_empleado'],
+                        tipo_orden=tipo_venta,  # FABRICACION o REPARACION
+                        descripcion=descripcion_orden[:500],  # Limitar a 500 caracteres
+                        costo_mano_obra=costo_mano_obra,
+                        estado='PENDIENTE'
+                        # fecha_inicio se auto-genera con auto_now_add
+                        # fecha_estimada es opcional
+                    )
+                    print("Orden de trabajo #{} creada para factura #{}".format(
+                        orden_trabajo.id_orden,
+                        factura.numero_factura
+                    ))
+                except Exception as e:
+                    print("ERROR al crear orden de trabajo: {}".format(str(e)))
+                    # No fallar la transacción por esto, solo loggear
+                    import traceback
+                    print(traceback.format_exc())
+
             return factura
-            
+
         except Exception as e:
             print("Error creando factura simple:", str(e))
+            import traceback
+            print(traceback.format_exc())
             raise serializers.ValidationError("Error al crear factura: {}".format(str(e)))

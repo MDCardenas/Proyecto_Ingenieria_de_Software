@@ -243,8 +243,9 @@ class TblOrdenesTrabajo(models.Model):
     TIPO_ORDEN_CHOICES = [
         ('FABRICACION', 'Fabricación'),
         ('REPARACION', 'Reparación'),
+        ('AJUSTE', 'Ajuste'),
     ]
-    
+
     ESTADO_CHOICES = [
         ('PENDIENTE', 'Pendiente'),
         ('EN_PROCESO', 'En Proceso'),
