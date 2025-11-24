@@ -112,63 +112,20 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 class EmpleadoSerializer(serializers.ModelSerializer):
     perfil_nombre = serializers.CharField(source='codigo_perfil.perfil', read_only=True)
+    codigo_perfil = serializers.PrimaryKeyRelatedField(queryset=PerfilesEmpleados.objects.all())  # AGREGAR ESTO
     
     class Meta:
         model = TblEmpleados
         fields = [
             'id_empleado', 'codigo_perfil', 'perfil_nombre', 'nombre', 
-            'apellido', 'usuario', 'contrasena', 'telefono', 'correo', 'salario'
+            'apellido', 'usuario', 'telefono', 'correo', 'salario', 'contrasena'
         ]
         extra_kwargs = {
-            'contrasena': {'write_only': True, 'required': False, 'allow_blank': True},
-            'usuario': {'required': True},
-            'correo': {'required': True},
-            'nombre': {'required': True},
-            'apellido': {'required': True},
-            'codigo_perfil': {'required': True}
+            'contrasena': {'write_only': True}
         }
-
-    def validate_usuario(self, value):
-        """Validar que el usuario sea único (excepto para la instancia actual)"""
-        if self.instance:
-            if TblEmpleados.objects.filter(usuario=value).exclude(id_empleado=self.instance.id_empleado).exists():
-                raise serializers.ValidationError("El nombre de usuario ya está en uso")
-        else:
-            if TblEmpleados.objects.filter(usuario=value).exists():
-                raise serializers.ValidationError("El nombre de usuario ya está en uso")
-        return value
-
-    def validate_correo(self, value):
-        """Validar que el correo sea único (excepto para la instancia actual)"""
-        if self.instance:
-            if TblEmpleados.objects.filter(correo=value).exclude(id_empleado=self.instance.id_empleado).exists():
-                raise serializers.ValidationError("El correo electrónico ya está en uso")
-        else:
-            if TblEmpleados.objects.filter(correo=value).exists():
-                raise serializers.ValidationError("El correo electrónico ya está en uso")
-        return value
-
-    def validate_contrasena(self, value):
-        """Validar que la contraseña no esté vacía en creación"""
-        if self.instance is None and (not value or value.strip() == ''):
-            raise serializers.ValidationError("La contraseña es obligatoria para crear un empleado")
-        return value
-
-    def update(self, instance, validated_data):
-        """Actualizar empleado manteniendo contraseña si no se proporciona nueva"""
-        contrasena = validated_data.pop('contrasena', None)
         
-        # Actualizar otros campos
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
         
-        # Solo actualizar contraseña si se proporciona una nueva y no está vacía
-        if contrasena and contrasena.strip() != '':
-            instance.contrasena = contrasena
-        
-        instance.save()
-        return instance
-
+    
 class StockJoyaSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
     
