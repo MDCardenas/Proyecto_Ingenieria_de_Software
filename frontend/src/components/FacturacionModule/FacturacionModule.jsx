@@ -279,7 +279,8 @@ export default function Facturacion({ onCancel }) {
           tipo: m.tipo,
           peso: parseFloat((parseFloat(m.peso) || 0).toFixed(2)),
           precio: parseFloat((parseFloat(m.precio) || 0).toFixed(2)),
-          costo: parseFloat((parseFloat(m.costo) || 0).toFixed(2))
+          costo: parseFloat((parseFloat(m.costo) || 0).toFixed(2)),
+          codigo_material: m.codigo_material || null // ✅ AGREGAR CODIGO_MATERIAL
         }))
       };
 

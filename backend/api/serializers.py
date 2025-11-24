@@ -1073,20 +1073,100 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
                 )
                 print("Producto {} agregado como JOYA".format(index + 1))
 
-            # Crear detalles de materiales
+            # Crear detalles de materiales (solo si tienen codigo_material válido)
             for index, material in enumerate(materiales_data):
-                TblDetallesFactura.objects.create(
-                    numero_factura=factura,
-                    tipo_item='MATERIAL',
-                    codigo_item=material.get('codigo_material', index + 1000),
-                    descripcion="{} - {}gr".format(
-                        material.get('tipo', 'Material'),
-                        material.get('peso', 0)
-                    ),
-                    cantidad=1,
-                    precio_unitario=material.get('costo', 0)
-                )
-                print("Material {} agregado".format(index + 1))
+                codigo_material = material.get('codigo_material')
+                peso_solicitado = float(material.get('peso', 0))
+
+                # Solo agregar si tiene un código de material válido del inventario
+                if codigo_material and codigo_material is not None:
+                    try:
+                        # Verificar que el material existe y obtener su stock
+                        material_stock = TblStockMateriales.objects.filter(
+                            codigo_material=codigo_material
+                        ).first()
+
+                        if material_stock:
+                            # Verificar si hay suficiente stock
+                            stock_disponible = float(material_stock.cantidad_existencia or 0)
+
+                            if stock_disponible >= peso_solicitado:
+                                # Hay suficiente stock, crear detalle normalmente
+                                TblDetallesFactura.objects.create(
+                                    numero_factura=factura,
+                                    tipo_item='MATERIAL',
+                                    codigo_item=codigo_material,
+                                    descripcion="{} - {}gr".format(
+                                        material.get('tipo', 'Material'),
+                                        material.get('peso', 0)
+                                    ),
+                                    cantidad=1,
+                                    precio_unitario=material.get('costo', 0)
+                                )
+                                print("Material {} agregado (código: {}, stock: {}gr)".format(
+                                    index + 1, codigo_material, stock_disponible
+                                ))
+                            else:
+                                # NO hay suficiente stock, registrar como servicio
+                                print("ADVERTENCIA: Stock insuficiente para material {} (disponible: {}gr, solicitado: {}gr)".format(
+                                    material.get('tipo'), stock_disponible, peso_solicitado
+                                ))
+                                TblDetallesFactura.objects.create(
+                                    numero_factura=factura,
+                                    tipo_item='SERVICIO',
+                                    codigo_item=9999,
+                                    descripcion="Material personalizado: {} - {}gr (Stock insuficiente, L.{})".format(
+                                        material.get('tipo', 'Material'),
+                                        material.get('peso', 0),
+                                        material.get('costo', 0)
+                                    ),
+                                    cantidad=1,
+                                    precio_unitario=material.get('costo', 0)
+                                )
+                        else:
+                            print("ADVERTENCIA: Material con código {} no existe en inventario".format(codigo_material))
+                            # Registrar como servicio si no existe
+                            TblDetallesFactura.objects.create(
+                                numero_factura=factura,
+                                tipo_item='SERVICIO',
+                                codigo_item=9999,
+                                descripcion="Material personalizado: {} - {}gr (L.{})".format(
+                                    material.get('tipo', 'Material'),
+                                    material.get('peso', 0),
+                                    material.get('costo', 0)
+                                ),
+                                cantidad=1,
+                                precio_unitario=material.get('costo', 0)
+                            )
+                    except Exception as e:
+                        print("ERROR al agregar material {}: {}".format(index + 1, str(e)))
+                        # En caso de error, registrar como servicio
+                        TblDetallesFactura.objects.create(
+                            numero_factura=factura,
+                            tipo_item='SERVICIO',
+                            codigo_item=9999,
+                            descripcion="Material: {} - {}gr (Error al validar stock)".format(
+                                material.get('tipo', 'Material'),
+                                material.get('peso', 0)
+                            ),
+                            cantidad=1,
+                            precio_unitario=material.get('costo', 0)
+                        )
+                else:
+                    # Si no tiene código, registrarlo como un item genérico sin descontar inventario
+                    print("Material {} sin código de inventario - registrado como SERVICIO".format(index + 1))
+                    TblDetallesFactura.objects.create(
+                        numero_factura=factura,
+                        tipo_item='SERVICIO',  # Usar SERVICIO para no activar trigger de inventario
+                        codigo_item=9999,  # Código genérico
+                        descripcion="Material personalizado: {} - {}gr (L.{})".format(
+                            material.get('tipo', 'Material'),
+                            material.get('peso', 0),
+                            material.get('costo', 0)
+                        ),
+                        cantidad=1,
+                        precio_unitario=material.get('costo', 0)
+                    )
 
             # CREAR ORDEN DE TRABAJO AUTOMÁTICAMENTE PARA FABRICACION Y REPARACION
             if tipo_venta in ['FABRICACION', 'REPARACION']:
