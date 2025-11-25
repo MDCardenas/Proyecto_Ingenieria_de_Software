@@ -55,6 +55,8 @@
       padding-bottom: $spacing-xs !important;
       border-bottom: 2px solid $gray-200 !important;
       width: 100% !important;
+      page-break-inside: avoid !important;
+      page-break-after: avoid !important;
     }
 
     .membrete-empresa {
@@ -150,6 +152,7 @@
       text-transform: uppercase !important;
       letter-spacing: 0.3px !important;
       width: 100% !important;
+      page-break-after: avoid !important;
     }
 
     .contenido-seccion {
@@ -163,6 +166,7 @@
       grid-template-columns: 1fr 1fr !important;
       gap: $spacing-xs $spacing-sm !important;
       width: 100% !important;
+      page-break-inside: avoid !important;
     }
 
     .campo-cliente {
@@ -172,6 +176,11 @@
       padding: 3px 0 !important;
       font-size: $font-size-xs !important;
       width: 100% !important;
+    }
+
+    // Sección de cliente no debe cortarse
+    .seccion-cliente {
+      page-break-inside: avoid !important;
     }
 
     // Tablas optimizadas
@@ -277,6 +286,7 @@
       padding-top: $spacing-sm !important;
       border-top: 2px solid $gray-200 !important;
       width: 100% !important;
+      page-break-inside: avoid !important;
     }
 
     .contenido-observaciones {
@@ -293,6 +303,7 @@
       justify-content: space-between !important;
       margin-top: 25px !important;
       width: 100% !important;
+      page-break-inside: avoid !important;
     }
 
     .firma-cliente,
@@ -322,6 +333,7 @@
       font-size: 9px !important;
       color: $gray-600 !important;
       width: 100% !important;
+      page-break-inside: avoid !important;
 
       p {
         margin: 1px 0 !important;
@@ -337,6 +349,18 @@
         font-size: $font-size-xs !important;
         color: $gray-800 !important;
         font-weight: $font-weight-semibold !important;
+        page-break-after: avoid !important;
+      }
+
+      // La tabla de materiales puede dividirse si es muy larga
+      .tabla-moderna {
+        page-break-inside: auto !important;
+
+        // Pero mantener el total junto
+        .total-materiales {
+          page-break-inside: avoid !important;
+          page-break-before: avoid !important;
+        }
       }
     }
 
@@ -361,6 +385,26 @@
       border-left: 3px solid $blue-primary !important;
       font-size: $font-size-xs !important;
       margin-bottom: $spacing-xs !important;
+    }
+
+    // La sección de detalles puede dividirse
+    .seccion-detalles {
+      page-break-inside: auto !important;
+
+      // Pero mantener las joyas a reparar juntas si es posible
+      .joyas-reparar {
+        page-break-inside: avoid !important;
+      }
+    }
+
+    // Mantener el resumen financiero junto
+    .seccion-resumen {
+      page-break-inside: avoid !important;
+    }
+
+    // Mantener términos y condiciones juntos
+    .seccion-terminos {
+      page-break-inside: avoid !important;
     }
 
     // Forzar visibilidad y posición
@@ -924,29 +968,121 @@
   font-size: 0.8em;
 }
 
-
-
-
-
-// Mejor manejo de saltos de página para PDF
+// ============ MANEJO MEJORADO DE SALTOS DE PÁGINA ============
 @media print {
   .formato-factura-pdf {
+    // Evitar que secciones críticas se corten
     .seccion-final {
-      page-break-inside: avoid;
+      page-break-inside: avoid !important;
+    }
+    
+    .firmas {
+      page-break-inside: avoid !important;
     }
     
     .pie-pagina {
+      page-break-inside: avoid !important;
       position: relative;
       bottom: 0;
     }
-  }
-}
 
-// ✅ ESTILOS PARA SALTO DE PÁGINA
-@media print {
+    // Evitar que el encabezado se corte
+    .encabezado-moderno {
+      page-break-inside: avoid !important;
+      page-break-after: avoid !important;
+    }
+
+    // La sección de cliente no debe cortarse
+    .seccion-cliente {
+      page-break-inside: avoid !important;
+    }
+
+    // La sección de detalles puede dividirse
+    .seccion-detalles {
+      page-break-inside: auto !important;
+    }
+    
+    // Permitir que la sección de materiales se divida si es muy larga
+    .materiales-utilizados {
+      page-break-inside: auto !important;
+      
+      // Pero evitar que el encabezado quede solo
+      h4 {
+        page-break-after: avoid !important;
+      }
+      
+      // Evitar que la fila de totales quede sola en otra página
+      .total-materiales {
+        page-break-inside: avoid !important;
+        page-break-before: avoid !important;
+      }
+    }
+
+    // Las joyas a reparar deben mantenerse juntas si es posible
+    .joyas-reparar {
+      page-break-inside: avoid !important;
+
+      h4 {
+        page-break-after: avoid !important;
+      }
+    }
+
+    // Costos adicionales deben mantenerse juntos
+    .costos-adicionales {
+      page-break-inside: avoid !important;
+    }
+    
+    // Evitar que la tabla se corte en lugares inapropiados
+    .tabla-moderna {
+      page-break-inside: auto !important;
+      
+      // Mantener el encabezado con el contenido
+      thead {
+        display: table-header-group !important;
+      }
+      
+      // Evitar que las filas se corten
+      tr {
+        page-break-inside: avoid !important;
+      }
+
+      // Evitar que el encabezado quede solo al final de página
+      th {
+        page-break-after: avoid !important;
+      }
+    }
+    
+    // Mantener el resumen financiero junto
+    .seccion-resumen {
+      page-break-inside: avoid !important;
+    }
+    
+    // Mantener términos y condiciones juntos
+    .seccion-terminos {
+      page-break-inside: avoid !important;
+    }
+    
+    // Observaciones pueden dividirse si son muy largas
+    .observaciones {
+      page-break-inside: auto !important;
+
+      .titulo-seccion {
+        page-break-after: avoid !important;
+      }
+    }
+
+    // Evitar huérfanos y viudas en el texto
+    p {
+      orphans: 3;
+      widows: 3;
+    }
+  }
+
+  // ✅ ESTILOS PARA SALTO DE PÁGINA ENTRE PÁGINAS
   .pagina-1 {
     page-break-after: always !important;
   }
+  
   .pagina-2 {
     page-break-before: always !important;
   }
