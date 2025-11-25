@@ -14,8 +14,32 @@ SECRET_KEY = 'django-insecure-7$3l#u!x2*9@r1t%8f!g%_4b^qz0h7m@p&k=1wz5r+3u^d!s0'
 
 DEBUG = True  # Cambiar a True para ver errores y archivos estáticos
 
-# 🔴 CORRIGE ALLOWED_HOSTS - quita los puertos
-ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '20.64.150.5', '0.0.0.0']
+# Agregar estas configuraciones al archivo settings.py
+
+# Configuración CORS
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://20.64.150.5:5173",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://20.64.150.5:5173",
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173",
+]
+
+# Configuración CSRF
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
+# Configuración de sesión para desarrollo
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
 
 # Application definition
 INSTALLED_APPS = [
