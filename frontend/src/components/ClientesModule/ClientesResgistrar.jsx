@@ -1,4 +1,5 @@
 import { FaIdCard } from 'react-icons/fa';
+import { formatearTelefono } from '../../utils/validaciones';
 import "../../styles/scss/pages/_clientes.scss";
 
 const ClientesRegistrar = ({ 
@@ -24,8 +25,8 @@ const ClientesRegistrar = ({
 
   // Manejador de cambios con validación
   const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    
+    let { name, value } = e.target;
+
     // Validación para nombre (solo letras y espacios)
     if (name === 'nombre') {
       if (validarSoloLetras(value) || value === '') {
@@ -33,7 +34,7 @@ const ClientesRegistrar = ({
       }
       return;
     }
-    
+
     // Validación para apellido (solo letras y espacios)
     if (name === 'apellido') {
       if (validarSoloLetras(value) || value === '') {
@@ -41,7 +42,23 @@ const ClientesRegistrar = ({
       }
       return;
     }
-    
+
+    // Formateo automático de teléfono
+    if (name === 'telefono' && value) {
+      value = formatearTelefono(value);
+      // Crear nuevo evento con el valor formateado
+      const eventoFormateado = {
+        ...e,
+        target: {
+          ...e.target,
+          name,
+          value
+        }
+      };
+      onFieldChange(eventoFormateado);
+      return;
+    }
+
     // Validación para dirección (no permitir solo números)
     if (name === 'direccion') {
       const soloNumeros = /^\d+$/;
@@ -50,7 +67,7 @@ const ClientesRegistrar = ({
       }
       return;
     }
-    
+
     // Para los demás campos, pasar el evento sin modificar
     onFieldChange(e);
   };
@@ -179,17 +196,18 @@ const ClientesRegistrar = ({
 
           <div className="form-group">
             <label className="form-label" htmlFor="telefono">Teléfono</label>
-            <input 
+            <input
               className="form-input"
-              id="telefono" 
-              name="telefono" 
-              type="tel" 
-              placeholder="3322-0000" 
-              value={form.telefono} 
-              onChange={handleFieldChange} 
-              disabled={loading} 
+              id="telefono"
+              name="telefono"
+              type="tel"
+              placeholder="Ej: 98765432 o 9876-5432"
+              value={form.telefono}
+              onChange={handleFieldChange}
+              disabled={loading}
+              maxLength="9"
             />
-            <small className="form-hint">Formato: xxxx-xxxx (8 dígitos)</small>
+            <small className="form-hint">Formato: 8 dígitos con o sin guión (ej: 98765432 o 9876-5432)</small>
           </div>
 
           <div className="form-group">

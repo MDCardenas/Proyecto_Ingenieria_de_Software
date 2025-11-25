@@ -235,7 +235,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
                   onChange={handleChange}
                   disabled={loading}
                   className={erroresCampos.telefono ? 'input-error' : ''}
-                  placeholder="9999-9999"
+                  placeholder="Ej: 98765432 o 9876-5432"
                   maxLength="9"
                 />
                 {erroresCampos.telefono && (

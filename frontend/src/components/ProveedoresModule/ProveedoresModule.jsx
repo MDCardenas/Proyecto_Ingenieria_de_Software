@@ -355,7 +355,7 @@ const ProveedoresModule = ({ setActiveButton }) => {
                 name="telefono"
                 value={formData.telefono}
                 onChange={handleChange}
-                placeholder="Ej: 9999-9999"
+                placeholder="Ej: 98765432 o 9876-5432"
                 maxLength="9"
                 className={`input-pill ${erroresCampos.telefono ? 'input-error' : ''}`}
               />

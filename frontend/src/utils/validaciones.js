@@ -20,7 +20,7 @@ export const REGEX_PATTERNS = {
   // Email válido
   EMAIL: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
 
-  // Teléfono Honduras (8 dígitos con formato opcional)
+  // Teléfono Honduras (8 dígitos, acepta formato 98765432 o 9876-5432)
   TELEFONO_HN: /^[2-9]\d{3}-?\d{4}$/,
 
   // RTN Honduras (14 dígitos con guiones opcionales)
@@ -54,7 +54,7 @@ export const MENSAJES_ERROR = {
   SOLO_NUMEROS: 'Solo se permiten números',
   NUMERO_DECIMAL: 'Ingrese un número válido (máximo 2 decimales)',
   EMAIL: 'Ingrese un correo electrónico válido (ejemplo@dominio.com)',
-  TELEFONO_HN: 'Ingrese un teléfono válido de Honduras (8 dígitos, ej: 9999-9999)',
+  TELEFONO_HN: 'Ingrese un teléfono válido de Honduras (8 dígitos, ej: 98765432 o 9876-5432)',
   RTN_HN: 'Ingrese un RTN válido (14 dígitos, ej: 0801-1234-567890)',
   IDENTIDAD_HN: 'Ingrese un número de identidad válido (13 dígitos, ej: 0801-1990-12345)',
   DIRECCION: 'Ingrese una dirección válida',

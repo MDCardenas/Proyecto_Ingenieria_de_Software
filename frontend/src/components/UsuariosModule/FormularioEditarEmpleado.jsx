@@ -236,7 +236,12 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
                   name="telefono"
                   value={formData.telefono}
                   onChange={handleChange}
+                  placeholder="Ej: 98765432 o 9876-5432"
+                  maxLength="9"
                 />
+                {erroresCampos.telefono && (
+                  <span className="error-message">{erroresCampos.telefono}</span>
+                )}
               </div>
             </div>
           </div>

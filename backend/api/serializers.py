@@ -1073,13 +1073,35 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
                 )
                 print("Producto {} agregado como JOYA".format(index + 1))
 
-            # Crear detalles de materiales (solo si tienen codigo_material válido)
+            # Crear detalles de materiales
+            # IMPORTANTE: Para FABRICACIÓN y REPARACIÓN, los materiales son COSTOS de producción,
+            # no ventas de materiales, por lo tanto se registran como SERVICIO para evitar
+            # que el trigger de SQL Server intente descontar del inventario
             for index, material in enumerate(materiales_data):
                 codigo_material = material.get('codigo_material')
                 peso_solicitado = float(material.get('peso', 0))
 
-                # Solo agregar si tiene un código de material válido del inventario
-                if codigo_material and codigo_material is not None:
+                # Para FABRICACIÓN y REPARACIÓN, siempre usar SERVICIO
+                # Para VENTA, verificar stock y usar MATERIAL si hay suficiente
+                if tipo_venta in ['FABRICACION', 'REPARACION']:
+                    # En fabricación/reparación, los materiales son costos de producción
+                    print("Material {} en {} - registrado como SERVICIO (costo de producción)".format(
+                        index + 1, tipo_venta
+                    ))
+                    TblDetallesFactura.objects.create(
+                        numero_factura=factura,
+                        tipo_item='SERVICIO',  # SERVICIO para no activar trigger de inventario
+                        codigo_item=codigo_material if codigo_material else 9999,
+                        descripcion="Material: {} - {}gr (L.{})".format(
+                            material.get('tipo', 'Material'),
+                            material.get('peso', 0),
+                            material.get('costo', 0)
+                        ),
+                        cantidad=1,
+                        precio_unitario=material.get('costo', 0)
+                    )
+                elif codigo_material and codigo_material is not None:
+                    # Solo para VENTA: verificar stock y descontar del inventario
                     try:
                         # Verificar que el material existe y obtener su stock
                         material_stock = TblStockMateriales.objects.filter(

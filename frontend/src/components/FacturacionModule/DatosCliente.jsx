@@ -521,7 +521,8 @@ export default function DatosCliente({
           <input
             type="tel"
             id="telefono"
-            placeholder="3322-0000"
+            placeholder="Ej: 98765432 o 9876-5432"
+            maxLength="9"
             value={datosFactura.telefono}
             onChange={(e) => {
               if (!datosFactura.id_cliente) {
