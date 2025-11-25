@@ -2,13 +2,58 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { normalizeText, normalizeSearch } from "../../utils/normalize";
-import {
-  validarTelefono,
-  validarDireccion,
-  validarRTN,
-  formatearTelefono,
-  formatearRTN
-} from "../../utils/validaciones";
+
+// ============================================
+// UTILIDADES DE VALIDACIÓN CON REGEX
+// ============================================
+const validaciones = {
+    // Teléfono Honduras (8 dígitos, permite guión)
+    telefono: (valor) => /^[0-9]{4}-?[0-9]{4}$/.test(valor),
+    
+    // RTN Honduras (14 dígitos con guiones)
+    rtn: (valor) => /^\d{4}-\d{4}-\d{5}-\d{1}$/.test(valor),
+    
+    // Dirección (debe contener letras, puede tener números)
+    direccion: (valor) => {
+        if (!valor || valor.trim() === '') return true;
+        const soloNumeros = /^\d+$/;
+        const contieneLetras = /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(valor);
+        return contieneLetras && !soloNumeros.test(valor) && valor.length >= 10;
+    },
+    
+    // Texto general (sin caracteres peligrosos)
+    textoSeguro: (valor) => /^[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,;:()\-"'¿?¡!]*$/.test(valor),
+};
+
+// Función para formatear teléfono
+const formatearTelefono = (valor) => {
+    // Eliminar todo excepto números
+    const numeros = valor.replace(/\D/g, '');
+    
+    // Formatear como xxxx-xxxx
+    if (numeros.length <= 4) {
+        return numeros;
+    }
+    return `${numeros.slice(0, 4)}-${numeros.slice(4, 8)}`;
+};
+
+// Función para formatear RTN
+const formatearRTN = (valor) => {
+    // Eliminar todo excepto números
+    const numeros = valor.replace(/\D/g, '');
+    
+    // Formatear como xxxx-xxxx-xxxxx-x
+    if (numeros.length <= 4) return numeros;
+    if (numeros.length <= 8) return `${numeros.slice(0, 4)}-${numeros.slice(4)}`;
+    if (numeros.length <= 13) return `${numeros.slice(0, 4)}-${numeros.slice(4, 8)}-${numeros.slice(8)}`;
+    return `${numeros.slice(0, 4)}-${numeros.slice(4, 8)}-${numeros.slice(8, 13)}-${numeros.slice(13, 14)}`;
+};
+
+// Función para sanitizar valores
+const sanitizar = {
+    texto: (valor) => valor.trim().replace(/\s+/g, ' '),
+    telefono: (valor) => valor.replace(/[^0-9-]/g, '').slice(0, 9),
+};
 
 export default function DatosCliente({ 
   datosFactura, 
@@ -29,17 +74,12 @@ export default function DatosCliente({
   const [mostrarResultadosEmpleado, setMostrarResultadosEmpleado] = useState(false);
   const [empleadosFiltrados, setEmpleadosFiltrados] = useState([]);
   
+  // Estados para errores de validación
+  const [erroresLocal, setErroresLocal] = useState({});
+  
   // Referencias para detectar clics fuera
   const refBusquedaCliente = useRef(null);
   const refBusquedaEmpleado = useRef(null);
-
-  // Debug: Verificar datos recibidos
-  useEffect(() => {
-    console.log("Datos recibidos en DatosCliente:");
-    console.log("- Clientes:", clientes?.length || 0, clientes);
-    console.log("- Empleados:", empleados?.length || 0, empleados);
-    console.log("- Datos factura:", datosFactura);
-  }, [clientes, empleados, datosFactura]);
 
   // Detectar clics fuera de los resultados
   useEffect(() => {
@@ -67,16 +107,10 @@ export default function DatosCliente({
     const searchNormalized = normalizeText(busquedaCliente);
     
     const filtrados = clientes.filter(c => {
-      // Normalizar nombre completo
       const nombreCompleto = normalizeText(`${c.nombre || ''} ${c.apellido || ''}`);
-      
-      // Normalizar número de identidad (eliminar guiones y espacios)
       const numeroIdentidad = normalizeText(c.numero_identidad || '');
-      
-      // Normalizar RTN si existe
       const rtn = normalizeText(c.rtn || '');
       
-      // Búsqueda en múltiples campos
       return nombreCompleto.includes(searchNormalized) || 
              numeroIdentidad.includes(searchNormalized) ||
              rtn.includes(searchNormalized);
@@ -86,7 +120,7 @@ export default function DatosCliente({
     setMostrarResultadosCliente(filtrados.length > 0);
   }, [busquedaCliente, clientes]);
 
-  // Filtrar empleados en tiempo real - MEJORADO
+  // Filtrar empleados en tiempo real - MEJORADO CON ID
   useEffect(() => {
     if (busquedaEmpleado.trim() === "") {
       setEmpleadosFiltrados([]);
@@ -98,52 +132,136 @@ export default function DatosCliente({
     const filtrados = empleados.filter(e => {
       const nombreCompleto = normalizeSearch(`${e.nombre || ''} ${e.apellido || ''}`);
       const usuario = normalizeSearch(e.usuario || '');
+      const idStr = (e.id || e.id_empleado || '').toString();
       
       return nombreCompleto.includes(searchNormalized) ||
-             usuario.includes(searchNormalized);
+             usuario.includes(searchNormalized) ||
+             idStr.includes(searchNormalized);
     });
 
     setEmpleadosFiltrados(filtrados);
     setMostrarResultadosEmpleado(filtrados.length > 0);
   }, [busquedaEmpleado, empleados]);
 
-  // Obtener nombre del cliente seleccionado - CORREGIDO
+  // Obtener nombre del cliente seleccionado
   const obtenerNombreCliente = () => {
     if (!datosFactura.id_cliente) return "";
-    const cliente = clientes.find(c => c.id_cliente === parseInt(datosFactura.id_cliente));
+    const cliente = clientes.find(c => 
+      c.id_cliente === parseInt(datosFactura.id_cliente) || 
+      c.id === parseInt(datosFactura.id_cliente)
+    );
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "";
   };
 
-  // Obtener nombre del empleado seleccionado - CORREGIDO
+  // Obtener nombre del empleado seleccionado - MEJORADO
   const obtenerNombreEmpleado = () => {
     if (!datosFactura.id_empleado) return "";
     
-    console.log("Buscando empleado con ID:", datosFactura.id_empleado);
-    console.log("Lista de empleados:", empleados);
-    
-    // Buscar el empleado - probamos diferentes formas de comparación
     const empleado = empleados.find(e => {
-      // Intentar diferentes formas de comparación
       return e.id_empleado === parseInt(datosFactura.id_empleado) ||
              e.id_empleado == datosFactura.id_empleado ||
              e.id === parseInt(datosFactura.id_empleado) ||
              e.id == datosFactura.id_empleado;
     });
     
-    console.log("Empleado encontrado:", empleado);
-    
     if (empleado) {
-      // Mostrar el nombre completo si existe
       const nombreCompleto = `${empleado.nombre || ''} ${empleado.apellido || ''}`.trim();
-      return nombreCompleto || empleado.usuario || empleado.nombre || "Empleado sin nombre";
+      return nombreCompleto || empleado.usuario || "Empleado sin nombre";
     }
     
     return "Empleado no encontrado";
   };
 
+  // Validar campo en tiempo real
+  const validarCampo = (campo, valor) => {
+    const erroresTemp = { ...erroresLocal };
+
+    switch (campo) {
+      case 'telefono':
+        if (valor && !validaciones.telefono(valor)) {
+          erroresTemp[campo] = 'Formato de teléfono inválido (xxxx-xxxx)';
+        } else {
+          delete erroresTemp[campo];
+        }
+        break;
+
+      case 'direccion':
+        if (valor && !validaciones.direccion(valor)) {
+          if (valor.length < 10) {
+            erroresTemp[campo] = 'La dirección debe tener al menos 10 caracteres';
+          } else {
+            erroresTemp[campo] = 'La dirección debe contener texto, no solo números';
+          }
+        } else {
+          delete erroresTemp[campo];
+        }
+        break;
+
+      case 'rtn':
+        if (valor && !validaciones.rtn(valor)) {
+          erroresTemp[campo] = 'Formato de RTN inválido (xxxx-xxxx-xxxxx-x)';
+        } else {
+          delete erroresTemp[campo];
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErroresLocal(erroresTemp);
+    return Object.keys(erroresTemp).length === 0;
+  };
+
+  // Manejar cambio de teléfono con validación
+  const handleTelefonoChange = (valor) => {
+    // Solo números y guión
+    if (!/^[0-9-]*$/.test(valor)) {
+      return; // Bloquear caracteres inválidos
+    }
+
+    const valorFormateado = formatearTelefono(valor);
+    validarCampo('telefono', valorFormateado);
+    onActualizar('telefono', valorFormateado);
+    onCambioCampo && onCambioCampo('telefono');
+  };
+
+  // Manejar cambio de dirección con validación
+  const handleDireccionChange = (valor) => {
+    // Validar texto seguro
+    if (valor && !validaciones.textoSeguro(valor)) {
+      return; // Bloquear caracteres peligrosos
+    }
+
+    const valorSanitizado = sanitizar.texto(valor);
+    validarCampo('direccion', valorSanitizado);
+    onActualizar('direccion', valorSanitizado);
+    onCambioCampo && onCambioCampo('direccion');
+  };
+
+  // Manejar cambio de RTN con validación
+  const handleRTNChange = (valor) => {
+    // Solo números y guión
+    if (!/^[0-9-]*$/.test(valor)) {
+      return; // Bloquear caracteres inválidos
+    }
+
+    const valorFormateado = formatearRTN(valor);
+    validarCampo('rtn', valorFormateado);
+    onActualizar('rtn', valorFormateado);
+    onCambioCampo && onCambioCampo('rtn');
+  };
+
   // Manejar selección de cliente
   const handleSeleccionarCliente = (cliente) => {
-    onClienteChange(cliente.id_cliente);
+    const clienteId = cliente.id_cliente || cliente.id;
+    onClienteChange(clienteId);
+    
+    // Auto-llenar campos
+    onActualizar('telefono', cliente.telefono || '');
+    onActualizar('direccion', cliente.direccion || '');
+    onActualizar('rtn', cliente.rtn || '');
+    
     setBusquedaCliente("");
     setMostrarResultadosCliente(false);
     onCambioCampo && onCambioCampo('id_cliente');
@@ -151,8 +269,8 @@ export default function DatosCliente({
 
   // Manejar selección de empleado
   const handleSeleccionarEmpleado = (empleado) => {
-    console.log("Empleado seleccionado:", empleado);
-    onActualizar('id_empleado', empleado.id_empleado || empleado.id);
+    const empleadoId = empleado.id_empleado || empleado.id;
+    onActualizar('id_empleado', empleadoId);
     setBusquedaEmpleado("");
     setMostrarResultadosEmpleado(false);
     onCambioCampo && onCambioCampo('id_empleado');
@@ -165,6 +283,7 @@ export default function DatosCliente({
     onActualizar('telefono', '');
     onActualizar('rtn', '');
     setBusquedaCliente("");
+    setErroresLocal({});
     onCambioCampo && onCambioCampo('id_cliente');
   };
 
@@ -175,6 +294,9 @@ export default function DatosCliente({
     onCambioCampo && onCambioCampo('id_empleado');
   };
 
+  // Combinar errores externos e internos
+  const erroresCombinados = { ...errores, ...erroresLocal };
+
   return (
     <div className="formulario-factura">
       <div className="fila-formulario">
@@ -183,7 +305,6 @@ export default function DatosCliente({
           <label htmlFor="busqueda_cliente">Cliente *</label>
           
           {!datosFactura.id_cliente ? (
-            // Mostrar campo de búsqueda si no hay cliente seleccionado
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'relative' }}>
                 <input 
@@ -193,7 +314,7 @@ export default function DatosCliente({
                   value={busquedaCliente}
                   onChange={(e) => setBusquedaCliente(e.target.value)}
                   onFocus={() => busquedaCliente && setMostrarResultadosCliente(true)}
-                  className={errores?.id_cliente ? 'campo-error' : ''}
+                  className={erroresCombinados?.id_cliente ? 'campo-error' : ''}
                   style={{ paddingRight: '40px' }}
                 />
                 <FaSearch style={{
@@ -211,7 +332,7 @@ export default function DatosCliente({
                 <div className="resultados-busqueda">
                   {clientesFiltrados.map(cliente => (
                     <div 
-                      key={cliente.id_cliente}
+                      key={cliente.id_cliente || cliente.id}
                       className="resultado-item"
                       onClick={() => handleSeleccionarCliente(cliente)}
                     >
@@ -219,11 +340,13 @@ export default function DatosCliente({
                         <strong>{cliente.nombre} {cliente.apellido}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
                           ID: {cliente.numero_identidad}
-                          {cliente.rtn && ` | RTN: ${cliente.rtn}`}
+                          {cliente.telefono && ` | Tel: ${cliente.telefono}`}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                          Tel: {cliente.telefono} | {cliente.direccion}
-                        </div>
+                        {cliente.rtn && (
+                          <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                            RTN: {cliente.rtn}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -237,12 +360,14 @@ export default function DatosCliente({
               )}
             </div>
           ) : (
-            // Mostrar cliente seleccionado
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreCliente()}</strong>
                 <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                  {clientes.find(c => c.id_cliente === parseInt(datosFactura.id_cliente))?.numero_identidad}
+                  ID: {clientes.find(c => 
+                    c.id_cliente === parseInt(datosFactura.id_cliente) || 
+                    c.id === parseInt(datosFactura.id_cliente)
+                  )?.numero_identidad}
                 </div>
               </div>
               <button 
@@ -255,25 +380,24 @@ export default function DatosCliente({
               </button>
             </div>
           )}
-          {errores?.id_cliente && <span className="mensaje-error">{errores.id_cliente}</span>}
+          {erroresCombinados?.id_cliente && <span className="mensaje-error">{erroresCombinados.id_cliente}</span>}
         </div>
 
-        {/* BÚSQUEDA DE EMPLEADO - MEJORADA */}
+        {/* BÚSQUEDA DE EMPLEADO - MEJORADA CON ID Y USUARIO */}
         <div className="campo-formulario" ref={refBusquedaEmpleado}>
-          <label htmlFor="busqueda_empleado">Empleado *</label>
+          <label htmlFor="busqueda_empleado">Empleado/Vendedor *</label>
           
           {!datosFactura.id_empleado ? (
-            // Mostrar campo de búsqueda si no hay empleado seleccionado
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'relative' }}>
                 <input 
                   type="text"
                   id="busqueda_empleado"
-                  placeholder="Buscar empleado por nombre o usuario..."
+                  placeholder="Buscar por nombre, ID o usuario..."
                   value={busquedaEmpleado}
                   onChange={(e) => setBusquedaEmpleado(e.target.value)}
                   onFocus={() => busquedaEmpleado && setMostrarResultadosEmpleado(true)}
-                  className={errores?.id_empleado ? 'campo-error' : ''}
+                  className={erroresCombinados?.id_empleado ? 'campo-error' : ''}
                   style={{ paddingRight: '40px' }}
                 />
                 <FaSearch style={{
@@ -286,7 +410,7 @@ export default function DatosCliente({
                 }} />
               </div>
 
-              {/* Resultados de búsqueda */}
+              {/* Resultados de búsqueda - FORMATO MEJORADO */}
               {mostrarResultadosEmpleado && empleadosFiltrados.length > 0 && (
                 <div className="resultados-busqueda">
                   {empleadosFiltrados.map(empleado => (
@@ -298,7 +422,7 @@ export default function DatosCliente({
                       <div>
                         <strong>{empleado.nombre} {empleado.apellido}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                          Usuario: {empleado.usuario}
+                          ID: {empleado.id || empleado.id_empleado} | Usuario: {empleado.usuario}
                           {empleado.codigo_perfil && ` | Perfil: ${empleado.codigo_perfil}`}
                         </div>
                       </div>
@@ -314,17 +438,20 @@ export default function DatosCliente({
               )}
             </div>
           ) : (
-            // Mostrar empleado seleccionado
+            // Mostrar empleado seleccionado - FORMATO MEJORADO
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreEmpleado()}</strong>
                 <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                  {empleados.find(e => 
-                    e.id_empleado === parseInt(datosFactura.id_empleado) || 
-                    e.id_empleado == datosFactura.id_empleado ||
-                    e.id === parseInt(datosFactura.id_empleado) ||
-                    e.id == datosFactura.id_empleado
-                  )?.usuario}
+                  {(() => {
+                    const emp = empleados.find(e => 
+                      e.id_empleado === parseInt(datosFactura.id_empleado) || 
+                      e.id_empleado == datosFactura.id_empleado ||
+                      e.id === parseInt(datosFactura.id_empleado) ||
+                      e.id == datosFactura.id_empleado
+                    );
+                    return emp ? `ID: ${emp.id || emp.id_empleado} | Usuario: ${emp.usuario}` : 'Info no disponible';
+                  })()}
                 </div>
               </div>
               <button 
@@ -337,11 +464,11 @@ export default function DatosCliente({
               </button>
             </div>
           )}
-          {errores?.id_empleado && <span className="mensaje-error">{errores.id_empleado}</span>}
+          {erroresCombinados?.id_empleado && <span className="mensaje-error">{erroresCombinados.id_empleado}</span>}
         </div>
       </div>
 
-      {/* CAMPOS AUTOMÁTICOS DEL CLIENTE */}
+      {/* CAMPOS AUTOMÁTICOS DEL CLIENTE CON VALIDACIÓN */}
       <div className="fila-formulario">
         <div className="campo-formulario">
           <label htmlFor="fecha">Fecha *</label>
@@ -354,33 +481,33 @@ export default function DatosCliente({
               onCambioCampo && onCambioCampo('fecha');
             }}
             required 
-            className={errores?.fecha ? 'campo-error' : ''}
+            className={erroresCombinados?.fecha ? 'campo-error' : ''}
           />
-          {errores?.fecha && <span className="mensaje-error">{errores.fecha}</span>}
+          {erroresCombinados?.fecha && <span className="mensaje-error">{erroresCombinados.fecha}</span>}
         </div>
+
         <div className="campo-formulario">
           <label htmlFor="telefono">Teléfono *</label>
           <input
             type="tel"
             id="telefono"
-            placeholder="9999-9999"
+            placeholder="3322-0000"
             value={datosFactura.telefono}
             onChange={(e) => {
-              let valor = e.target.value;
-              // Formatear automáticamente si no está readonly
               if (!datosFactura.id_cliente) {
-                valor = formatearTelefono(valor);
+                handleTelefonoChange(e.target.value);
               }
-              onActualizar('telefono', valor);
-              onCambioCampo && onCambioCampo('telefono');
             }}
             required
-            className={errores?.telefono ? 'campo-error' : ''}
+            className={erroresCombinados?.telefono ? 'campo-error' : ''}
             readOnly={!!datosFactura.id_cliente}
             style={datosFactura.id_cliente ? { backgroundColor: '#f9fafb', cursor: 'not-allowed' } : {}}
             maxLength="9"
           />
-          {errores?.telefono && <span className="mensaje-error">{errores.telefono}</span>}
+          {erroresCombinados?.telefono && <span className="mensaje-error">{erroresCombinados.telefono}</span>}
+          {!erroresCombinados?.telefono && !datosFactura.id_cliente && (
+            <small className="form-hint">Formato: xxxx-xxxx</small>
+          )}
           {datosFactura.id_cliente && (
             <small className="form-hint" style={{ color: '#059669' }}>
               ✓ Cargado automáticamente del cliente
@@ -398,43 +525,45 @@ export default function DatosCliente({
             placeholder="Colonia, calle, número de casa (mín. 10 caracteres)"
             value={datosFactura.direccion}
             onChange={(e) => {
-              onActualizar('direccion', e.target.value);
-              onCambioCampo && onCambioCampo('direccion');
+              if (!datosFactura.id_cliente) {
+                handleDireccionChange(e.target.value);
+              }
             }}
             required
-            className={errores?.direccion ? 'campo-error' : ''}
+            className={erroresCombinados?.direccion ? 'campo-error' : ''}
             readOnly={!!datosFactura.id_cliente}
             style={datosFactura.id_cliente ? { backgroundColor: '#f9fafb', cursor: 'not-allowed' } : {}}
             minLength="10"
           />
-          {errores?.direccion && <span className="mensaje-error">{errores.direccion}</span>}
+          {erroresCombinados?.direccion && <span className="mensaje-error">{erroresCombinados.direccion}</span>}
           {datosFactura.id_cliente && (
             <small className="form-hint" style={{ color: '#059669' }}>
               ✓ Cargado automáticamente del cliente
             </small>
           )}
         </div>
+
         <div className="campo-formulario">
           <label htmlFor="rtn">RTN</label>
           <input
             type="text"
             id="rtn"
-            placeholder="0801-1234-567890"
+            placeholder="xxxx-xxxx-xxxxx-x"
             value={datosFactura.rtn}
             onChange={(e) => {
-              let valor = e.target.value;
-              // Formatear automáticamente si no está readonly
               if (!datosFactura.id_cliente) {
-                valor = formatearRTN(valor);
+                handleRTNChange(e.target.value);
               }
-              onActualizar('rtn', valor);
-              onCambioCampo && onCambioCampo('rtn');
             }}
+            className={erroresCombinados?.rtn ? 'campo-error' : ''}
             readOnly={!!datosFactura.id_cliente}
             style={datosFactura.id_cliente ? { backgroundColor: '#f9fafb', cursor: 'not-allowed' } : {}}
             maxLength="18"
           />
-          {errores?.rtn && <span className="mensaje-error">{errores.rtn}</span>}
+          {erroresCombinados?.rtn && <span className="mensaje-error">{erroresCombinados.rtn}</span>}
+          {!erroresCombinados?.rtn && !datosFactura.id_cliente && (
+            <small className="form-hint">Formato: xxxx-xxxx-xxxxx-x (14 dígitos)</small>
+          )}
           {datosFactura.id_cliente && datosFactura.rtn && (
             <small className="form-hint" style={{ color: '#059669' }}>
               ✓ Cargado automáticamente del cliente

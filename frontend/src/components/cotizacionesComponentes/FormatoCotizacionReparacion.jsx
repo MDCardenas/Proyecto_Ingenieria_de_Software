@@ -2,12 +2,75 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { FaPlus, FaTrash, FaCalculator, FaTimesCircle, FaFilePdf } from 'react-icons/fa';
-import DatosCliente from '../FacturacionModule/DatosCliente.jsx';
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import PDFCotizacionReparacion from './PDFCotizacionReparacion.jsx';
 import Material from './Material.jsx';
 import "../../styles/scss/components/_cotizacionReparacion.scss";
+
+// ============================================
+// UTILIDADES DE VALIDACIÓN CON REGEX
+// ============================================
+const validaciones = {
+    // Solo letras, espacios, acentos y Ñ
+    soloLetras: (valor) => /^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]*$/.test(valor),
+    
+    // Solo números y puntos decimales
+    soloNumeros: (valor) => /^[0-9.]*$/.test(valor),
+    
+    // Solo números enteros positivos
+    soloEnterosPositivos: (valor) => /^[0-9]*$/.test(valor),
+    
+    // Email válido
+    email: (valor) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor),
+    
+    // Teléfono Honduras (8 dígitos, permite guión)
+    telefono: (valor) => /^[0-9]{4}-?[0-9]{4}$/.test(valor),
+    
+    // RTN Honduras (14 dígitos con guiones)
+    rtn: (valor) => /^\d{4}-\d{4}-\d{5}-\d{1}$/.test(valor),
+    
+    // Número de Identidad Honduras (13 dígitos con guiones)
+    numeroIdentidad: (valor) => /^\d{4}-\d{4}-\d{5}$/.test(valor),
+    
+    // Dirección (debe contener letras, puede tener números)
+    direccion: (valor) => {
+        if (!valor || valor.trim() === '') return true;
+        const soloNumeros = /^\d+$/;
+        const contieneLetras = /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(valor);
+        return contieneLetras && !soloNumeros.test(valor);
+    },
+    
+    // Descripción/Observaciones (alfanumérico con caracteres especiales permitidos)
+    textoGeneral: (valor) => /^[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,;:()\-"'¿?¡!]*$/.test(valor),
+    
+    // Cantidad (números enteros mayores a 0)
+    cantidad: (valor) => {
+        const num = parseInt(valor);
+        return !isNaN(num) && num > 0 && num < 1000;
+    },
+    
+    // Precio/Costo (números decimales mayores o iguales a 0)
+    precio: (valor) => {
+        const num = parseFloat(valor);
+        return !isNaN(num) && num >= 0 && num < 1000000;
+    },
+    
+    // Peso en gramos (números decimales positivos)
+    peso: (valor) => {
+        const num = parseFloat(valor);
+        return !isNaN(num) && num > 0 && num < 10000;
+    }
+};
+
+// Función para sanitizar valores
+const sanitizar = {
+    texto: (valor) => valor.trim().replace(/\s+/g, ' '),
+    numero: (valor) => parseFloat(valor) || 0,
+    entero: (valor) => parseInt(valor) || 0,
+    telefono: (valor) => valor.replace(/[^0-9-]/g, '').slice(0, 9),
+    email: (valor) => valor.trim().toLowerCase()
+};
 
 export default function FormatoCotizacionReparacion({ 
     cotizacion, 
@@ -154,6 +217,226 @@ export default function FormatoCotizacionReparacion({
         }
     };
 
+    // ============================================
+    // VALIDACIÓN DE CAMPOS CON REGEX
+    // ============================================
+    const validarCampo = (nombre, valor) => {
+        const erroresTemp = { ...errores };
+
+        switch (nombre) {
+            case 'telefono':
+                if (valor && !validaciones.telefono(valor)) {
+                    erroresTemp[nombre] = 'Formato de teléfono inválido (xxxx-xxxx)';
+                } else {
+                    delete erroresTemp[nombre];
+                }
+                break;
+
+            case 'direccion':
+                if (valor && !validaciones.direccion(valor)) {
+                    erroresTemp[nombre] = 'La dirección debe contener texto, no solo números';
+                } else {
+                    delete erroresTemp[nombre];
+                }
+                break;
+
+            case 'rtn':
+                if (valor && !validaciones.rtn(valor)) {
+                    erroresTemp[nombre] = 'Formato de RTN inválido (xxxx-xxxx-xxxxx-x)';
+                } else {
+                    delete erroresTemp[nombre];
+                }
+                break;
+
+            case 'costo_insumos':
+            case 'mano_obra':
+            case 'descuentos':
+                if (!validaciones.precio(valor)) {
+                    erroresTemp[nombre] = 'Ingrese un valor numérico válido';
+                } else {
+                    delete erroresTemp[nombre];
+                }
+                break;
+
+            case 'observaciones':
+                if (valor && !validaciones.textoGeneral(valor)) {
+                    erroresTemp[nombre] = 'Contiene caracteres no permitidos';
+                } else if (valor && valor.length > 500) {
+                    erroresTemp[nombre] = 'Máximo 500 caracteres';
+                } else {
+                    delete erroresTemp[nombre];
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setErrores(erroresTemp);
+        return Object.keys(erroresTemp).length === 0;
+    };
+
+    // ============================================
+    // MANEJADORES CON VALIDACIÓN
+    // ============================================
+    const handleActualizarDatos = (campo, valor) => {
+        // Validar según el tipo de campo
+        let valorProcesado = valor;
+
+        switch (campo) {
+            case 'telefono':
+                // Solo permitir números y guión
+                valorProcesado = sanitizar.telefono(valor);
+                if (!validaciones.soloNumeros(valorProcesado.replace('-', ''))) {
+                    return; // No actualizar si contiene caracteres inválidos
+                }
+                break;
+
+            case 'direccion':
+                // Permitir texto alfanumérico
+                valorProcesado = sanitizar.texto(valor);
+                if (valor && !validaciones.textoGeneral(valor)) {
+                    return;
+                }
+                break;
+
+            case 'observaciones':
+                // Validar texto general
+                valorProcesado = sanitizar.texto(valor);
+                if (valor && !validaciones.textoGeneral(valor)) {
+                    return;
+                }
+                if (valor.length > 500) {
+                    return; // Limitar a 500 caracteres
+                }
+                break;
+
+            case 'costo_insumos':
+            case 'mano_obra':
+            case 'descuentos':
+                // Solo permitir números
+                if (valor !== '' && !validaciones.soloNumeros(valor)) {
+                    return;
+                }
+                valorProcesado = sanitizar.numero(valor);
+                if (!validaciones.precio(valorProcesado)) {
+                    return;
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        validarCampo(campo, valorProcesado);
+        
+        setDatosCotizacion(prev => ({
+            ...prev,
+            [campo]: valorProcesado
+        }));
+    };
+
+    // Validar producto
+    const validarProducto = (producto) => {
+        if (!producto.tipoJoya) {
+            return 'Debe seleccionar un tipo de joya';
+        }
+        if (!producto.tipoReparacion) {
+            return 'Debe seleccionar un tipo de reparación';
+        }
+        if (!validaciones.cantidad(producto.cantidad)) {
+            return 'Cantidad inválida (debe ser mayor a 0)';
+        }
+        if (producto.descripcion && !validaciones.textoGeneral(producto.descripcion)) {
+            return 'La descripción contiene caracteres no permitidos';
+        }
+        if (producto.descripcion && producto.descripcion.length > 200) {
+            return 'La descripción no puede exceder 200 caracteres';
+        }
+        return null;
+    };
+
+    // Actualizar producto con validación
+    const handleActualizarProducto = (id, campo, valor) => {
+        let valorProcesado = valor;
+
+        // Validar según el campo
+        switch (campo) {
+            case 'cantidad':
+                if (!validaciones.soloEnterosPositivos(valor)) {
+                    return; // No actualizar si no es un número entero
+                }
+                valorProcesado = sanitizar.entero(valor);
+                if (!validaciones.cantidad(valorProcesado)) {
+                    return;
+                }
+                break;
+
+            case 'descripcion':
+                valorProcesado = sanitizar.texto(valor);
+                if (valor && !validaciones.textoGeneral(valor)) {
+                    return;
+                }
+                if (valor.length > 200) {
+                    return;
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setDatosCotizacion(prev => ({
+            ...prev,
+            productos: prev.productos.map(prod => 
+                prod.id === id ? { ...prod, [campo]: valorProcesado } : prod
+            )
+        }));
+    };
+
+    // Validar material
+    const validarMaterial = (material) => {
+        if (!material.tipo_material) {
+            return 'Debe seleccionar un tipo de material';
+        }
+        if (!material.peso_gramos || !validaciones.peso(material.peso_gramos)) {
+            return 'Peso inválido (debe ser mayor a 0)';
+        }
+        if (!material.precio_por_gramo || !validaciones.precio(material.precio_por_gramo)) {
+            return 'Precio por gramo inválido';
+        }
+        return null;
+    };
+
+    // Actualizar material con validación
+    const handleActualizarMaterial = (id, campo, valor) => {
+        let valorProcesado = valor;
+
+        // Validar según el campo
+        switch (campo) {
+            case 'peso_gramos':
+            case 'precio_por_gramo':
+                if (valor !== '' && !validaciones.soloNumeros(valor)) {
+                    return;
+                }
+                valorProcesado = parseFloat(valor) || '';
+                if (valorProcesado !== '' && !validaciones.precio(valorProcesado)) {
+                    return;
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setDatosCotizacion(prev => ({
+            ...prev,
+            materiales: prev.materiales.map(mat => 
+                mat.id === id ? { ...mat, [campo]: valorProcesado } : mat
+            )
+        }));
+    };
+
     // CALCULOS AUTOMATICOS
     const calcularCostos = useCallback(() => {
         const materialesActualizados = datosCotizacion.materiales.map(material => ({
@@ -183,553 +466,381 @@ export default function FormatoCotizacionReparacion({
             0
         );
 
-        // Calcular costo total (materiales + insumos + mano de obra)
-        const costoTotal = costoMateriales + 
-                          (parseFloat(datosCotizacion.costo_insumos) || 0) + 
-                          (parseFloat(datosCotizacion.mano_obra) || 0);
-
-        // Aplicar descuentos
+        const costoInsumos = parseFloat(datosCotizacion.costo_insumos) || 0;
+        const manoObra = parseFloat(datosCotizacion.mano_obra) || 0;
         const descuentos = parseFloat(datosCotizacion.descuentos) || 0;
-        const subtotalConDescuento = Math.max(0, costoTotal - descuentos);
-        
-        // Calcular ISV (15%)
-        const isv = subtotalConDescuento * 0.15;
-        
-        // Calcular total
-        const total = subtotalConDescuento + isv;
-        
-        // Calcular anticipo (50%) y pago pendiente
-        const anticipo = total * 0.5;
+
+        const subtotal = Math.max(0, costoMateriales + costoInsumos + manoObra - descuentos);
+        const isv = subtotal * 0.15;
+        const total = subtotal + isv;
+        const anticipo = total * 0.50;
         const pagoPendiente = total - anticipo;
 
-        // Redondear resultados
-        const redondear = (valor) => Math.round(valor * 100) / 100;
-
-        return {
-            subtotal: redondear(subtotalConDescuento),
-            isv: redondear(isv),
-            total: redondear(total),
-            anticipo: redondear(anticipo),
-            pagoPendiente: redondear(pagoPendiente)
-        };
+        setResultados({
+            subtotal: parseFloat(subtotal.toFixed(2)),
+            isv: parseFloat(isv.toFixed(2)),
+            total: parseFloat(total.toFixed(2)),
+            anticipo: parseFloat(anticipo.toFixed(2)),
+            pagoPendiente: parseFloat(pagoPendiente.toFixed(2))
+        });
     };
 
     const handleCalcular = () => {
-        if (!validarDatos()) {
-            alert("Por favor, complete todos los campos requeridos antes de calcular");
+        // Validar todos los campos antes de calcular
+        if (!validarFormularioCompleto()) {
+            alert('Por favor corrija los errores en el formulario antes de calcular');
             return;
         }
 
-        const nuevosResultados = calcularResultadosReparacion();
-        setResultados(nuevosResultados);
+        calcularResultadosReparacion();
+        alert('✅ Cálculo realizado correctamente');
     };
 
-    // FUNCIONES PARA MANEJAR DATOS GENERALES
-    const handleActualizarDatos = (campo, valor) => {
-        setDatosCotizacion(prev => ({
-            ...prev,
-            [campo]: valor
-        }));
-        
-        if (errores[campo]) {
-            setErrores(prev => ({
-                ...prev,
-                [campo]: ''
-            }));
+    // ============================================
+    // VALIDACIÓN COMPLETA DEL FORMULARIO
+    // ============================================
+    const validarFormularioCompleto = () => {
+        const erroresTemp = {};
+
+        // Validar cliente
+        if (!datosCotizacion.id_cliente) {
+            erroresTemp.id_cliente = 'Debe seleccionar un cliente';
         }
-    };
 
-    const handleClienteChange = (idCliente) => {
-        const clienteSeleccionado = clientes.find(c => c.id_cliente === parseInt(idCliente));
-        if (clienteSeleccionado) {
-            setDatosCotizacion(prev => ({
-                ...prev,
-                id_cliente: idCliente,
-                telefono: clienteSeleccionado.telefono || '',
-                direccion: clienteSeleccionado.direccion || '',
-                rtn: clienteSeleccionado.rtn || ''
-            }));
+        // Validar empleado
+        if (!datosCotizacion.id_empleado) {
+            erroresTemp.id_empleado = 'Debe seleccionar un empleado';
         }
-    };
 
-    // FUNCIONES PARA MANEJAR PRODUCTOS (REPARACIONES)
-    const handleAgregarProducto = () => {
-        setDatosCotizacion(prev => ({
-            ...prev,
-            productos: [
-                ...prev.productos,
-                {
-                    id: Date.now(),
-                    tipoJoya: '',
-                    tipoReparacion: '',
-                    cantidad: 1,
-                    descripcion: ''
-                }
-            ]
-        }));
-    };
-
-    const handleEliminarProducto = (id) => {
-        if (datosCotizacion.productos.length === 1) return;
-        setDatosCotizacion(prev => ({
-            ...prev,
-            productos: prev.productos.filter(producto => producto.id !== id)
-        }));
-    };
-
-    const handleActualizarProducto = (id, campo, valor) => {
-        setDatosCotizacion(prev => ({
-            ...prev,
-            productos: prev.productos.map(producto => 
-                producto.id === id ? { ...producto, [campo]: valor } : producto
-            )
-        }));
-
-        const errorKey = `producto_${id}_${campo}`;
-        if (errores[errorKey]) {
-            setErrores(prev => ({ ...prev, [errorKey]: '' }));
+        // Validar teléfono
+        if (datosCotizacion.telefono && !validaciones.telefono(datosCotizacion.telefono)) {
+            erroresTemp.telefono = 'Formato de teléfono inválido';
         }
-    };
 
-    // FUNCIONES PARA MANEJAR MATERIALES
-    const handleAgregarMaterial = () => {
-        setDatosCotizacion(prev => ({
-            ...prev,
-            materiales: [
-                ...prev.materiales,
-                {
-                    id: Date.now(),
-                    tipo_material: '',
-                    peso_gramos: '',
-                    precio_por_gramo: '',
-                    costo_total: 0
-                }
-            ]
-        }));
-    };
-
-    const handleEliminarMaterial = (id) => {
-        if (datosCotizacion.materiales.length === 1) return;
-        setDatosCotizacion(prev => ({
-            ...prev,
-            materiales: prev.materiales.filter(material => material.id !== id)
-        }));
-    };
-
-    const handleActualizarMaterial = (id, campo, valor) => {
-        setDatosCotizacion(prev => ({
-            ...prev,
-            materiales: prev.materiales.map(material => 
-                material.id === id ? { ...material, [campo]: valor } : material
-            )
-        }));
-
-        const errorKey = `material_${id}_${campo}`;
-        if (errores[errorKey]) {
-            setErrores(prev => ({ ...prev, [errorKey]: '' }));
+        // Validar dirección
+        if (datosCotizacion.direccion && !validaciones.direccion(datosCotizacion.direccion)) {
+            erroresTemp.direccion = 'La dirección debe contener texto';
         }
-    };
 
-    // VALIDACIÓN DE DATOS
-    const validarDatos = () => {
-        const nuevosErrores = {};
-        
-        // Validar datos del cliente
-        if (!datosCotizacion.id_cliente) nuevosErrores.id_cliente = 'Cliente es requerido';
-        if (!datosCotizacion.id_empleado) nuevosErrores.id_empleado = 'Empleado es requerido';
-        if (!datosCotizacion.fecha) nuevosErrores.fecha = 'Fecha es requerida';
-        if (!datosCotizacion.telefono) nuevosErrores.telefono = 'Teléfono es requerido';
-        if (!datosCotizacion.direccion) nuevosErrores.direccion = 'Dirección es requerida';
-        
-        // Validar productos (reparaciones)
-        datosCotizacion.productos.forEach((producto) => {
-            if (!producto.tipoJoya) nuevosErrores[`producto_${producto.id}_tipoJoya`] = 'Tipo de joya es requerido';
-            if (!producto.tipoReparacion) nuevosErrores[`producto_${producto.id}_tipoReparacion`] = 'Tipo de reparación es requerido';
-            if (!producto.cantidad || producto.cantidad <= 0) nuevosErrores[`producto_${producto.id}_cantidad`] = 'Cantidad debe ser mayor a 0';
-            if (!producto.descripcion) nuevosErrores[`producto_${producto.id}_descripcion`] = 'Descripción del daño es requerida';
+        // Validar RTN
+        if (datosCotizacion.rtn && !validaciones.rtn(datosCotizacion.rtn)) {
+            erroresTemp.rtn = 'Formato de RTN inválido';
+        }
+
+        // Validar productos
+        datosCotizacion.productos.forEach((prod, index) => {
+            const error = validarProducto(prod);
+            if (error) {
+                erroresTemp[`producto_${index}`] = error;
+            }
         });
 
         // Validar materiales
-        datosCotizacion.materiales.forEach((material) => {
-            if (!material.tipo_material) nuevosErrores[`material_${material.id}_tipo_material`] = 'Tipo de material es requerido';
-            if (!material.peso_gramos || material.peso_gramos <= 0) nuevosErrores[`material_${material.id}_peso_gramos`] = 'Peso en gramos es requerido';
-            if (!material.precio_por_gramo || material.precio_por_gramo <= 0) nuevosErrores[`material_${material.id}_precio_por_gramo`] = 'Precio por gramo es requerido';
+        datosCotizacion.materiales.forEach((mat, index) => {
+            const error = validarMaterial(mat);
+            if (error) {
+                erroresTemp[`material_${index}`] = error;
+            }
         });
 
-        // Validar costos adicionales
-        if (!datosCotizacion.costo_insumos || datosCotizacion.costo_insumos < 0) nuevosErrores.costo_insumos = 'Costo de insumos es requerido';
-        if (!datosCotizacion.mano_obra || datosCotizacion.mano_obra < 0) nuevosErrores.mano_obra = 'Mano de obra es requerida';
-
-        setErrores(nuevosErrores);
-        return Object.keys(nuevosErrores).length === 0;
-    };
-
-    // CÁLCULOS PARA EL RESUMEN
-    const calcularResumen = () => {
-        const totalMateriales = datosCotizacion.materiales.reduce((sum, material) => sum + material.costo_total, 0);
-        const totalInsumos = parseFloat(datosCotizacion.costo_insumos) || 0;
-        const totalManoObra = parseFloat(datosCotizacion.mano_obra) || 0;
-        const totalDescuentos = parseFloat(datosCotizacion.descuentos) || 0;
-        const subtotal = totalMateriales + totalInsumos + totalManoObra - totalDescuentos;
-
-        return {
-            totalMateriales,
-            totalInsumos,
-            totalManoObra,
-            totalDescuentos,
-            subtotal: Math.max(0, subtotal)
-        };
-    };
-
-    const resumen = calcularResumen();
-
-    // FUNCIONES PARA GUARDAR Y GENERAR PDF
-    const guardarCotizacionEnBD = async () => {
-        try {
-            console.log("Preparando datos para guardar cotización de reparación...");
-            
-            if (!datosCotizacion.id_cliente || !datosCotizacion.id_empleado) {
-                throw new Error("Cliente y empleado son requeridos");
-            }
-
-            // Calcular fecha de vencimiento (30 días desde hoy)
-            const fechaVencimiento = new Date();
-            fechaVencimiento.setDate(fechaVencimiento.getDate() + 30);
-            const fechaVencimientoFormatted = fechaVencimiento.toISOString().split('T')[0];
-
-            // ✅ CORREGIR: Usar SOLO FormData, eliminar cotizacionData
-            const formData = new FormData();
-
-            // Agregar datos básicos
-            formData.append('id_cliente', datosCotizacion.id_cliente);
-            formData.append('id_empleado', datosCotizacion.id_empleado);
-            formData.append('fecha_vencimiento', fechaVencimientoFormatted);
-            formData.append('direccion', datosCotizacion.direccion || "No especificada");
-            formData.append('telefono', datosCotizacion.telefono || "No especificado");
-            formData.append('rtn', datosCotizacion.rtn || "");
-            formData.append('subtotal', resultados.subtotal.toFixed(2));
-            formData.append('descuento', (parseFloat(datosCotizacion.descuentos) || 0).toFixed(2));
-            formData.append('isv', resultados.isv.toFixed(2));
-            formData.append('total', resultados.total.toFixed(2));
-            formData.append('tipo_servicio', "REPARACION");
-            formData.append('observaciones', datosCotizacion.observaciones || '');
-            formData.append('estado', "ACTIVA");
-
-            // ✅ CORREGIR: Agregar imagen si existe
-            if (datosCotizacion.imagen_referencia) {
-                formData.append('imagen_referencia', datosCotizacion.imagen_referencia);
-                console.log("✅ Imagen incluida en FormData");
-            }
-
-            console.log("Enviando FormData con imagen...");
-
-            const endpoint = 'http://20.64.150.5:8000/api/cotizaciones/';
-            
-            // ✅ CORREGIR: Usar fetch correctamente con FormData
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                body: formData
-                // NO incluir Content-Type header - el browser lo setea automáticamente
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Error del servidor:", response.status, errorText);
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
-            const responseData = await response.json();
-            console.log('✅ Cotización de reparación guardada en BD:', responseData);
-            return responseData;
-            
-        } catch (error) {
-            console.error('Error guardando cotización de reparación:', error);
-            throw error;
+        // Validar costos
+        if (!validaciones.precio(datosCotizacion.costo_insumos)) {
+            erroresTemp.costo_insumos = 'Costo de insumos inválido';
         }
+
+        if (!validaciones.precio(datosCotizacion.mano_obra)) {
+            erroresTemp.mano_obra = 'Costo de mano de obra inválido';
+        }
+
+        setErrores(erroresTemp);
+        return Object.keys(erroresTemp).length === 0;
     };
 
+    // AGREGAR PRODUCTO
+    const handleAgregarProducto = () => {
+        setDatosCotizacion(prev => ({
+            ...prev,
+            productos: [...prev.productos, {
+                id: Date.now(),
+                tipoJoya: '',
+                tipoReparacion: '',
+                cantidad: 1,
+                descripcion: ''
+            }]
+        }));
+    };
+
+    // ELIMINAR PRODUCTO
+    const handleEliminarProducto = (id) => {
+        if (datosCotizacion.productos.length === 1) {
+            alert('Debe mantener al menos un producto');
+            return;
+        }
+        setDatosCotizacion(prev => ({
+            ...prev,
+            productos: prev.productos.filter(prod => prod.id !== id)
+        }));
+    };
+
+    // AGREGAR MATERIAL
+    const handleAgregarMaterial = () => {
+        setDatosCotizacion(prev => ({
+            ...prev,
+            materiales: [...prev.materiales, {
+                id: Date.now(),
+                tipo_material: '',
+                peso_gramos: '',
+                precio_por_gramo: '',
+                costo_total: 0
+            }]
+        }));
+    };
+
+    // ELIMINAR MATERIAL
+    const handleEliminarMaterial = (id) => {
+        if (datosCotizacion.materiales.length === 1) {
+            alert('Debe mantener al menos un material');
+            return;
+        }
+        setDatosCotizacion(prev => ({
+            ...prev,
+            materiales: prev.materiales.filter(mat => mat.id !== id)
+        }));
+    };
+
+    // GENERAR COTIZACIÓN PDF
     const handleGenerarCotizacion = async () => {
-        if (!validarDatos()) {
-            alert('Por favor complete todos los campos requeridos antes de generar la cotización');
+        if (!validarFormularioCompleto()) {
+            alert('❌ Por favor corrija los errores en el formulario antes de generar la cotización');
+            return;
+        }
+
+        if (resultados.total === 0) {
+            alert('⚠️ Debe calcular el total antes de generar la cotización');
             return;
         }
 
         try {
-            // Calcular resultados antes de generar
-            handleCalcular();
-
-            // Crear overlay para la generación del PDF
-            const overlay = document.createElement('div');
-            overlay.className = 'overlay-pdf';
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100vw';
-            overlay.style.height = '100vh';
-            overlay.style.backgroundColor = 'white';
-            overlay.style.zIndex = '9999';
-            overlay.style.display = 'flex';
-            overlay.style.flexDirection = 'column';
-            overlay.style.alignItems = 'center';
-            overlay.style.overflow = 'auto';
-            overlay.style.padding = '20px';
-
-            // Crear contenedores separados para cada página
-            const pagina1Container = document.createElement('div');
-            pagina1Container.style.width = '8.5in';
-            pagina1Container.style.minHeight = '11in';
-            pagina1Container.style.backgroundColor = 'white';
-            pagina1Container.style.padding = '0.4in';
-            pagina1Container.style.boxSizing = 'border-box';
-            pagina1Container.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
-            pagina1Container.style.marginBottom = '20px';
-
-            const pagina2Container = document.createElement('div');
-            if (datosCotizacion.imagen_preview) {
-                pagina2Container.style.width = '8.5in';
-                pagina2Container.style.minHeight = '11in';
-                pagina2Container.style.backgroundColor = 'white';
-                pagina2Container.style.padding = '0.4in';
-                pagina2Container.style.boxSizing = 'border-box';
-                pagina2Container.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+            const elemento = cotizacionRef.current;
+            if (!elemento) {
+                alert('❌ Error: No se pudo encontrar el elemento para generar el PDF');
+                return;
             }
 
-            // Clonar el contenido
-            const cotizacionContent = cotizacionRef.current.cloneNode(true);
-            
-            // Separar las páginas
-            const pagina1 = cotizacionContent.querySelector('.pagina-1');
-            const pagina2 = cotizacionContent.querySelector('.pagina-2');
-
-            // Asegurar que las páginas sean visibles
-            if (pagina1) {
-                pagina1.style.visibility = 'visible';
-                pagina1.style.opacity = '1';
-                pagina1.style.position = 'relative';
-                pagina1.style.left = '0';
-                pagina1.style.top = '0';
-                pagina1Container.appendChild(pagina1);
-            }
-
-            overlay.appendChild(pagina1Container);
-
-            if (pagina2 && datosCotizacion.imagen_preview) {
-                pagina2.style.visibility = 'visible';
-                pagina2.style.opacity = '1';
-                pagina2.style.position = 'relative';
-                pagina2.style.left = '0';
-                pagina2.style.top = '0';
-                pagina2Container.appendChild(pagina2);
-                overlay.appendChild(pagina2Container);
-            }
-
-            document.body.appendChild(overlay);
-
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Crear PDF
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'in',
-                format: 'letter'
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            // Convertir página 1
-            const canvas1 = await html2canvas(pagina1Container, {
+            const canvas = await html2canvas(elemento, {
                 scale: 2,
                 useCORS: true,
-                allowTaint: false,
-                backgroundColor: '#ffffff',
                 logging: false,
-                width: 816,
-                height: 1056,
-                scrollX: 0,
-                scrollY: 0,
-                windowWidth: 816,
-                windowHeight: 1056
+                backgroundColor: '#ffffff'
             });
 
-            const imgData1 = canvas1.toDataURL('image/jpeg', 0.95);
-            pdf.addImage(imgData1, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'letter');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            const imgWidth = pdfWidth;
+            const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 0;
 
-            // Convertir página 2 si existe
-            if (pagina2 && datosCotizacion.imagen_preview) {
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pdfHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
                 pdf.addPage();
-                const canvas2 = await html2canvas(pagina2Container, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: false,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    width: 816,
-                    height: 1056,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 816,
-                    windowHeight: 1056
-                });
-                const imgData2 = canvas2.toDataURL('image/jpeg', 0.95);
-                pdf.addImage(imgData2, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pdfHeight;
             }
 
-            document.body.removeChild(overlay);
-
-            // GUARDAR EN BASE DE DATOS
-            let cotizacionGuardada = null;
-            let guardadoExitoso = false;
-            
-            try {
-                cotizacionGuardada = await guardarCotizacionEnBD();
-                guardadoExitoso = true;
-                
-            } catch (dbError) {
-                console.warn("Cotización no se pudo guardar en BD, pero se generará PDF:", dbError);
-                guardadoExitoso = false;
-            }
-
-            // Descargar PDF
-            const nombreArchivo = cotizacionGuardada 
-                ? `cotizacion_reparacion_${cotizacionGuardada.numero_cotizacion}.pdf`
-                : `cotizacion_reparacion_${Date.now()}.pdf`;
-            
+            const nombreArchivo = `Cotizacion_Reparacion_${Date.now()}.pdf`;
             pdf.save(nombreArchivo);
+
+            alert('✅ Cotización generada exitosamente');
             
-            // Mostrar mensaje apropiado
-            if (guardadoExitoso && cotizacionGuardada) {
-                alert(`✅ Cotización de reparación generada y guardada exitosamente!\nNúmero: ${cotizacionGuardada.numero_cotizacion}\nLa cotización ahora aparece en la lista de cotizaciones.`);
-                
-                setTimeout(() => {
-                    if (onClose) onClose();
-                }, 2000);
-                
-            } else {
-                alert(`⚠️ Cotización generada exitosamente! (No se pudo guardar en la base de datos)\nEl formulario se mantiene para que pueda corregir y reintentar.`);
+            if (onSave) {
+                await onSave({
+                    ...datosCotizacion,
+                    tipo_cotizacion: 'REPARACION',
+                    resultados
+                });
             }
-            
+
         } catch (error) {
-            console.error("Error al generar cotización:", error);
-            const existingOverlay = document.querySelector('.overlay-pdf');
-            if (existingOverlay) {
-                document.body.removeChild(existingOverlay);
-            }
-            alert(`❌ Error al generar la cotización: ${error.message}\nEl formulario se mantiene para que pueda corregir los errores.`);
+            console.error('Error generando PDF:', error);
+            alert('❌ Error al generar la cotización. Por favor intente nuevamente.');
         }
     };
 
-    // Función para obtener datos del cliente
+    // OBTENER DATOS DEL CLIENTE
     const obtenerDatosCliente = () => {
-        const clienteSeleccionado = clientes.find(c => c.id_cliente === parseInt(datosCotizacion.id_cliente));
+        const cliente = clientes.find(c => c.id === parseInt(datosCotizacion.id_cliente));
+        const empleado = empleados.find(e => e.id === parseInt(datosCotizacion.id_empleado));
+
         return {
-            nombre: clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : '',
-            direccion: datosCotizacion.direccion,
-            telefono: datosCotizacion.telefono,
-            rtn: datosCotizacion.rtn
+            nombreCliente: cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Sin cliente',
+            identidadCliente: cliente?.numero_identidad || 'N/A',
+            telefonoCliente: datosCotizacion.telefono || cliente?.telefono || 'N/A',
+            direccionCliente: datosCotizacion.direccion || cliente?.direccion || 'N/A',
+            rtnCliente: datosCotizacion.rtn || cliente?.rtn || 'N/A',
+            nombreEmpleado: empleado ? `${empleado.nombre} ${empleado.apellido}` : 'Sin empleado',
+            fecha: datosCotizacion.fecha
         };
     };
 
-    // FUNCIÓN PARA MANEJAR LA IMAGEN
-    const handleImagenChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validar que sea una imagen
-            if (!file.type.startsWith('image/')) {
-                alert('Por favor seleccione un archivo de imagen válido');
-                return;
-            }
-
-            // Validar tamaño (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('La imagen no debe superar los 5MB');
-                return;
-            }
-
-            // Crear preview Y guardar el archivo
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setDatosCotizacion(prev => ({
-                    ...prev,
-                    imagen_referencia: file, // ✅ GUARDAR EL ARCHIVO, no el base64
-                    imagen_preview: e.target.result // Preview para mostrar
-                }));
-            };
-            reader.readAsDataURL(file);
-            
-            console.log("📁 Archivo seleccionado:", file.name, file.size, file.type);
-        }
+    // CALCULAR RESUMEN
+    const resumen = {
+        totalMateriales: datosCotizacion.materiales.reduce((acc, m) => acc + (parseFloat(m.costo_total) || 0), 0),
+        totalInsumos: parseFloat(datosCotizacion.costo_insumos) || 0,
+        totalManoObra: parseFloat(datosCotizacion.mano_obra) || 0,
+        totalDescuentos: parseFloat(datosCotizacion.descuentos) || 0,
+        subtotal: 0
     };
-
-    // FUNCIÓN PARA ELIMINAR LA IMAGEN
-    const handleEliminarImagen = () => {
-        setDatosCotizacion(prev => ({
-            ...prev,
-            imagen_referenciada: null,
-            imagen_preview: null
-        }));
-    };
-
-    if (loading) {
-        return (
-            <div className="cotizacion-reparacion-loading">
-                <div className="loading-spinner"></div>
-                <p>Cargando formato de cotización de reparación...</p>
-            </div>
-        );
-    }
+    resumen.subtotal = Math.max(0, resumen.totalMateriales + resumen.totalInsumos + resumen.totalManoObra - resumen.totalDescuentos);
 
     return (
-        <div className="cotizacion-reparacion">
-            {/* Header */}
-            <div className="cotizacion-header">
-                <h1>
-                    {modoEdicion ? 'Editar Cotización de Reparación' : 
-                     cotizacion ? 'Ver Cotización de Reparación' : 'Nueva Cotización de Reparación'}
-                </h1>
+        <div className="formato-cotizacion-container">
+            <div className="formato-header">
+                <h1>Cotización de Reparación</h1>
+                <p className="subtitle">Complete todos los campos marcados con (*)</p>
             </div>
 
-            {/* Sección de Datos del Cliente */}
+            {/* Sección de Cliente */}
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
-                    <h2>Datos del Cliente</h2>
+                    <h2>Información del Cliente</h2>
                 </div>
                 
                 <div className="seccion-contenido">
-                    <DatosCliente
-                        datosFactura={datosCotizacion}
-                        clientes={clientes}
-                        empleados={empleados}
-                        onActualizar={handleActualizarDatos}
-                        onClienteChange={handleClienteChange}
-                        errores={errores}
-                        onCambioCampo={(campo) => console.log(`Campo cambiado: ${campo}`)}
-                    />
+                    <div className="datos-cliente-grid">
+                        {/* Selección de Cliente */}
+                        <div className="campo-item">
+                            <label htmlFor="id_cliente">Cliente *</label>
+                            <select
+                                id="id_cliente"
+                                value={datosCotizacion.id_cliente}
+                                onChange={(e) => handleActualizarDatos('id_cliente', e.target.value)}
+                                className={errores.id_cliente ? 'campo-error' : ''}
+                            >
+                                <option value="">Seleccione un cliente</option>
+                                {clientes.map(cliente => (
+                                    <option key={cliente.id} value={cliente.id}>
+                                        {cliente.nombre} {cliente.apellido} - ID: {cliente.numero_identidad}
+                                    </option>
+                                ))}
+                            </select>
+                            {errores.id_cliente && (
+                                <span className="mensaje-error">{errores.id_cliente}</span>
+                            )}
+                        </div>
+
+                        {/* Selección de Empleado */}
+                        <div className="campo-item">
+                            <label htmlFor="id_empleado">Empleado/Vendedor *</label>
+                            <select
+                                id="id_empleado"
+                                value={datosCotizacion.id_empleado}
+                                onChange={(e) => handleActualizarDatos('id_empleado', e.target.value)}
+                                className={errores.id_empleado ? 'campo-error' : ''}
+                            >
+                                <option value="">Seleccione un empleado</option>
+                                {empleados.map(empleado => (
+                                    <option key={empleado.id} value={empleado.id}>
+                                        {empleado.nombre} {empleado.apellido} - ID: {empleado.id} - Usuario: {empleado.usuario}
+                                    </option>
+                                ))}
+                            </select>
+                            {errores.id_empleado && (
+                                <span className="mensaje-error">{errores.id_empleado}</span>
+                            )}
+                        </div>
+
+                        {/* Fecha */}
+                        <div className="campo-item">
+                            <label htmlFor="fecha">Fecha *</label>
+                            <input
+                                type="date"
+                                id="fecha"
+                                value={datosCotizacion.fecha}
+                                onChange={(e) => handleActualizarDatos('fecha', e.target.value)}
+                                className={errores.fecha ? 'campo-error' : ''}
+                            />
+                            {errores.fecha && (
+                                <span className="mensaje-error">{errores.fecha}</span>
+                            )}
+                        </div>
+
+                        {/* Teléfono */}
+                        <div className="campo-item">
+                            <label htmlFor="telefono">Teléfono</label>
+                            <input
+                                type="tel"
+                                id="telefono"
+                                placeholder="3322-0000"
+                                value={datosCotizacion.telefono}
+                                onChange={(e) => handleActualizarDatos('telefono', e.target.value)}
+                                className={errores.telefono ? 'campo-error' : ''}
+                            />
+                            {errores.telefono && (
+                                <span className="mensaje-error">{errores.telefono}</span>
+                            )}
+                            <small className="form-hint">Formato: xxxx-xxxx</small>
+                        </div>
+
+                        {/* Dirección */}
+                        <div className="campo-item campo-item-full">
+                            <label htmlFor="direccion">Dirección</label>
+                            <input
+                                type="text"
+                                id="direccion"
+                                placeholder="Dirección completa"
+                                value={datosCotizacion.direccion}
+                                onChange={(e) => handleActualizarDatos('direccion', e.target.value)}
+                                className={errores.direccion ? 'campo-error' : ''}
+                            />
+                            {errores.direccion && (
+                                <span className="mensaje-error">{errores.direccion}</span>
+                            )}
+                        </div>
+
+                        {/* RTN */}
+                        <div className="campo-item">
+                            <label htmlFor="rtn">RTN</label>
+                            <input
+                                type="text"
+                                id="rtn"
+                                placeholder="xxxx-xxxx-xxxxx-x"
+                                value={datosCotizacion.rtn}
+                                onChange={(e) => handleActualizarDatos('rtn', e.target.value)}
+                                className={errores.rtn ? 'campo-error' : ''}
+                            />
+                            {errores.rtn && (
+                                <span className="mensaje-error">{errores.rtn}</span>
+                            )}
+                            <small className="form-hint">Formato: xxxx-xxxx-xxxxx-x</small>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Sección de Detalles de Reparación */}
+            {/* Sección de Productos */}
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
-                    <h2>Detalles de Reparación</h2>
-                    <button 
-                        type="button"
-                        className="btn-agregar"
-                        onClick={handleAgregarProducto}
-                    >
-                        <FaPlus />
-                        Agregar Joya
+                    <h2>Productos a Reparar</h2>
+                    <button className="btn-agregar" onClick={handleAgregarProducto}>
+                        <FaPlus /> Agregar Producto
                     </button>
                 </div>
                 
                 <div className="seccion-contenido">
                     {datosCotizacion.productos.map((producto, index) => (
-                        <div key={producto.id} className="producto-bloque">
+                        <div key={producto.id} className="producto-item">
                             <div className="producto-header">
-                                <h4>Joya #{index + 1}</h4>
+                                <span className="producto-numero">Producto {index + 1}</span>
                                 {datosCotizacion.productos.length > 1 && (
                                     <button 
-                                        type="button"
                                         className="btn-eliminar"
                                         onClick={() => handleEliminarProducto(producto.id)}
                                     >
@@ -737,161 +848,105 @@ export default function FormatoCotizacionReparacion({
                                     </button>
                                 )}
                             </div>
-                            
-                            <div className="producto-contenido">
-                                <div className="producto-fila">
-                                    <div className="campo-producto">
-                                        <label>Tipo de Joya *</label>
-                                        <select
-                                            value={producto.tipoJoya}
-                                            onChange={(e) => handleActualizarProducto(producto.id, 'tipoJoya', e.target.value)}
-                                            className={errores[`producto_${producto.id}_tipoJoya`] ? 'campo-error' : ''}
-                                        >
-                                            {opcionesTipoJoya.map(opcion => (
-                                                <option key={opcion.value} value={opcion.value}>
-                                                    {opcion.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errores[`producto_${producto.id}_tipoJoya`] && (
-                                            <span className="mensaje-error">{errores[`producto_${producto.id}_tipoJoya`]}</span>
-                                        )}
-                                    </div>
 
-                                    <div className="campo-producto">
-                                        <label>Tipo de Reparación *</label>
-                                        <select
-                                            value={producto.tipoReparacion}
-                                            onChange={(e) => handleActualizarProducto(producto.id, 'tipoReparacion', e.target.value)}
-                                            className={errores[`producto_${producto.id}_tipoReparacion`] ? 'campo-error' : ''}
-                                        >
-                                            {opcionesTipoReparacion.map(opcion => (
-                                                <option key={opcion.value} value={opcion.value}>
-                                                    {opcion.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errores[`producto_${producto.id}_tipoReparacion`] && (
-                                            <span className="mensaje-error">{errores[`producto_${producto.id}_tipoReparacion`]}</span>
-                                        )}
-                                    </div>
-
-                                    <div className="campo-producto">
-                                        <label>Cantidad *</label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={producto.cantidad}
-                                            onChange={(e) => handleActualizarProducto(producto.id, 'cantidad', parseInt(e.target.value) || 1)}
-                                            className={errores[`producto_${producto.id}_cantidad`] ? 'campo-error' : ''}
-                                        />
-                                        {errores[`producto_${producto.id}_cantidad`] && (
-                                            <span className="mensaje-error">{errores[`producto_${producto.id}_cantidad`]}</span>
-                                        )}
-                                    </div>
+                            <div className="producto-campos">
+                                <div className="campo-item">
+                                    <label htmlFor={`tipoJoya_${producto.id}`}>Tipo de Joya *</label>
+                                    <select 
+                                        id={`tipoJoya_${producto.id}`}
+                                        value={producto.tipoJoya}
+                                        onChange={(e) => handleActualizarProducto(producto.id, 'tipoJoya', e.target.value)}
+                                        className={errores[`producto_${index}`] ? 'campo-error' : ''}
+                                    >
+                                        {opcionesTipoJoya.map(opcion => (
+                                            <option key={opcion.value} value={opcion.value}>
+                                                {opcion.label}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
 
-                                <div className="campo-descripcion">
-                                    <label>Descripción del Daño *</label>
+                                <div className="campo-item">
+                                    <label htmlFor={`tipoReparacion_${producto.id}`}>Tipo de Reparación *</label>
+                                    <select 
+                                        id={`tipoReparacion_${producto.id}`}
+                                        value={producto.tipoReparacion}
+                                        onChange={(e) => handleActualizarProducto(producto.id, 'tipoReparacion', e.target.value)}
+                                        className={errores[`producto_${index}`] ? 'campo-error' : ''}
+                                    >
+                                        {opcionesTipoReparacion.map(opcion => (
+                                            <option key={opcion.value} value={opcion.value}>
+                                                {opcion.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="campo-item">
+                                    <label htmlFor={`cantidad_${producto.id}`}>Cantidad *</label>
+                                    <input 
+                                        type="number"
+                                        id={`cantidad_${producto.id}`}
+                                        placeholder="Cantidad"
+                                        value={producto.cantidad}
+                                        onChange={(e) => handleActualizarProducto(producto.id, 'cantidad', e.target.value)}
+                                        min="1"
+                                        className={errores[`producto_${index}`] ? 'campo-error' : ''}
+                                    />
+                                </div>
+
+                                <div className="campo-item campo-item-full">
+                                    <label htmlFor={`descripcion_${producto.id}`}>Descripción Adicional</label>
                                     <textarea 
-                                        rows="3" 
-                                        placeholder="Describa el daño o problema de la joya..."
+                                        id={`descripcion_${producto.id}`}
+                                        placeholder="Detalles adicionales sobre la reparación (máx. 200 caracteres)..."
                                         value={producto.descripcion}
                                         onChange={(e) => handleActualizarProducto(producto.id, 'descripcion', e.target.value)}
-                                        className={errores[`producto_${producto.id}_descripcion`] ? 'campo-error' : ''}
+                                        rows="3"
+                                        maxLength="200"
                                     />
-                                    {errores[`producto_${producto.id}_descripcion`] && (
-                                        <span className="mensaje-error">{errores[`producto_${producto.id}_descripcion`]}</span>
-                                    )}
+                                    <small className="contador-caracteres">
+                                        {producto.descripcion.length}/200 caracteres
+                                    </small>
                                 </div>
                             </div>
+
+                            {errores[`producto_${index}`] && (
+                                <div className="mensaje-error-producto">
+                                    {errores[`producto_${index}`]}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Sección de Imagen de Referencia */}
+            {/* Sección de Materiales y Costos */}
             <div className="seccion-cotizacion">
                 <div className="seccion-header">
-                    <h2>Imagen de Referencia</h2>
+                    <h2>Materiales y Costos</h2>
                 </div>
                 
                 <div className="seccion-contenido">
-                    <div className="subseccion">
-                        <div className="campo-imagen">
-                            <label htmlFor="imagen_referencia" className="label-imagen">
-                                Subir imagen de la joya a reparar
-                                <span className="texto-ayuda">(Opcional - Formatos: JPG, PNG, GIF - Máx: 5MB)</span>
-                            </label>
-                            
-                            <input
-                                type="file"
-                                id="imagen_referencia"
-                                accept="image/*"
-                                onChange={handleImagenChange}
-                                className="input-imagen"
-                            />
-                            
-                            {/* Preview de la imagen */}
-                            {datosCotizacion.imagen_preview && (
-                                <div className="imagen-preview-container">
-                                    <div className="imagen-preview-header">
-                                        <span>Vista previa:</span>
-                                        <button 
-                                            type="button"
-                                            className="btn-eliminar-imagen"
-                                            onClick={handleEliminarImagen}
-                                        >
-                                            <FaTrash />
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                    <img 
-                                        src={datosCotizacion.imagen_preview} 
-                                        alt="Preview de la joya a reparar"
-                                        className="imagen-preview"
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Sección de Detalles Adicionales */}
-            <div className="seccion-cotizacion">
-                <div className="seccion-header">
-                    <h2>Detalles Adicionales</h2>
-                </div>
-                
-                <div className="seccion-contenido">
-                    {/* Materiales Utilizados */}
+                    {/* Materiales */}
                     <div className="subseccion">
                         <div className="subseccion-header">
                             <h4>Materiales Utilizados</h4>
-                            <button 
-                                type="button"
-                                className="btn-agregar"
-                                onClick={handleAgregarMaterial}
-                            >
-                                <FaPlus />
-                                Agregar Material
+                            <button className="btn-agregar-small" onClick={handleAgregarMaterial}>
+                                <FaPlus /> Agregar Material
                             </button>
                         </div>
 
                         {datosCotizacion.materiales.map((material, index) => (
                             <Material
                                 key={material.id}
-                                id={material.id}
-                                tipo_material={material.tipo_material}
-                                peso_gramos={material.peso_gramos}
-                                precio_por_gramo={material.precio_por_gramo}
-                                costo_total={material.costo_total}
-                                onActualizar={handleActualizarMaterial}
-                                onBorrar={handleEliminarMaterial}
-                                errores={errores}
-                                materialIndex={index}
+                                material={material}
+                                index={index}
                                 materialesStock={materialesStock}
+                                onActualizar={handleActualizarMaterial}
+                                onEliminar={handleEliminarMaterial}
+                                mostrarBotonEliminar={datosCotizacion.materiales.length > 1}
+                                error={errores[`material_${index}`]}
                             />
                         ))}
                     </div>
@@ -899,15 +954,15 @@ export default function FormatoCotizacionReparacion({
                     {/* Costos Adicionales */}
                     <div className="subseccion">
                         <h4>Costos Adicionales</h4>
-                        <div className="costos-adicionales-grid">
+                        <div className="campos-costos">
                             <div className="campo-item">
                                 <label htmlFor="costo_insumos">Costo de Insumos (L.) *</label>
                                 <input 
                                     type="number"
                                     id="costo_insumos"
-                                    placeholder="Costo de insumos"
+                                    placeholder="Costo de insumos adicionales"
                                     value={datosCotizacion.costo_insumos}
-                                    onChange={(e) => handleActualizarDatos('costo_insumos', parseFloat(e.target.value) || 0)}
+                                    onChange={(e) => handleActualizarDatos('costo_insumos', e.target.value)}
                                     min="0"
                                     step="0.01"
                                     className={errores.costo_insumos ? 'campo-error' : ''}
@@ -924,7 +979,7 @@ export default function FormatoCotizacionReparacion({
                                     id="mano_obra"
                                     placeholder="Costo de mano de obra"
                                     value={datosCotizacion.mano_obra}
-                                    onChange={(e) => handleActualizarDatos('mano_obra', parseFloat(e.target.value) || 0)}
+                                    onChange={(e) => handleActualizarDatos('mano_obra', e.target.value)}
                                     min="0"
                                     step="0.01"
                                     className={errores.mano_obra ? 'campo-error' : ''}
@@ -941,7 +996,7 @@ export default function FormatoCotizacionReparacion({
                                     id="descuentos"
                                     placeholder="Descuentos aplicados"
                                     value={datosCotizacion.descuentos}
-                                    onChange={(e) => handleActualizarDatos('descuentos', parseFloat(e.target.value) || 0)}
+                                    onChange={(e) => handleActualizarDatos('descuentos', e.target.value)}
                                     min="0"
                                     step="0.01"
                                 />
@@ -986,11 +1041,21 @@ export default function FormatoCotizacionReparacion({
                         <div className="campo-item-full">
                             <textarea 
                                 id="observaciones"
-                                placeholder="Agregue observaciones adicionales aquí (opcional)..."
+                                placeholder="Agregue observaciones adicionales aquí (opcional, máx. 500 caracteres)..."
                                 value={datosCotizacion.observaciones}
                                 onChange={(e) => handleActualizarDatos('observaciones', e.target.value)}
                                 rows="4"
+                                maxLength="500"
+                                className={errores.observaciones ? 'campo-error' : ''}
                             />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
+                                <small className="contador-caracteres">
+                                    {datosCotizacion.observaciones.length}/500 caracteres
+                                </small>
+                                {errores.observaciones && (
+                                    <span className="mensaje-error">{errores.observaciones}</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
