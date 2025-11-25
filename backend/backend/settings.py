@@ -140,6 +140,13 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+# Django REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'UNAUTHENTICATED_USER': None,
+}
+
 # Para servir archivos estáticos en desarrollo
 if DEBUG:
     import mimetypes

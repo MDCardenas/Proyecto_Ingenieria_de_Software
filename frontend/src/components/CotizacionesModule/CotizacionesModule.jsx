@@ -1,6 +1,6 @@
 // components/cotizacionesComponentes/CotizacionesModule.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import HeaderCotizaciones from './HeaderCotizaciones';
 import FiltrosCotizaciones from './FiltrosCotizaciones';
 import ListaCotizaciones from './ListaCotizaciones';
@@ -47,12 +47,12 @@ export default function CotizacionesModule() {
     const cargarTodasLasCotizaciones = async () => {
         try {
             setLoading(true);
-            const cotizacionesRes = await axios.get('/api/cotizaciones/');
+            const cotizacionesRes = await api.get('/cotizaciones/');
             const cotizacionesData = cotizacionesRes.data;
-            
+
             setCotizacionesOriginales(cotizacionesData);
             calcularEstadisticas(cotizacionesData);
-            
+
         } catch (error) {
             console.error('Error cargando cotizaciones:', error);
             alert('Error al cargar las cotizaciones');
@@ -183,7 +183,7 @@ export default function CotizacionesModule() {
         }
 
         try {
-            await axios.delete(`/api/cotizaciones/${cotizacion.numero_cotizacion}/`);
+            await api.delete(`/cotizaciones/${cotizacion.numero_cotizacion}/`);
             alert('Cotización eliminada exitosamente');
             cargarTodasLasCotizaciones();
         } catch (error) {
@@ -198,12 +198,13 @@ export default function CotizacionesModule() {
         }
 
         try {
-            const response = await axios.post(`/api/cotizaciones/${cotizacion.numero_cotizacion}/convertir_a_factura/`);
-            alert('Cotización convertida a factura exitosamente');
+            const response = await api.post(`/cotizaciones/${cotizacion.numero_cotizacion}/convertir_a_factura/`);
+            alert(`Cotización convertida a factura #${response.data.numero_factura} exitosamente`);
             cargarTodasLasCotizaciones();
         } catch (error) {
             console.error('Error convirtiendo cotización:', error);
-            alert('Error al convertir la cotización a factura');
+            const errorMsg = error.response?.data?.error || 'Error al convertir la cotización a factura';
+            alert(errorMsg);
         }
     };
 
