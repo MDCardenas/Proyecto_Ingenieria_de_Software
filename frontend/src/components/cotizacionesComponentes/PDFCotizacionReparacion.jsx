@@ -1,6 +1,6 @@
 // components/cotizacionesComponentes/PDFCotizacionReparacion.jsx
 import React from "react";
-import '../../styles/scss/components/_formatofactura.scss';
+import '../../styles/scss/components/_formatoReparacion.scss';
 import '../../styles/scss/components/_modaldetalle.scss';
 
 export default function PDFCotizacionReparacion({
