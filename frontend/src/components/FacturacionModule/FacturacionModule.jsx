@@ -70,6 +70,32 @@ export default function Facturacion({ onCancel }) {
   // Estado para errores de validación
   const [errores, setErrores] = useState({});
 
+  // Estado para el dropdown de descuentos (agrégala con los otros estados)
+  const [mostrarDropdownDescuentos, setMostrarDropdownDescuentos] = useState(false);
+
+  // Opciones de descuento (agrégala después de los estados)
+  const opcionesDescuento = [
+    { valor: 0, label: "0%" },
+    { valor: 5, label: "5%" },
+    { valor: 10, label: "10%" },
+    { valor: 15, label: "15%" },
+    { valor: 20, label: "20%" },
+    { valor: 30, label: "30%" },
+    { valor: 35, label: "35% (Cuarta Edad)" }
+  ];
+
+  // Manejar selección de descuento (agrégala con las otras funciones)
+  const handleSeleccionarDescuento = (valor) => {
+    setDescuentos(valor);
+    setMostrarDropdownDescuentos(false);
+  };
+
+  // Obtener la etiqueta del descuento seleccionado (agrégala con las otras funciones)
+  const getDescuentoLabel = () => {
+    const opcion = opcionesDescuento.find(op => op.valor === parseFloat(descuentos));
+    return opcion ? opcion.label : "Seleccionar descuento";
+  };
+
   // Cargar datos iniciales
   useEffect(() => {
     cargarDatosIniciales();
@@ -237,51 +263,73 @@ export default function Facturacion({ onCancel }) {
 
   const guardarFacturaEnBD = async () => {
     try {
-      console.log("Preparando datos para guardar factura...");
-      
-      if (!datosFactura.id_cliente || !datosFactura.id_empleado) {
-        throw new Error("Cliente y empleado son requeridos");
-      }
+    console.log("Preparando datos para guardar factura...");
+    
+    if (!datosFactura.id_cliente || !datosFactura.id_empleado) {
+      throw new Error("Cliente y empleado son requeridos");
+    }
 
-      const subtotalProductos = productos.reduce(
+    let subtotalProductos;
+    let montoDescuento;
+
+    if (tipoFactura === "VENTA") {
+      subtotalProductos = productos.reduce(
         (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
         0
       );
+      montoDescuento = parseFloat((subtotalProductos * (parseFloat(descuentos) / 100)).toFixed(2));
+    } 
+    else if (tipoFactura === "FABRICACION") {
+      subtotalProductos = productos.reduce(
+        (acc, p) => acc + (parseFloat(p.cantidad) || 0) * (parseFloat(p.precio) || 0),
+        0
+      );
+      montoDescuento = parseFloat((subtotalProductos * (parseFloat(descuentos) / 100)).toFixed(2));
+    }
+    else if (tipoFactura === "REPARACION") {
+      const subtotalMateriales = materiales.reduce(
+        (acc, m) => acc + (parseFloat(m.costo) || 0),
+        0
+      );
+      subtotalProductos = subtotalMateriales + 
+                         (parseFloat(costoInsumos) || 0) + 
+                         (parseFloat(manoObra) || 0);
+      // Para reparación, el descuento solo se aplica a materiales
+      montoDescuento = parseFloat((subtotalMateriales * (parseFloat(descuentos) / 100)).toFixed(2));
+    }
 
-      const descuento = parseFloat(descuentos) || 0;
-      const subtotalConDescuento = subtotalProductos - descuento;
-      
-      // CORREGIR: Asegurar máximo 2 decimales
-      const isv = parseFloat((subtotalConDescuento * 0.15).toFixed(2));
-      const total = parseFloat((subtotalConDescuento + isv).toFixed(2));
+    const subtotalConDescuento = subtotalProductos - montoDescuento;
+    const isv = parseFloat((subtotalConDescuento * 0.15).toFixed(2));
+    const total = parseFloat((subtotalConDescuento + isv).toFixed(2));
 
-      const facturaData = {
-        id_cliente: parseInt(datosFactura.id_cliente),
-        id_empleado: parseInt(datosFactura.id_empleado),
-        fecha: datosFactura.fecha || new Date().toISOString().split('T')[0],
-        direccion: datosFactura.direccion || "No especificada",
-        telefono: datosFactura.telefono || "No especificado",
-        rtn: datosFactura.rtn || "",
-        subtotal: parseFloat(subtotalConDescuento.toFixed(2)), // También asegurar 2 decimales
-        descuento: parseFloat(descuento.toFixed(2)),
-        isv: isv,
-        total: total,
-        tipo_venta: tipoFactura,
-        observaciones: datosFactura.observaciones || '',
-        productos: productos.map(p => ({
-          codigo: p.codigo || 1,
-          producto: p.producto || 'Producto sin nombre',
-          cantidad: parseInt(p.cantidad) || 1,
-          precio: parseFloat((parseFloat(p.precio) || 0).toFixed(2)), // Asegurar 2 decimales
-          descripcion: p.descripcion || 'Sin descripción'
-        })),
-        materiales: materiales.filter(m => m.tipo && m.peso && m.precio).map(m => ({
-          tipo: m.tipo,
-          peso: parseFloat((parseFloat(m.peso) || 0).toFixed(2)),
-          precio: parseFloat((parseFloat(m.precio) || 0).toFixed(2)),
-          costo: parseFloat((parseFloat(m.costo) || 0).toFixed(2))
-        }))
-      };
+    const facturaData = {
+      id_cliente: parseInt(datosFactura.id_cliente),
+      id_empleado: parseInt(datosFactura.id_empleado),
+      fecha: datosFactura.fecha || new Date().toISOString().split('T')[0],
+      direccion: datosFactura.direccion || "No especificada",
+      telefono: datosFactura.telefono || "No especificado",
+      rtn: datosFactura.rtn || "",
+      subtotal: parseFloat(subtotalConDescuento.toFixed(2)),
+      descuento: parseFloat(montoDescuento.toFixed(2)),
+      porcentaje_descuento: parseFloat(descuentos),
+      isv: isv,
+      total: total,
+      tipo_venta: tipoFactura,
+      observaciones: datosFactura.observaciones || '',
+      productos: productos.map(p => ({
+        codigo: p.codigo || 1,
+        producto: p.producto || 'Producto sin nombre',
+        cantidad: parseInt(p.cantidad) || 1,
+        precio: parseFloat((parseFloat(p.precio) || 0).toFixed(2)),
+        descripcion: p.descripcion || 'Sin descripción'
+      })),
+      materiales: materiales.filter(m => m.tipo && m.peso && m.precio).map(m => ({
+        tipo: m.tipo,
+        peso: parseFloat((parseFloat(m.peso) || 0).toFixed(2)),
+        precio: parseFloat((parseFloat(m.precio) || 0).toFixed(2)),
+        costo: parseFloat((parseFloat(m.costo) || 0).toFixed(2))
+      }))
+    };
 
       console.log("Enviando datos de factura:", JSON.stringify(facturaData, null, 2));
 
@@ -299,7 +347,6 @@ export default function Facturacion({ onCancel }) {
         const errorText = await response.text();
         console.error("Error del servidor:", response.status, errorText);
         
-        // Intentar parsear como JSON para ver el error detallado
         try {
           const errorJson = JSON.parse(errorText);
           console.error("Error detallado del backend:", errorJson);
@@ -534,7 +581,11 @@ export default function Facturacion({ onCancel }) {
       0
     );
 
-    const totalConDescuento = subtotalProductos - (parseFloat(descuentos) || 0);
+    // CALCULAR MONTO DE DESCUENTO BASADO EN PORCENTAJE
+    const porcentajeDescuento = parseFloat(descuentos) || 0;
+    const montoDescuento = parseFloat((subtotalProductos * (porcentajeDescuento / 100)).toFixed(2));
+    
+    const totalConDescuento = subtotalProductos - montoDescuento;
     const isv = parseFloat((totalConDescuento * 0.15).toFixed(2));
     const total = parseFloat((totalConDescuento + isv).toFixed(2));
 
@@ -544,6 +595,7 @@ export default function Facturacion({ onCancel }) {
       total,
       anticipo: 0,
       pagoPendiente: 0,
+      montoDescuento: montoDescuento // Agregar esto para mostrar en resumen
     };
   };
 
@@ -555,9 +607,14 @@ export default function Facturacion({ onCancel }) {
       0
     );
 
-    const totalConDescuento = subtotalProductos - (parseFloat(descuentos) || 0);
-    const isv = parseFloat((totalConDescuento * 0.15).toFixed(2));
-    const total = parseFloat((totalConDescuento + isv).toFixed(2));
+    // CALCULAR MONTO DE DESCUENTO BASADO SOLO EN EL SUBTOTAL DE PRODUCTOS
+    const porcentajeDescuento = parseFloat(descuentos) || 0;
+    const montoDescuento = parseFloat((subtotalProductos * (porcentajeDescuento / 100)).toFixed(2));
+    
+    // Aplicar descuento solo al subtotal de productos
+    const subtotalConDescuento = subtotalProductos - montoDescuento;
+    const isv = parseFloat((subtotalConDescuento * 0.15).toFixed(2));
+    const total = parseFloat((subtotalConDescuento + isv).toFixed(2));
     const anticipo = parseFloat((total * 0.5).toFixed(2));
     const pagoPendiente = parseFloat((total - anticipo).toFixed(2));
 
@@ -567,12 +624,13 @@ export default function Facturacion({ onCancel }) {
     })));
 
     return {
-      subtotal: parseFloat(totalConDescuento.toFixed(2)),
+      subtotal: parseFloat(subtotalConDescuento.toFixed(2)),
       isv,
       total,
       anticipo,
       pagoPendiente,
-      subtotalProductos: parseFloat(subtotalProductos.toFixed(2))
+      subtotalProductos: parseFloat(subtotalProductos.toFixed(2)),
+      montoDescuento: montoDescuento
     };
   };
 
@@ -586,18 +644,28 @@ export default function Facturacion({ onCancel }) {
                         (parseFloat(costoInsumos) || 0) + 
                         (parseFloat(manoObra) || 0);
 
-    const totalConDescuento = totalParcial - (parseFloat(descuentos) || 0);
-    const isv = parseFloat((totalConDescuento * 0.15).toFixed(2));
-    const total = parseFloat((totalConDescuento + isv).toFixed(2));
+    // CALCULAR MONTO DE DESCUENTO BASADO SOLO EN EL SUBTOTAL DE MATERIALES
+    // (no incluir insumos ni mano de obra en el cálculo del descuento)
+    const porcentajeDescuento = parseFloat(descuentos) || 0;
+    const montoDescuento = parseFloat((subtotalMateriales * (porcentajeDescuento / 100)).toFixed(2));
+    
+    // Aplicar descuento solo a los materiales, luego sumar insumos y mano de obra
+    const subtotalConDescuento = (subtotalMateriales - montoDescuento) + 
+                                (parseFloat(costoInsumos) || 0) + 
+                                (parseFloat(manoObra) || 0);
+    
+    const isv = parseFloat((subtotalConDescuento * 0.15).toFixed(2));
+    const total = parseFloat((subtotalConDescuento + isv).toFixed(2));
     const anticipo = parseFloat((total * 0.5).toFixed(2));
     const pagoPendiente = parseFloat((total - anticipo).toFixed(2));
 
     return {
-      subtotal: parseFloat(totalConDescuento.toFixed(2)),
+      subtotal: parseFloat(subtotalConDescuento.toFixed(2)),
       isv,
       total,
       anticipo,
       pagoPendiente,
+      montoDescuento: montoDescuento
     };
   };
 
@@ -636,10 +704,8 @@ export default function Facturacion({ onCancel }) {
         (acc, m) => acc + (parseFloat(m.costo) || 0),
         0
       );
-
-      return subtotalMateriales + 
-            (parseFloat(costoInsumos) || 0) + 
-            (parseFloat(manoObra) || 0);
+      // Para mostrar en el resumen, devolver solo materiales (base para descuento)
+      return subtotalMateriales;
     }
     return 0;
   };
@@ -805,14 +871,40 @@ export default function Facturacion({ onCancel }) {
                               <div className="producto-fila">
                                 <div className="campo-producto">
                                   <label>Descuentos o Rebajas</label>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="Ingrese el descuento o rebaja"
-                                    value={descuentos}
-                                    onChange={(e) => setDescuentos(e.target.value)}
-                                  />
+                                  <div style={{ position: 'relative' }}>
+                                    <button
+                                      type="button"
+                                      className="dropdown-trigger"
+                                      onClick={() => setMostrarDropdownDescuentos(!mostrarDropdownDescuentos)}
+                                    >
+                                      {getDescuentoLabel()}
+                                      <span style={{ float: 'right', marginLeft: '8px' }}>▼</span>
+                                    </button>
+                                    
+                                    {mostrarDropdownDescuentos && (
+                                      <>
+                                        {/* Overlay para cerrar al hacer clic fuera */}
+                                        <div 
+                                          className="dropdown-overlay"
+                                          onClick={() => setMostrarDropdownDescuentos(false)}
+                                        />
+                                        <div className="dropdown-menu">
+                                          {opcionesDescuento.map((opcion) => (
+                                            <div
+                                              key={opcion.valor}
+                                              className={`dropdown-option ${
+                                                parseFloat(descuentos) === opcion.valor ? 'selected' : ''
+                                              }`}
+                                              data-value={opcion.valor}
+                                              onClick={() => handleSeleccionarDescuento(opcion.valor)}
+                                            >
+                                              {opcion.label}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -843,8 +935,10 @@ export default function Facturacion({ onCancel }) {
                               <td>L. {calcularSubtotalProductos().toFixed(2)}</td>
                             </tr>
                             <tr>
-                              <td>Descuentos:</td>
-                              <td>L. {parseFloat(descuentos || 0).toFixed(2)}</td>
+                              <td>Descuento ({descuentos}%):</td>
+                              <td>- L. {(
+                                calcularSubtotalProductos() * (parseFloat(descuentos) / 100)
+                              ).toFixed(2)}</td>
                             </tr>
                             <tr>
                               <td>Subtotal con Descuento:</td>

@@ -15,13 +15,28 @@ export default function DatosAdicionales({
   descuentos,
   setDescuentos,
   tipoFactura,
-  errores
+  errores,
+  soloDescuentos = false
 }) {
   // Estado para búsqueda de materiales
   const [busquedaMaterial, setBusquedaMaterial] = useState("");
   const [mostrarResultadosMaterial, setMostrarResultadosMaterial] = useState(false);
   const [materialesEncontrados, setMaterialesEncontrados] = useState([]);
   const [materialIndexActivo, setMaterialIndexActivo] = useState(null);
+  
+  // Estado para el dropdown de descuentos
+  const [mostrarDropdownDescuentos, setMostrarDropdownDescuentos] = useState(false);
+
+  // Opciones de descuento
+  const opcionesDescuento = [
+    { valor: 0, label: "0%" },
+    { valor: 5, label: "5%" },
+    { valor: 10, label: "10%" },
+    { valor: 15, label: "15%" },
+    { valor: 20, label: "20%" },
+    { valor: 30, label: "30%" },
+    { valor: 35, label: "35% (Cuarta Edad)" }
+  ];
 
   // Buscar materiales cuando se escribe
   useEffect(() => {
@@ -63,6 +78,18 @@ export default function DatosAdicionales({
     setBusquedaMaterial("");
     setMostrarResultadosMaterial(false);
     setMaterialIndexActivo(null);
+  };
+
+  // Manejar selección de descuento
+  const handleSeleccionarDescuento = (valor) => {
+    setDescuentos(valor);
+    setMostrarDropdownDescuentos(false);
+  };
+
+  // Obtener la etiqueta del descuento seleccionado
+  const getDescuentoLabel = () => {
+    const opcion = opcionesDescuento.find(op => op.valor === parseFloat(descuentos));
+    return opcion ? opcion.label : "Seleccionar descuento";
   };
 
   return (
@@ -261,14 +288,40 @@ export default function DatosAdicionales({
           </div>
           <div className="campo-costo">
             <label>Descuentos o Rebajas</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Descuentos aplicados"
-              value={descuentos}
-              onChange={(e) => setDescuentos(e.target.value)}
-            />
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className="dropdown-trigger"
+                onClick={() => setMostrarDropdownDescuentos(!mostrarDropdownDescuentos)}
+              >
+                {getDescuentoLabel()}
+                <span style={{ float: 'right', marginLeft: '8px' }}>▼</span>
+              </button>
+              
+              {mostrarDropdownDescuentos && (
+                <>
+                  {/* Overlay para cerrar al hacer clic fuera */}
+                  <div 
+                    className="dropdown-overlay"
+                    onClick={() => setMostrarDropdownDescuentos(false)}
+                  />
+                  <div className="dropdown-menu">
+                    {opcionesDescuento.map((opcion) => (
+                      <div
+                        key={opcion.valor}
+                        className={`dropdown-option ${
+                          parseFloat(descuentos) === opcion.valor ? 'selected' : ''
+                        }`}
+                        data-value={opcion.valor}
+                        onClick={() => handleSeleccionarDescuento(opcion.valor)}
+                      >
+                        {opcion.label}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -289,12 +342,22 @@ export default function DatosAdicionales({
             <span>Mano de Obra:</span>
             <span>L. {parseFloat(manoObra || 0).toFixed(2)}</span>
           </div>
+          {descuentos > 0 && (
+            <div className="costo-total descuento-aplicado">
+              <span>Descuento ({descuentos}%):</span>
+              <span>- L. {(
+                (materiales.reduce((acc, m) => acc + (parseFloat(m.costo) || 0), 0) +
+                parseFloat(costoInsumos || 0) +
+                parseFloat(manoObra || 0)) * (parseFloat(descuentos) / 100)
+              ).toFixed(2)}</span>
+            </div>
+          )}
           <div className="costo-total total-final">
             <span>Subtotal:</span>
             <span>L. {(
-              materiales.reduce((acc, m) => acc + (parseFloat(m.costo) || 0), 0) +
+              (materiales.reduce((acc, m) => acc + (parseFloat(m.costo) || 0), 0) +
               parseFloat(costoInsumos || 0) +
-              parseFloat(manoObra || 0)
+              parseFloat(manoObra || 0)) * (1 - (parseFloat(descuentos) / 100))
             ).toFixed(2)}</span>
           </div>
         </div>
