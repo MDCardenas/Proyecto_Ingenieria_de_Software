@@ -1,5 +1,4 @@
 # backend/api/views.py
-#DAVID: AQUI LE IMPORTE MODELS
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -14,6 +13,9 @@ from django.utils import timezone
 from decimal import Decimal
 from django.db.models import Value, CharField, DecimalField,F, ExpressionWrapper
 from django.db.models.functions import Coalesce
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 from .models import (
     TblClientes, TblEmpleados, TblStockJoyas, TblServicios,
     TblFacturas, TblCotizaciones, TblStockInsumos, 
@@ -27,7 +29,7 @@ from .serializers import (
     PerfilEmpleadoSerializer, OrdenTrabajoSerializer, DetalleFacturaSerializer,
     CrearFacturaCompletaSerializer, ActualizarEstadoPagoSerializer,
     ActualizarEstadoOrdenSerializer, CrearFacturaSimpleSerializer,
-    CrearCotizacionSerializer, ActualizarCotizacionSerializer
+    CrearCotizacionSerializer, ActualizarCotizacionSerializer, ConvertirCotizacionSerializer
 )
 
 # ========================================
@@ -150,7 +152,6 @@ class CotizacionViewSet(viewsets.ModelViewSet):
     queryset = TblCotizaciones.objects.all()
     # serializer_class = CotizacionSerializer
 
-
     # Metodos Personalizados
 
     def get_serializer_class(self):
@@ -229,12 +230,26 @@ class CotizacionViewSet(viewsets.ModelViewSet):
         
         return queryset.order_by('-fecha_creacion')
     
+    @method_decorator(csrf_exempt)
     @action(detail=True, methods=['post'])
     def convertir_a_factura(self, request, pk=None):
         """Convertir cotización a factura - acción personalizada"""
         cotizacion = self.get_object()
 
         try:
+            # Validar que la cotización esté activa y no convertida
+            if cotizacion.estado != 'ACTIVA':
+                return Response({
+                    'success': False,
+                    'error': 'Solo se pueden convertir cotizaciones activas'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if cotizacion.numero_factura_conversion:
+                return Response({
+                    'success': False,
+                    'error': 'Esta cotización ya fue convertida anteriormente'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             # Crear factura a partir de la cotización
             factura = TblFacturas.objects.create(
                 id_cliente=cotizacion.id_cliente,
@@ -300,13 +315,6 @@ class CotizacionViewSet(viewsets.ModelViewSet):
         cotizaciones = TblCotizaciones.objects.filter(id_cliente=id_cliente)
         serializer = self.get_serializer(cotizaciones, many=True)
         return Response(serializer.data)
-
-
-
-
-
-
-
 
 class OrdenTrabajoViewSet(viewsets.ModelViewSet):
     queryset = TblOrdenesTrabajo.objects.all()
@@ -414,7 +422,6 @@ def login(request):
             'error': f'Error en el login: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        
 # ========================================
 # DASHBOARD Y REPORTES
 # ========================================
@@ -515,8 +522,8 @@ def ventas_reporte_periodo(request):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Convertir fechas
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+        fecha_inicio = date.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin = date.strptime(fecha_fin, '%Y-%m-%d')
         
         ventas_periodo = TblFacturas.objects.filter(
             fecha__date__gte=fecha_inicio,
@@ -728,11 +735,29 @@ def obtener_detalles_factura(request, numero_factura):
 # COTIZACIONES - ENDPOINTS ADICIONALES
 # ========================================
 
+@csrf_exempt
 @api_view(['POST'])
 def convertir_cotizacion_a_factura(request, numero_cotizacion):
-    """Convertir cotización a factura"""
+    """Convertir cotización a factura - VERSIÓN CON CSRF EXEMPT"""
     try:
+        print(f"🔍 DEBUG: Iniciando conversión para cotización {numero_cotizacion}")
+        
         cotizacion = TblCotizaciones.objects.get(numero_cotizacion=numero_cotizacion)
+        print(f"✅ DEBUG: Cotización encontrada - ID: {cotizacion.id_cotizacion}, Estado: {cotizacion.estado}")
+
+        # Validar que la cotización esté activa
+        if cotizacion.estado != 'ACTIVA':
+            return Response({
+                'success': False,
+                'error': 'Solo se pueden convertir cotizaciones activas'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validar que no esté ya convertida
+        if cotizacion.numero_factura_conversion:
+            return Response({
+                'success': False,
+                'error': 'Esta cotización ya fue convertida anteriormente'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear factura a partir de la cotización
         factura = TblFacturas.objects.create(
@@ -756,16 +781,30 @@ def convertir_cotizacion_a_factura(request, numero_cotizacion):
         cotizacion.estado = 'CONVERTIDA'
         cotizacion.save()
 
+        print(f"✅ DEBUG: Factura #{factura.numero_factura} creada exitosamente")
+
         return Response({
             'success': True,
             'message': 'Cotización convertida a factura exitosamente',
-            'factura': FacturaSerializer(factura).data
+            'factura': FacturaSerializer(factura).data,
+            'numero_factura': factura.numero_factura
         })
 
     except TblCotizaciones.DoesNotExist:
+        print(f"❌ DEBUG: Cotización no encontrada: {numero_cotizacion}")
         return Response({
+            'success': False,
             'error': 'Cotización no encontrada'
         }, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        print(f"❌ DEBUG: Error inesperado: {str(e)}")
+        import traceback
+        print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
+        return Response({
+            'success': False,
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def cotizaciones_vencidas(request):
@@ -1222,7 +1261,6 @@ def crear_factura_simple(request):
             'error': 'Error del servidor: {}'.format(str(e))
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        
 @api_view(['GET'])
 def listar_facturas(request):
     """Listar facturas (compatibilidad)"""
@@ -1244,8 +1282,6 @@ def obtener_factura_detalle(request, numero_factura):
 def crear_factura_frontend(request):
     """Crear factura desde frontend (compatibilidad)"""
     return crear_factura_completa(request)
-
-
 
 @api_view(['GET'])
 def lista_empleados(request):
@@ -1278,7 +1314,6 @@ def lista_empleados(request):
         print(traceback.format_exc())
         return Response({'error': str(e)}, status=500)
 
-
 #LISTAR PERFILES DE EMPLEADOS
 @api_view(['GET'])
 def lista_perfiles(request):
@@ -1304,7 +1339,6 @@ def lista_perfiles(request):
             {'error': f'Error al obtener perfiles: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 
 @api_view(['GET'])
 def empleado_detalle(request, pk):
@@ -1332,9 +1366,6 @@ def empleado_detalle(request, pk):
     except Exception as e:
         print(">>> Error:", str(e))
         return Response({'error': str(e)}, status=500)
-
-
-
 
 @api_view(['POST'])
 def crear_empleado(request):
@@ -1393,7 +1424,6 @@ def crear_empleado(request):
             'error': str(e)
         }, status=500)
 
-
 @api_view(['PUT'])
 def actualizar_empleado(request, pk):
     try:
@@ -1423,10 +1453,6 @@ def eliminar_empleado(request, pk):
         return Response({'mensaje': 'Empleado eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
     except TblEmpleados.DoesNotExist:
         return Response({'error': 'Empleado no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-
 
 #PARA TRAER LOS GASTOS
 @api_view(['GET'])
@@ -1562,7 +1588,6 @@ def proveedores_buscar(request):
         return Response({
             'error': f'Error en búsqueda: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
-
 
 #RESUMEN CONTABILIDAD - REPORTES
 
