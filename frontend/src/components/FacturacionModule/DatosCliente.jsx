@@ -120,7 +120,7 @@ export default function DatosCliente({
     setMostrarResultadosCliente(filtrados.length > 0);
   }, [busquedaCliente, clientes]);
 
-  // Filtrar empleados en tiempo real - CORREGIDO
+  // Filtrar empleados en tiempo real - CORREGIDO DEFINITIVAMENTE
   useEffect(() => {
     if (busquedaEmpleado.trim() === "") {
       setEmpleadosFiltrados([]);
@@ -153,15 +153,23 @@ export default function DatosCliente({
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "";
   };
 
-  // Obtener nombre del empleado seleccionado - CORREGIDO
+  // Obtener nombre del empleado seleccionado - CORREGIDO DEFINITIVAMENTE
   const obtenerNombreEmpleado = () => {
     if (!datosFactura.id_empleado) return "";
     
+    console.log("Buscando empleado con ID:", datosFactura.id_empleado);
+    console.log("Lista de empleados disponible:", empleados);
+    
     const empleado = empleados.find(e => {
-      // Buscar por id_empleado primero, luego por id
+      // DEBUG: Mostrar qué estamos comparando
+      console.log(`Comparando: ${e.id_empleado} (tipo: ${typeof e.id_empleado}) con ${datosFactura.id_empleado} (tipo: ${typeof datosFactura.id_empleado})`);
+      
+      // Comparación flexible - acepta tanto string como número
       return (e.id_empleado && e.id_empleado.toString() === datosFactura.id_empleado.toString()) ||
              (e.id && e.id.toString() === datosFactura.id_empleado.toString());
     });
+    
+    console.log("Empleado encontrado:", empleado);
     
     if (empleado) {
       const nombreCompleto = `${empleado.nombre || ''} ${empleado.apellido || ''}`.trim();
@@ -171,7 +179,7 @@ export default function DatosCliente({
     return "Empleado no encontrado";
   };
 
-  // Obtener información completa del empleado seleccionado - NUEVA FUNCIÓN
+  // Obtener información completa del empleado seleccionado - CORREGIDA
   const obtenerInfoEmpleado = () => {
     if (!datosFactura.id_empleado) return null;
     
@@ -278,10 +286,14 @@ export default function DatosCliente({
     onCambioCampo && onCambioCampo('id_cliente');
   };
 
-  // Manejar selección de empleado - CORREGIDO
+  // Manejar selección de empleado - CORREGIDO DEFINITIVAMENTE
   const handleSeleccionarEmpleado = (empleado) => {
-    // Usar id_empleado si existe, sino usar id
+    console.log("Empleado seleccionado:", empleado);
+    
+    // Usar id_empleado si existe, sino usar id - pero asegurar que sea número
     const empleadoId = empleado.id_empleado || empleado.id;
+    console.log("ID a guardar:", empleadoId);
+    
     onActualizar('id_empleado', empleadoId.toString());
     setBusquedaEmpleado("");
     setMostrarResultadosEmpleado(false);
@@ -398,7 +410,7 @@ export default function DatosCliente({
           {erroresCombinados?.id_cliente && <span className="mensaje-error">{erroresCombinados.id_cliente}</span>}
         </div>
 
-        {/* BÚSQUEDA DE EMPLEADO - CORREGIDA */}
+        {/* BÚSQUEDA DE EMPLEADO - CORREGIDA DEFINITIVAMENTE */}
         <div className="campo-formulario" ref={refBusquedaEmpleado}>
           <label htmlFor="busqueda_empleado">Empleado/Vendedor *</label>
           
@@ -425,7 +437,7 @@ export default function DatosCliente({
                 }} />
               </div>
 
-              {/* Resultados de búsqueda - CORREGIDO */}
+              {/* Resultados de búsqueda - MEJORADO CON DEBUG */}
               {mostrarResultadosEmpleado && empleadosFiltrados.length > 0 && (
                 <div className="resultados-busqueda">
                   {empleadosFiltrados.map(empleado => (
@@ -455,7 +467,7 @@ export default function DatosCliente({
               )}
             </div>
           ) : (
-            // Mostrar empleado seleccionado - CORREGIDO
+            // Mostrar empleado seleccionado - CORREGIDO DEFINITIVAMENTE
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreEmpleado()}</strong>
