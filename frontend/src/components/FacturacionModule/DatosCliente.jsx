@@ -172,6 +172,10 @@ export default function DatosCliente({
     console.log("Empleado encontrado:", empleado);
     
     if (empleado) {
+      // USAR nombre_completo SI EXISTE, SINO CONCATENAR nombre Y apellido
+      if (empleado.nombre_completo) {
+        return empleado.nombre_completo;
+      }
       const nombreCompleto = `${empleado.nombre || ''} ${empleado.apellido || ''}`.trim();
       return nombreCompleto || empleado.usuario || "Empleado sin nombre";
     }
@@ -447,7 +451,7 @@ export default function DatosCliente({
                       onClick={() => handleSeleccionarEmpleado(empleado)}
                     >
                       <div>
-                        <strong>{empleado.nombre} {empleado.apellido}</strong>
+                        <strong>{empleado.nombre_completo || `${empleado.nombre} ${empleado.apellido}`}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
                           ID: {empleado.id_empleado || empleado.id} | Usuario: {empleado.usuario || 'N/A'}
                         </div>
