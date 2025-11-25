@@ -120,7 +120,7 @@ export default function DatosCliente({
     setMostrarResultadosCliente(filtrados.length > 0);
   }, [busquedaCliente, clientes]);
 
-  // Filtrar empleados en tiempo real - MEJORADO CON ID
+  // Filtrar empleados en tiempo real - CORREGIDO
   useEffect(() => {
     if (busquedaEmpleado.trim() === "") {
       setEmpleadosFiltrados([]);
@@ -132,7 +132,7 @@ export default function DatosCliente({
     const filtrados = empleados.filter(e => {
       const nombreCompleto = normalizeSearch(`${e.nombre || ''} ${e.apellido || ''}`);
       const usuario = normalizeSearch(e.usuario || '');
-      const idStr = (e.id || e.id_empleado || '').toString();
+      const idStr = (e.id_empleado || e.id || '').toString();
       
       return nombreCompleto.includes(searchNormalized) ||
              usuario.includes(searchNormalized) ||
@@ -153,15 +153,14 @@ export default function DatosCliente({
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "";
   };
 
-  // Obtener nombre del empleado seleccionado - MEJORADO
+  // Obtener nombre del empleado seleccionado - CORREGIDO
   const obtenerNombreEmpleado = () => {
     if (!datosFactura.id_empleado) return "";
     
     const empleado = empleados.find(e => {
-      return e.id_empleado === parseInt(datosFactura.id_empleado) ||
-             e.id_empleado == datosFactura.id_empleado ||
-             e.id === parseInt(datosFactura.id_empleado) ||
-             e.id == datosFactura.id_empleado;
+      // Buscar por id_empleado primero, luego por id
+      return (e.id_empleado && e.id_empleado.toString() === datosFactura.id_empleado.toString()) ||
+             (e.id && e.id.toString() === datosFactura.id_empleado.toString());
     });
     
     if (empleado) {
@@ -170,6 +169,18 @@ export default function DatosCliente({
     }
     
     return "Empleado no encontrado";
+  };
+
+  // Obtener información completa del empleado seleccionado - NUEVA FUNCIÓN
+  const obtenerInfoEmpleado = () => {
+    if (!datosFactura.id_empleado) return null;
+    
+    const empleado = empleados.find(e => {
+      return (e.id_empleado && e.id_empleado.toString() === datosFactura.id_empleado.toString()) ||
+             (e.id && e.id.toString() === datosFactura.id_empleado.toString());
+    });
+    
+    return empleado;
   };
 
   // Validar campo en tiempo real
@@ -267,10 +278,11 @@ export default function DatosCliente({
     onCambioCampo && onCambioCampo('id_cliente');
   };
 
-  // Manejar selección de empleado
+  // Manejar selección de empleado - CORREGIDO
   const handleSeleccionarEmpleado = (empleado) => {
+    // Usar id_empleado si existe, sino usar id
     const empleadoId = empleado.id_empleado || empleado.id;
-    onActualizar('id_empleado', empleadoId);
+    onActualizar('id_empleado', empleadoId.toString());
     setBusquedaEmpleado("");
     setMostrarResultadosEmpleado(false);
     onCambioCampo && onCambioCampo('id_empleado');
@@ -296,6 +308,9 @@ export default function DatosCliente({
 
   // Combinar errores externos e internos
   const erroresCombinados = { ...errores, ...erroresLocal };
+
+  // Obtener empleado seleccionado para mostrar información
+  const empleadoSeleccionado = obtenerInfoEmpleado();
 
   return (
     <div className="formulario-factura">
@@ -383,7 +398,7 @@ export default function DatosCliente({
           {erroresCombinados?.id_cliente && <span className="mensaje-error">{erroresCombinados.id_cliente}</span>}
         </div>
 
-        {/* BÚSQUEDA DE EMPLEADO - MEJORADA CON 3 CAMPOS SIEMPRE */}
+        {/* BÚSQUEDA DE EMPLEADO - CORREGIDA */}
         <div className="campo-formulario" ref={refBusquedaEmpleado}>
           <label htmlFor="busqueda_empleado">Empleado/Vendedor *</label>
           
@@ -410,7 +425,7 @@ export default function DatosCliente({
                 }} />
               </div>
 
-              {/* Resultados de búsqueda - FORMATO MEJORADO CON 3 CAMPOS SIEMPRE */}
+              {/* Resultados de búsqueda - CORREGIDO */}
               {mostrarResultadosEmpleado && empleadosFiltrados.length > 0 && (
                 <div className="resultados-busqueda">
                   {empleadosFiltrados.map(empleado => (
@@ -422,7 +437,10 @@ export default function DatosCliente({
                       <div>
                         <strong>{empleado.nombre} {empleado.apellido}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                          ID: {empleado.id || empleado.id_empleado || 'N/A'} | Usuario: {empleado.usuario || 'N/A'}
+                          ID: {empleado.id_empleado || empleado.id} | Usuario: {empleado.usuario || 'N/A'}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                          Tel: {empleado.telefono || 'N/A'} | Email: {empleado.correo || 'N/A'}
                         </div>
                       </div>
                     </div>
@@ -437,23 +455,17 @@ export default function DatosCliente({
               )}
             </div>
           ) : (
-            // Mostrar empleado seleccionado - FORMATO MEJORADO CON 3 CAMPOS SIEMPRE
+            // Mostrar empleado seleccionado - CORREGIDO
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreEmpleado()}</strong>
                 <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                  {(() => {
-                    const emp = empleados.find(e => 
-                      e.id_empleado === parseInt(datosFactura.id_empleado) || 
-                      e.id_empleado == datosFactura.id_empleado ||
-                      e.id === parseInt(datosFactura.id_empleado) ||
-                      e.id == datosFactura.id_empleado
-                    );
-                    if (emp) {
-                      return `ID: ${emp.id || emp.id_empleado || 'N/A'} | Usuario: ${emp.usuario || 'N/A'}`;
-                    }
-                    return 'Info no disponible';
-                  })()}
+                  ID: {empleadoSeleccionado?.id_empleado || empleadoSeleccionado?.id || 'N/A'} | 
+                  Usuario: {empleadoSeleccionado?.usuario || 'N/A'}
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                  Tel: {empleadoSeleccionado?.telefono || 'N/A'} | 
+                  Email: {empleadoSeleccionado?.correo || 'N/A'}
                 </div>
               </div>
               <button 
