@@ -18,7 +18,7 @@
 // ============ ESTILOS ESPECÍFICOS PARA PDF - CORREGIDOS ============
 .overlay-pdf {
   // CORRECCIÓN: Apuntar a la clase real del componente FormatoFactura
-  .pagina-1 {
+  .formato-factura-pdf {
     width: 100% !important;
     max-width: 8.5in !important;
     
@@ -373,73 +373,71 @@
 
     // ============ ESTILOS AGREGADOS: PAGINA 2 (IMAGEN DE REFERENCIA) ============
     .pagina-2 {
-    width: 8.5in !important;
-    min-height: 11in !important;
-    padding: 0.4in !important;
-    background: white !important;
-    box-sizing: border-box !important;
-    font-family: $font-family !important;
-    color: $text-primary !important;
-    line-height: 1.2 !important;
-    font-size: $font-size-sm !important;
-    margin-bottom: 20px !important;
-    
-    .seccion-imagen-referencia {
-      margin-top: 40px;
+      width: 100% !important;
+      min-height: 11in !important;
+      padding-top: 0.4in !important;
+      background: white !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      display: block !important;
+      margin-top: 20px !important;
+      page-break-before: always !important; // Fuerza el salto en la página 2
       
-      .contenido-imagen {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-        margin-top: 20px;
-      }
-      
-      .imagen-container {
-        width: 90%;
-        max-width: 500px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        background: #fafafa;
-        text-align: center;
+      .seccion-imagen-referencia {
+        margin-top: 40px;
         
-        .imagen-referencia {
-          max-width: 100%;
-          max-height: 400px;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-      }
-      
-      .info-imagen {
-        width: 100%;
-        max-width: 600px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        
-        .campo-info {
+        .contenido-imagen {
           display: flex;
-          justify-content: space-between;
-          margin-bottom: 8px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid #e9ecef;
+          flex-direction: column;
+          align-items: center;
+          gap: 30px;
+          margin-top: 20px;
+        }
+        
+        .imagen-container {
+          width: 90%;
+          max-width: 500px;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          padding: 20px;
+          background: #fafafa;
+          text-align: center;
           
-          .etiqueta {
-            font-weight: 600;
-            color: #333;
+          .imagen-referencia {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
           }
+        }
+        
+        .info-imagen {
+          width: 100%;
+          max-width: 600px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 15px;
           
-          .valor {
-            color: #666;
-            text-align: right;
-            max-width: 70%;
+          .campo-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+            
+            .etiqueta {
+              font-weight: 600;
+              color: #333;
+            }
+            
+            .valor {
+              color: #666;
+              text-align: right;
+              max-width: 70%;
+            }
           }
         }
       }
-    }
-
     }
   }
 }
