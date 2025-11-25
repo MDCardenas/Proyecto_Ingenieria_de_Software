@@ -383,7 +383,7 @@ export default function DatosCliente({
           {erroresCombinados?.id_cliente && <span className="mensaje-error">{erroresCombinados.id_cliente}</span>}
         </div>
 
-        {/* BÚSQUEDA DE EMPLEADO - MEJORADA CON ID Y USUARIO */}
+        {/* BÚSQUEDA DE EMPLEADO - MEJORADA CON 3 CAMPOS SIEMPRE */}
         <div className="campo-formulario" ref={refBusquedaEmpleado}>
           <label htmlFor="busqueda_empleado">Empleado/Vendedor *</label>
           
@@ -410,7 +410,7 @@ export default function DatosCliente({
                 }} />
               </div>
 
-              {/* Resultados de búsqueda - FORMATO MEJORADO */}
+              {/* Resultados de búsqueda - FORMATO MEJORADO CON 3 CAMPOS SIEMPRE */}
               {mostrarResultadosEmpleado && empleadosFiltrados.length > 0 && (
                 <div className="resultados-busqueda">
                   {empleadosFiltrados.map(empleado => (
@@ -422,8 +422,7 @@ export default function DatosCliente({
                       <div>
                         <strong>{empleado.nombre} {empleado.apellido}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                          ID: {empleado.id || empleado.id_empleado} | Usuario: {empleado.usuario}
-                          {empleado.codigo_perfil && ` | Perfil: ${empleado.codigo_perfil}`}
+                          ID: {empleado.id || empleado.id_empleado || 'N/A'} | Usuario: {empleado.usuario || 'N/A'}
                         </div>
                       </div>
                     </div>
@@ -438,7 +437,7 @@ export default function DatosCliente({
               )}
             </div>
           ) : (
-            // Mostrar empleado seleccionado - FORMATO MEJORADO
+            // Mostrar empleado seleccionado - FORMATO MEJORADO CON 3 CAMPOS SIEMPRE
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreEmpleado()}</strong>
@@ -450,7 +449,10 @@ export default function DatosCliente({
                       e.id === parseInt(datosFactura.id_empleado) ||
                       e.id == datosFactura.id_empleado
                     );
-                    return emp ? `ID: ${emp.id || emp.id_empleado} | Usuario: ${emp.usuario}` : 'Info no disponible';
+                    if (emp) {
+                      return `ID: ${emp.id || emp.id_empleado || 'N/A'} | Usuario: ${emp.usuario || 'N/A'}`;
+                    }
+                    return 'Info no disponible';
                   })()}
                 </div>
               </div>
