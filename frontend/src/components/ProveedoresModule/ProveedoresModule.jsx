@@ -1,6 +1,4 @@
-// ProveedoresModule.jsx
-// Archivo completo con validaciones Regex integradas
-
+// src/components/ProveedoresModule/ProveedoresModule.jsx
 import { useState, useEffect } from 'react';
 import {
   FaSearch, FaPlus, FaEdit, FaTrash, FaBox, FaSync,
@@ -9,35 +7,32 @@ import {
 } from 'react-icons/fa';
 import { normalizeSearch } from '../../utils/normalize';
 import {
-  formatearTelefono
+  validarFormularioProveedor,
+  formatearTelefono,
+  REGEX_PATTERNS
 } from '../../utils/validaciones';
 import '../../styles/scss/main.scss';
-
-// ===============================
-// REGEX añadidas según tu petición
-// ===============================
-const REGEX_PATTERNS = {
-  nombre: /^(?!\s*$)(?!.*\d)[a-zA-ZÀ-ÿ\u00f1\u00d1\s\.,&-]+$/,
-  direccion: /^(?!\d+$)[a-zA-Z0-9À-ÿ\u00f1\u00d1\s\.,#-]+$/
-};
 
 const ProveedoresModule = ({ setActiveButton }) => {
   const [proveedores, setProveedores] = useState([]);
   const [filteredProveedores, setFilteredProveedores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [view, setView] = useState('list');
+  const [view, setView] = useState('list'); // 'list', 'form', 'detail'
   const [selectedProveedor, setSelectedProveedor] = useState(null);
   const [alert, setAlert] = useState({ type: '', message: '' });
 
+  // Form state
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
     direccion: ''
   });
 
+  // Estado para errores de validación
   const [erroresCampos, setErroresCampos] = useState({});
 
+  // Cargar proveedores
   const fetchProveedores = async () => {
     setLoading(true);
     try {
@@ -58,15 +53,16 @@ const ProveedoresModule = ({ setActiveButton }) => {
     fetchProveedores();
   }, []);
 
+  // Filtrar proveedores
   useEffect(() => {
     if (!searchTerm) {
       setFilteredProveedores(proveedores);
     } else {
-      const normalized = normalizeSearch(searchTerm);
+      const normalizedSearch = normalizeSearch(searchTerm);
       const filtered = proveedores.filter(proveedor =>
-        normalizeSearch(proveedor.nombre).includes(normalized) ||
-        normalizeSearch(proveedor.telefono || '').includes(normalized) ||
-        normalizeSearch(proveedor.direccion || '').includes(normalized)
+        normalizeSearch(proveedor.nombre).includes(normalizedSearch) ||
+        normalizeSearch(proveedor.telefono || '').includes(normalizedSearch) ||
+        normalizeSearch(proveedor.direccion || '').includes(normalizedSearch)
       );
       setFilteredProveedores(filtered);
     }
@@ -83,6 +79,11 @@ const ProveedoresModule = ({ setActiveButton }) => {
     setErroresCampos({});
   };
 
+  const handleCreate = () => {
+    resetForm();
+    setView('form');
+  };
+
   const handleEdit = (proveedor) => {
     setFormData({
       nombre: proveedor.nombre,
@@ -97,41 +98,63 @@ const ProveedoresModule = ({ setActiveButton }) => {
   const handleChange = (e) => {
     let { name, value } = e.target;
 
-    if (name === 'telefono') value = formatearTelefono(value);
+    // Validación en tiempo real para nombre de proveedor
+    if (name === 'nombre' && value) {
+      // No permitir que empiece con número
+      if (value.length === 1 && /^\d$/.test(value)) {
+        return; // Bloquear entrada
+      }
+      // No permitir solo números
+      if (/^\d+$/.test(value)) {
+        return; // Bloquear entrada
+      }
+      // Solo permitir caracteres válidos para nombre de proveedor
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-().&,]*$/.test(value)) {
+        return; // Bloquear entrada
+      }
+    }
+
+    // Validación en tiempo real para dirección
+    if (name === 'direccion' && value) {
+      // No permitir solo números
+      if (/^\d+$/.test(value) && value.length > 3) {
+        return; // Bloquear si son solo números
+      }
+    }
+
+    // Formateo automático de teléfono
+    if (name === 'telefono' && value) {
+      value = formatearTelefono(value);
+    }
 
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
+    // Limpiar error del campo cuando el usuario escribe
     if (erroresCampos[name]) {
       setErroresCampos(prev => {
-        const nuevo = { ...prev };
-        delete nuevo[name];
-        return nuevo;
+        const nuevos = { ...prev };
+        delete nuevos[name];
+        return nuevos;
       });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const errores = {};
-
-    if (!REGEX_PATTERNS.nombre.test(formData.nombre.trim())) {
-      errores.nombre = "El nombre no puede contener números ni ser vacío.";
-    }
-
-    if (formData.direccion.trim() && !REGEX_PATTERNS.direccion.test(formData.direccion.trim())) {
-      errores.direccion = "La dirección no puede ser solo números.";
-    }
-
-    if (Object.keys(errores).length > 0) {
-      setErroresCampos(errores);
-      return showAlert("error", "Corrige los errores del formulario.");
-    }
-
     setErroresCampos({});
+
+    // Validar formulario antes de enviar
+    const validacion = validarFormularioProveedor(formData);
+
+    if (!validacion.valido) {
+      setErroresCampos(validacion.errores);
+      showAlert('error', 'Por favor corrija los errores en el formulario');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -141,120 +164,351 @@ const ProveedoresModule = ({ setActiveButton }) => {
 
       const method = selectedProveedor ? 'PUT' : 'POST';
 
+      const dataToSend = {
+        nombre: formData.nombre.trim(),
+        telefono: formData.telefono ? formData.telefono.replace(/-/g, '') : null,
+        direccion: formData.direccion ? formData.direccion.trim() : null
+      };
+
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre: formData.nombre.trim(),
-          telefono: formData.telefono ? formData.telefono.replace(/-/g, '') : null,
-          direccion: formData.direccion.trim()
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
-        showAlert('success', selectedProveedor ? 'Proveedor actualizado' : 'Proveedor creado');
+        showAlert('success',
+          selectedProveedor ? 'Proveedor actualizado exitosamente' : 'Proveedor creado exitosamente'
+        );
         fetchProveedores();
-        resetForm();
         setView('list');
+        resetForm();
       } else {
-        const err = await response.json();
-        showAlert('error', err.detail || "Error al guardar proveedor");
+        const error = await response.json();
+        showAlert('error', error.detail || 'Error al guardar proveedor');
       }
     } catch (error) {
-      showAlert("error", "Error de conexión.");
+      showAlert('error', 'Error de conexión');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async (codigoProveedor) => {
+    if (!window.confirm('¿Está seguro de que desea eliminar este proveedor?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/proveedores/${codigoProveedor}/`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        showAlert('success', 'Proveedor eliminado exitosamente');
+        fetchProveedores();
+      } else {
+        showAlert('error', 'Error al eliminar proveedor');
+      }
+    } catch (error) {
+      showAlert('error', 'Error de conexión');
+    }
+  };
+
+  const handleViewDetail = async (proveedor) => {
+    setSelectedProveedor(proveedor);
+    setView('detail');
+  };
+
+  // Renderizar vistas
   const renderListView = () => (
-    <div className="proveedores-container">
-      <div className="top-bar">
-        <h2><FaTruck /> Proveedores</h2>
-        <button className="btn-agregar" onClick={() => { resetForm(); setView('form'); }}>
-          <FaPlus /> Nuevo Proveedor
-        </button>
+    <div className="proveedores-list">
+      {/* Barra de búsqueda y acciones */}
+      <div className="search-actions-container">
+        <div className="search-pill-wrapper">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre, teléfono o dirección..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button 
+              className="clear-search"
+              onClick={() => setSearchTerm('')}
+              title="Limpiar búsqueda"
+            >
+              <FaTimes />
+            </button>
+          )}
+        </div>
+        
+        <div className="action-pills">
+          <button className="btn-pill btn-pill-secondary" onClick={fetchProveedores}>
+            <FaSync /> Actualizar
+          </button>
+          <button className="btn-pill btn-pill-success" onClick={handleCreate}>
+            <FaPlus /> Nuevo Proveedor
+          </button>
+        </div>
       </div>
 
-      <div className="search-bar">
-        <FaSearch />
-        <input
-          type="text"
-          placeholder="Buscar proveedor..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button className="btn-refresh" onClick={fetchProveedores}>
-          <FaSync />
-        </button>
-      </div>
+      {loading ? (
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Cargando proveedores...</p>
+        </div>
+      ) : (
+        <div className="proveedores-grid">
+          {filteredProveedores.map(proveedor => (
+            <div key={proveedor.codigo_provedor} className="proveedor-card">
+              <div className="card-header-pill">
+                <div className="proveedor-avatar">
+                  <FaTruck />
+                </div>
+                <div className="proveedor-title">
+                  <h3>{proveedor.nombre}</h3>
+                  <span className="proveedor-code">#{proveedor.codigo_provedor}</span>
+                </div>
+              </div>
+              
+              <div className="card-body">
+                <div className="info-row">
+                  <FaPhone className="info-icon" />
+                  <span>{proveedor.telefono || 'No especificado'}</span>
+                </div>
+                <div className="info-row">
+                  <FaMapMarkerAlt className="info-icon" />
+                  <span>{proveedor.direccion || 'No especificada'}</span>
+                </div>
+              </div>
 
-      {alert.message && (
-        <div className={`alert ${alert.type}`}>{alert.message}</div>
+              <div className="card-actions">
+                <button 
+                  className="btn-pill-mini btn-pill-info"
+                  onClick={() => handleViewDetail(proveedor)}
+                  title="Ver detalle"
+                >
+                  <FaBox /> Detalle
+                </button>
+                <button 
+                  className="btn-pill-mini btn-pill-warning"
+                  onClick={() => handleEdit(proveedor)}
+                  title="Editar"
+                >
+                  <FaEdit /> Editar
+                </button>
+                <button 
+                  className="btn-pill-mini btn-pill-danger"
+                  onClick={() => handleDelete(proveedor.codigo_provedor)}
+                  title="Eliminar"
+                >
+                  <FaTrash /> Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
-      <div className="lista-proveedores">
-        {filteredProveedores.map((prov) => (
-          <div key={prov.codigo_provedor} className="proveedor-card">
-            <h3><FaUser /> {prov.nombre}</h3>
-            <p><FaPhone /> {prov.telefono || 'N/A'}</p>
-            <p><FaMapMarkerAlt /> {prov.direccion || 'Sin dirección'}</p>
-
-            <div className="acciones">
-              <button className="btn-editar" onClick={() => handleEdit(prov)}><FaEdit /></button>
-              <button className="btn-eliminar"><FaTrash /></button>
-            </div>
+      {filteredProveedores.length === 0 && !loading && (
+        <div className="empty-state">
+          <div className="empty-icon">
+            <FaTruck />
           </div>
-        ))}
-      </div>
+          <h3>{searchTerm ? 'No se encontraron proveedores' : 'No hay proveedores registrados'}</h3>
+          <p>{searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando tu primer proveedor'}</p>
+          {!searchTerm && (
+            <button className="btn-pill btn-pill-success" onClick={handleCreate}>
+              <FaPlus /> Crear Primer Proveedor
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 
   const renderFormView = () => (
-    <div className="form-container">
-      <h2>{selectedProveedor ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h2>
+    <div className="proveedor-form-modern">
+      <div className="form-header-pill">
+        <button className="btn-pill btn-pill-secondary" onClick={() => setView('list')}>
+          <FaTimes /> Cancelar
+        </button>
+        <h2>{selectedProveedor ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h2>
+        <div></div>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <label>Nombre</label>
-        <input
-          type="text"
-          name="nombre"
-          value={formData.nombre}
-          onChange={handleChange}
-          className={erroresCampos.nombre ? 'error' : ''}
-        />
-        {erroresCampos.nombre && <p className="mensaje-error">{erroresCampos.nombre}</p>}
+      <form className="form-modern" onSubmit={handleSubmit}>
+        <div className="form-card">
+          <div className="form-section-header">
+            <FaUser className="section-icon" />
+            <h3>Información del Proveedor</h3>
+          </div>
 
-        <label>Teléfono</label>
-        <input
-          type="text"
-          name="telefono"
-          value={formData.telefono}
-          onChange={handleChange}
-        />
+          <div className="form-grid">
+            <div className="form-field">
+              <label htmlFor="nombre">
+                <FaUser /> Nombre del Proveedor *
+              </label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                required
+                placeholder="Ej: Plasticos S.A, Repuestos Tonys"
+                className={`input-pill ${erroresCampos.nombre ? 'input-error' : ''}`}
+              />
+              <small className="form-hint">Debe empezar con letra, no puede ser solo números</small>
+              {erroresCampos.nombre && (
+                <span className="error-message">{erroresCampos.nombre}</span>
+              )}
+            </div>
 
-        <label>Dirección</label>
-        <input
-          type="text"
-          name="direccion"
-          value={formData.direccion}
-          onChange={handleChange}
-          className={erroresCampos.direccion ? 'error' : ''}
-        />
-        {erroresCampos.direccion && <p className="mensaje-error">{erroresCampos.direccion}</p>}
+            <div className="form-field">
+              <label htmlFor="telefono">
+                <FaPhone /> Teléfono de Contacto
+              </label>
+              <input
+                type="tel"
+                id="telefono"
+                name="telefono"
+                value={formData.telefono}
+                onChange={handleChange}
+                placeholder="Ej: 98765432 o 9876-5432"
+                maxLength="9"
+                className={`input-pill ${erroresCampos.telefono ? 'input-error' : ''}`}
+              />
+              {erroresCampos.telefono && (
+                <span className="error-message">{erroresCampos.telefono}</span>
+              )}
+            </div>
 
-        <div className="form-buttons">
-          <button type="submit" className="btn-guardar"><FaCheck /> Guardar</button>
-          <button type="button" className="btn-cancelar" onClick={() => setView('list')}><FaTimes /> Cancelar</button>
+            <div className="form-field full-width">
+              <label htmlFor="direccion">
+                <FaMapMarkerAlt /> Dirección Completa
+              </label>
+              <textarea
+                id="direccion"
+                name="direccion"
+                value={formData.direccion}
+                onChange={handleChange}
+                rows="3"
+                placeholder="Ej: Calle Bustamante sector 4 calle 15"
+                className={`input-pill ${erroresCampos.direccion ? 'input-error' : ''}`}
+              />
+              <small className="form-hint">Debe contener texto, no solo números (mínimo 10 caracteres)</small>
+              {erroresCampos.direccion && (
+                <span className="error-message">{erroresCampos.direccion}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="form-actions-pill">
+          <button 
+            type="button" 
+            className="btn-pill btn-pill-secondary" 
+            onClick={() => setView('list')}
+          >
+            <FaTimes /> Cancelar
+          </button>
+          <button 
+            type="submit" 
+            className="btn-pill btn-pill-success" 
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="btn-spinner"></div> Guardando...
+              </>
+            ) : (
+              <>
+                <FaCheck /> {selectedProveedor ? 'Actualizar' : 'Crear Proveedor'}
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>
   );
 
+  const renderDetailView = () => {
+    if (!selectedProveedor) return null;
+
+    return (
+      <div className="proveedor-detail-modern">
+        <div className="detail-header-pill">
+          <button className="btn-pill btn-pill-secondary" onClick={() => setView('list')}>
+            <FaTimes /> Volver
+          </button>
+          <h2>Detalle del Proveedor</h2>
+          <button className="btn-pill btn-pill-warning" onClick={() => handleEdit(selectedProveedor)}>
+            <FaEdit /> Editar
+          </button>
+        </div>
+
+        <div className="detail-content-modern">
+          <div className="detail-main-card">
+            <div className="detail-avatar-section">
+              <div className="detail-avatar-large">
+                <FaTruck />
+              </div>
+              <div className="detail-title-section">
+                <h3>{selectedProveedor.nombre}</h3>
+                <span className="detail-code">Código: #{selectedProveedor.codigo_provedor}</span>
+              </div>
+            </div>
+
+            <div className="detail-info-grid">
+              <div className="detail-info-card">
+                <div className="info-card-icon phone">
+                  <FaPhone />
+                </div>
+                <div className="info-card-content">
+                  <label>Teléfono</label>
+                  <span>{selectedProveedor.telefono || 'No especificado'}</span>
+                </div>
+              </div>
+
+              <div className="detail-info-card">
+                <div className="info-card-icon location">
+                  <FaMapMarkerAlt />
+                </div>
+                <div className="info-card-content">
+                  <label>Dirección</label>
+                  <span>{selectedProveedor.direccion || 'No especificada'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="proveedores-module">
+    <div className="proveedores-module-modern">
+      {alert.message && (
+        <div className={`alert-pill alert-${alert.type}`}>
+          <div className="alert-content">
+            {alert.type === 'success' ? <FaCheck /> : <FaTimes />}
+            <span>{alert.message}</span>
+          </div>
+          <button onClick={() => setAlert({ type: '', message: '' })}>
+            <FaTimes />
+          </button>
+        </div>
+      )}
+
       {view === 'list' && renderListView()}
       {view === 'form' && renderFormView()}
+      {view === 'detail' && renderDetailView()}
     </div>
   );
 };

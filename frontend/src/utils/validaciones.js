@@ -41,6 +41,12 @@ export const REGEX_PATTERNS = {
   // Nombre de producto/material (letras, números, espacios y algunos especiales)
   NOMBRE_PRODUCTO: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-().]+$/,
 
+  // Nombre de proveedor (debe empezar con letra, puede contener números después)
+  NOMBRE_PROVEEDOR: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ][a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-().&,]+$/,
+
+  // Dirección con texto obligatorio (no solo números)
+  DIRECCION_CON_TEXTO: /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-#]+$/,
+
   // Código alfanumérico
   CODIGO: /^[a-zA-Z0-9\-]+$/
 };
@@ -61,6 +67,8 @@ export const MENSAJES_ERROR = {
   USUARIO: 'Usuario debe empezar con letra y tener 3-20 caracteres (letras, números y guión bajo)',
   CONTRASENA: 'La contraseña debe tener al menos 6 caracteres',
   NOMBRE_PRODUCTO: 'Nombre inválido. Use letras, números y caracteres básicos',
+  NOMBRE_PROVEEDOR: 'El nombre debe empezar con letra y no puede ser solo números (ej: Plasticos S.A)',
+  DIRECCION_CON_TEXTO: 'La dirección debe contener texto, no solo números (ej: Calle Principal #123)',
   CODIGO: 'Código inválido. Use solo letras, números y guiones',
   CAMPO_REQUERIDO: 'Este campo es requerido',
   VALOR_MINIMO: 'El valor debe ser mayor a',
@@ -293,6 +301,62 @@ export const validarNombreProducto = (valor) => {
 };
 
 /**
+ * Valida nombre de proveedor (debe empezar con letra, no puede ser solo números)
+ */
+export const validarNombreProveedor = (valor) => {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
+    return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
+  }
+
+  if (valorStr.trim().length < 3) {
+    return { valido: false, error: 'El nombre debe tener al menos 3 caracteres' };
+  }
+
+  // Verificar que no sea solo números
+  if (/^\d+$/.test(valorStr.trim())) {
+    return { valido: false, error: 'El nombre no puede contener solo números' };
+  }
+
+  const valido = REGEX_PATTERNS.NOMBRE_PROVEEDOR.test(valorStr.trim());
+  return {
+    valido,
+    error: valido ? null : MENSAJES_ERROR.NOMBRE_PROVEEDOR
+  };
+};
+
+/**
+ * Valida dirección con texto obligatorio (no solo números)
+ */
+export const validarDireccionConTexto = (valor, requerido = true) => {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
+    return { valido: !requerido, error: requerido ? MENSAJES_ERROR.CAMPO_REQUERIDO : null };
+  }
+
+  // Verificar longitud mínima
+  if (valorStr.trim().length < 10) {
+    return { valido: false, error: 'La dirección debe tener al menos 10 caracteres' };
+  }
+
+  // Verificar que no sea solo números
+  if (/^\d+$/.test(valorStr.trim())) {
+    return { valido: false, error: 'La dirección no puede contener solo números' };
+  }
+
+  // Verificar que contenga al menos algunas letras
+  const valido = REGEX_PATTERNS.DIRECCION_CON_TEXTO.test(valorStr.trim());
+  return {
+    valido,
+    error: valido ? null : MENSAJES_ERROR.DIRECCION_CON_TEXTO
+  };
+};
+
+/**
  * Formatea teléfono automáticamente
  */
 export const formatearTelefono = (valor) => {
@@ -423,8 +487,8 @@ export const validarFormularioEmpleado = (datos) => {
 export const validarFormularioProveedor = (datos) => {
   const errores = {};
 
-  // Validar nombre del proveedor (usar nombre de producto ya que permite letras, números y espacios)
-  const validNombre = validarNombreProducto(datos.nombre);
+  // Validar nombre del proveedor (debe empezar con letra, no solo números)
+  const validNombre = validarNombreProveedor(datos.nombre);
   if (!validNombre.valido) errores.nombre = validNombre.error;
 
   // Validar teléfono (opcional)
@@ -433,9 +497,9 @@ export const validarFormularioProveedor = (datos) => {
     if (!validTelefono.valido) errores.telefono = validTelefono.error;
   }
 
-  // Validar dirección (opcional)
+  // Validar dirección (opcional, pero debe contener texto si se proporciona)
   if (datos.direccion) {
-    const validDireccion = validarDireccion(datos.direccion, false);
+    const validDireccion = validarDireccionConTexto(datos.direccion, false);
     if (!validDireccion.valido) errores.direccion = validDireccion.error;
   }
 
@@ -454,11 +518,13 @@ export default {
   validarRTN,
   validarIdentidad,
   validarDireccion,
+  validarDireccionConTexto,
   validarUsuario,
   validarContrasena,
   validarNumeroEntero,
   validarNumeroDecimal,
   validarNombreProducto,
+  validarNombreProveedor,
   formatearTelefono,
   formatearRTN,
   formatearIdentidad,
