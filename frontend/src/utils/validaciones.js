@@ -32,8 +32,8 @@ export const REGEX_PATTERNS = {
   // Dirección válida (letras, números, espacios y caracteres especiales comunes)
   DIRECCION: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-#]+$/,
 
-  // Usuario (letras, números y guiones bajos, mínimo 3 caracteres)
-  USUARIO: /^[a-zA-Z0-9_]{3,20}$/,
+  // Usuario (debe empezar con letra, luego letras, números y guiones bajos, mínimo 3 caracteres)
+  USUARIO: /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/,
 
   // Contraseña (mínimo 6 caracteres)
   CONTRASENA: /^.{6,}$/,
@@ -58,7 +58,7 @@ export const MENSAJES_ERROR = {
   RTN_HN: 'Ingrese un RTN válido (14 dígitos, ej: 0801-1234-567890)',
   IDENTIDAD_HN: 'Ingrese un número de identidad válido (13 dígitos, ej: 0801-1990-12345)',
   DIRECCION: 'Ingrese una dirección válida',
-  USUARIO: 'Usuario debe tener entre 3-20 caracteres (letras, números y guión bajo)',
+  USUARIO: 'Usuario debe empezar con letra y tener 3-20 caracteres (letras, números y guión bajo)',
   CONTRASENA: 'La contraseña debe tener al menos 6 caracteres',
   NOMBRE_PRODUCTO: 'Nombre inválido. Use letras, números y caracteres básicos',
   CODIGO: 'Código inválido. Use solo letras, números y guiones',
@@ -76,9 +76,12 @@ export const MENSAJES_ERROR = {
  * Valida un campo contra una expresión regular
  */
 export const validarCampo = (valor, pattern) => {
-  if (!valor || valor.trim() === '') return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
 
-  const valido = pattern.test(valor.trim());
+  if (!valorStr || valorStr.trim() === '') return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
+
+  const valido = pattern.test(valorStr.trim());
   return { valido, error: valido ? null : 'Formato inválido' };
 };
 
@@ -86,11 +89,14 @@ export const validarCampo = (valor, pattern) => {
  * Valida nombre (solo letras)
  */
 export const validarNombre = (valor) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
   }
 
-  const valido = REGEX_PATTERNS.SOLO_LETRAS.test(valor.trim());
+  const valido = REGEX_PATTERNS.SOLO_LETRAS.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.SOLO_LETRAS
@@ -101,11 +107,14 @@ export const validarNombre = (valor) => {
  * Valida email
  */
 export const validarEmail = (valor) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
   }
 
-  const valido = REGEX_PATTERNS.EMAIL.test(valor.trim());
+  const valido = REGEX_PATTERNS.EMAIL.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.EMAIL
@@ -116,11 +125,14 @@ export const validarEmail = (valor) => {
  * Valida teléfono Honduras
  */
 export const validarTelefono = (valor, requerido = false) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores con números
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: !requerido, error: requerido ? MENSAJES_ERROR.CAMPO_REQUERIDO : null };
   }
 
-  const valido = REGEX_PATTERNS.TELEFONO_HN.test(valor.trim());
+  const valido = REGEX_PATTERNS.TELEFONO_HN.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.TELEFONO_HN
@@ -131,11 +143,14 @@ export const validarTelefono = (valor, requerido = false) => {
  * Valida RTN
  */
 export const validarRTN = (valor, requerido = false) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: !requerido, error: requerido ? MENSAJES_ERROR.CAMPO_REQUERIDO : null };
   }
 
-  const valido = REGEX_PATTERNS.RTN_HN.test(valor.trim());
+  const valido = REGEX_PATTERNS.RTN_HN.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.RTN_HN
@@ -146,11 +161,14 @@ export const validarRTN = (valor, requerido = false) => {
  * Valida número de identidad
  */
 export const validarIdentidad = (valor) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
   }
 
-  const valido = REGEX_PATTERNS.IDENTIDAD_HN.test(valor.trim());
+  const valido = REGEX_PATTERNS.IDENTIDAD_HN.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.IDENTIDAD_HN
@@ -160,17 +178,20 @@ export const validarIdentidad = (valor) => {
 /**
  * Valida dirección
  */
-export const validarDireccion = (valor) => {
-  if (!valor || valor.trim() === '') {
-    return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
+export const validarDireccion = (valor, requerido = true) => {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
+    return { valido: !requerido, error: requerido ? MENSAJES_ERROR.CAMPO_REQUERIDO : null };
   }
 
   // Verificar longitud mínima
-  if (valor.trim().length < 10) {
+  if (valorStr.trim().length < 10) {
     return { valido: false, error: 'La dirección debe tener al menos 10 caracteres' };
   }
 
-  const valido = REGEX_PATTERNS.DIRECCION.test(valor.trim());
+  const valido = REGEX_PATTERNS.DIRECCION.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.DIRECCION
@@ -181,11 +202,14 @@ export const validarDireccion = (valor) => {
  * Valida usuario
  */
 export const validarUsuario = (valor) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
   }
 
-  const valido = REGEX_PATTERNS.USUARIO.test(valor.trim());
+  const valido = REGEX_PATTERNS.USUARIO.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.USUARIO
@@ -196,11 +220,14 @@ export const validarUsuario = (valor) => {
  * Valida contraseña
  */
 export const validarContrasena = (valor) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
   }
 
-  const valido = REGEX_PATTERNS.CONTRASENA.test(valor);
+  const valido = REGEX_PATTERNS.CONTRASENA.test(valorStr);
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.CONTRASENA
@@ -247,15 +274,18 @@ export const validarNumeroDecimal = (valor, min = 0) => {
  * Valida nombre de producto
  */
 export const validarNombreProducto = (valor) => {
-  if (!valor || valor.trim() === '') {
+  // Convertir a string para evitar errores
+  const valorStr = valor != null ? String(valor) : '';
+
+  if (!valorStr || valorStr.trim() === '') {
     return { valido: false, error: MENSAJES_ERROR.CAMPO_REQUERIDO };
   }
 
-  if (valor.trim().length < 3) {
+  if (valorStr.trim().length < 3) {
     return { valido: false, error: 'El nombre debe tener al menos 3 caracteres' };
   }
 
-  const valido = REGEX_PATTERNS.NOMBRE_PRODUCTO.test(valor.trim());
+  const valido = REGEX_PATTERNS.NOMBRE_PRODUCTO.test(valorStr.trim());
   return {
     valido,
     error: valido ? null : MENSAJES_ERROR.NOMBRE_PRODUCTO
@@ -387,6 +417,34 @@ export const validarFormularioEmpleado = (datos) => {
   };
 };
 
+/**
+ * Valida todos los campos de un formulario proveedor
+ */
+export const validarFormularioProveedor = (datos) => {
+  const errores = {};
+
+  // Validar nombre del proveedor (usar nombre de producto ya que permite letras, números y espacios)
+  const validNombre = validarNombreProducto(datos.nombre);
+  if (!validNombre.valido) errores.nombre = validNombre.error;
+
+  // Validar teléfono (opcional)
+  if (datos.telefono) {
+    const validTelefono = validarTelefono(datos.telefono, false);
+    if (!validTelefono.valido) errores.telefono = validTelefono.error;
+  }
+
+  // Validar dirección (opcional)
+  if (datos.direccion) {
+    const validDireccion = validarDireccion(datos.direccion, false);
+    if (!validDireccion.valido) errores.direccion = validDireccion.error;
+  }
+
+  return {
+    valido: Object.keys(errores).length === 0,
+    errores
+  };
+};
+
 export default {
   REGEX_PATTERNS,
   MENSAJES_ERROR,
@@ -405,5 +463,6 @@ export default {
   formatearRTN,
   formatearIdentidad,
   validarFormularioCliente,
-  validarFormularioEmpleado
+  validarFormularioEmpleado,
+  validarFormularioProveedor
 };

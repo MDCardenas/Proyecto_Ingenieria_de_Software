@@ -15,8 +15,6 @@ export default function PDFCotizacionReparacion({
   manoObra,
   imagen_referencia // NUEVO: Prop para la imagen
 }) {
-  console.log("📄 DEBUG - En PDF component:");
-  console.log("🖼️ imagen_referencia recibida:", imagen_referencia ? "EXISTE" : "NO EXISTE");
   
   // Usar fecha de la cotización si existe, sino usar fecha actual
   const fechaCotizacion = datosCotizacion?.fecha 

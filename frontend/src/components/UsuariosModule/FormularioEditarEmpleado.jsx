@@ -69,9 +69,14 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
       }
     }
 
-    // Validación para usuario (letras, números, guión bajo)
+    // Validación para usuario (debe empezar con letra, luego letras, números, guión bajo)
     if (name === 'usuario' && value) {
-      if (!/^[a-zA-Z0-9_]*$/.test(value)) {
+      // Permitir el primer carácter solo si es letra
+      if (value.length === 1 && !/^[a-zA-Z]$/.test(value)) {
+        return; // No permitir la entrada
+      }
+      // Para el resto de caracteres, permitir letras, números y guión bajo
+      if (value.length > 1 && !/^[a-zA-Z][a-zA-Z0-9_]*$/.test(value)) {
         return; // No permitir la entrada
       }
     }

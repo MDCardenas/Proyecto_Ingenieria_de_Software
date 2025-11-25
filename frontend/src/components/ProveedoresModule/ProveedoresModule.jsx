@@ -1,11 +1,16 @@
 // src/components/ProveedoresModule/ProveedoresModule.jsx
 import { useState, useEffect } from 'react';
-import { 
-  FaSearch, FaPlus, FaEdit, FaTrash, FaBox, FaSync, 
+import {
+  FaSearch, FaPlus, FaEdit, FaTrash, FaBox, FaSync,
   FaPhone, FaMapMarkerAlt, FaUser, FaTimes, FaCheck,
   FaTruck
 } from 'react-icons/fa';
 import { normalizeSearch } from '../../utils/normalize';
+import {
+  validarFormularioProveedor,
+  formatearTelefono,
+  REGEX_PATTERNS
+} from '../../utils/validaciones';
 import '../../styles/scss/main.scss';
 
 const ProveedoresModule = ({ setActiveButton }) => {
@@ -23,6 +28,9 @@ const ProveedoresModule = ({ setActiveButton }) => {
     telefono: '',
     direccion: ''
   });
+
+  // Estado para errores de validación
+  const [erroresCampos, setErroresCampos] = useState({});
 
   // Cargar proveedores
   const fetchProveedores = async () => {
@@ -68,6 +76,7 @@ const ProveedoresModule = ({ setActiveButton }) => {
   const resetForm = () => {
     setFormData({ nombre: '', telefono: '', direccion: '' });
     setSelectedProveedor(null);
+    setErroresCampos({});
   };
 
   const handleCreate = () => {
@@ -82,30 +91,71 @@ const ProveedoresModule = ({ setActiveButton }) => {
       direccion: proveedor.direccion || ''
     });
     setSelectedProveedor(proveedor);
+    setErroresCampos({});
     setView('form');
+  };
+
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+
+    // Formateo automático de teléfono
+    if (name === 'telefono' && value) {
+      value = formatearTelefono(value);
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Limpiar error del campo cuando el usuario escribe
+    if (erroresCampos[name]) {
+      setErroresCampos(prev => {
+        const nuevos = { ...prev };
+        delete nuevos[name];
+        return nuevos;
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErroresCampos({});
+
+    // Validar formulario antes de enviar
+    const validacion = validarFormularioProveedor(formData);
+
+    if (!validacion.valido) {
+      setErroresCampos(validacion.errores);
+      showAlert('error', 'Por favor corrija los errores en el formulario');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const url = selectedProveedor 
+      const url = selectedProveedor
         ? `/api/proveedores/${selectedProveedor.codigo_provedor}/`
         : '/api/proveedores/';
-      
+
       const method = selectedProveedor ? 'PUT' : 'POST';
+
+      const dataToSend = {
+        nombre: formData.nombre.trim(),
+        telefono: formData.telefono ? formData.telefono.replace(/-/g, '') : null,
+        direccion: formData.direccion ? formData.direccion.trim() : null
+      };
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
-        showAlert('success', 
+        showAlert('success',
           selectedProveedor ? 'Proveedor actualizado exitosamente' : 'Proveedor creado exitosamente'
         );
         fetchProveedores();
@@ -283,12 +333,16 @@ const ProveedoresModule = ({ setActiveButton }) => {
               <input
                 type="text"
                 id="nombre"
+                name="nombre"
                 value={formData.nombre}
-                onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                onChange={handleChange}
                 required
                 placeholder="Ej: Distribuidora Central S.A."
-                className="input-pill"
+                className={`input-pill ${erroresCampos.nombre ? 'input-error' : ''}`}
               />
+              {erroresCampos.nombre && (
+                <span className="error-message">{erroresCampos.nombre}</span>
+              )}
             </div>
 
             <div className="form-field">
@@ -298,11 +352,16 @@ const ProveedoresModule = ({ setActiveButton }) => {
               <input
                 type="tel"
                 id="telefono"
+                name="telefono"
                 value={formData.telefono}
-                onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                onChange={handleChange}
                 placeholder="Ej: 9999-9999"
-                className="input-pill"
+                maxLength="9"
+                className={`input-pill ${erroresCampos.telefono ? 'input-error' : ''}`}
               />
+              {erroresCampos.telefono && (
+                <span className="error-message">{erroresCampos.telefono}</span>
+              )}
             </div>
 
             <div className="form-field full-width">
@@ -311,12 +370,16 @@ const ProveedoresModule = ({ setActiveButton }) => {
               </label>
               <textarea
                 id="direccion"
+                name="direccion"
                 value={formData.direccion}
-                onChange={(e) => setFormData({...formData, direccion: e.target.value})}
+                onChange={handleChange}
                 rows="3"
                 placeholder="Dirección completa del proveedor..."
-                className="input-pill"
+                className={`input-pill ${erroresCampos.direccion ? 'input-error' : ''}`}
               />
+              {erroresCampos.direccion && (
+                <span className="error-message">{erroresCampos.direccion}</span>
+              )}
             </div>
           </div>
         </div>
