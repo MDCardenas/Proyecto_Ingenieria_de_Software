@@ -5,7 +5,7 @@ export default function ResumenCard({ titulo, valor, tipo }) {
         <div className={`resumen-card border-${tipo}`}>
             <p className="resumen-titulo">{titulo}</p>
             <p className={`resumen-valor ${tipo}`}>
-                ${valor.toLocaleString()}
+                L.{valor.toLocaleString()}
             </p>
         </div>
     );

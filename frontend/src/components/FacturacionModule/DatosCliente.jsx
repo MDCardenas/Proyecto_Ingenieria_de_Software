@@ -55,6 +55,60 @@ const sanitizar = {
     telefono: (valor) => valor.replace(/[^0-9-]/g, '').slice(0, 9),
 };
 
+// ============================================
+// FUNCIONES AUXILIARES PARA EMPLEADOS
+// ============================================
+
+/**
+ * Obtiene el nombre completo de un empleado con fallback inteligente
+ * @param {Object} empleado - Objeto empleado
+ * @returns {string} - Nombre completo o fallback apropiado
+ */
+const obtenerNombreCompletoEmpleado = (empleado) => {
+  if (!empleado) return "Empleado no encontrado";
+  
+  const nombre = (empleado.nombre || '').trim();
+  const apellido = (empleado.apellido || '').trim();
+  
+  // Si tiene nombre y apellido, mostrarlos
+  if (nombre && apellido) {
+    return `${nombre} ${apellido}`;
+  }
+  
+  // Si solo tiene nombre
+  if (nombre) {
+    return nombre;
+  }
+  
+  // Si solo tiene apellido
+  if (apellido) {
+    return apellido;
+  }
+  
+  // Si tiene usuario, usarlo como fallback
+  if (empleado.usuario) {
+    return `Usuario: ${empleado.usuario}`;
+  }
+  
+  // Último recurso: mostrar el ID
+  const id = empleado.id_empleado || empleado.id;
+  return id ? `Empleado #${id}` : "Sin nombre";
+};
+
+/**
+ * Obtiene información secundaria del empleado (ID y usuario)
+ * @param {Object} empleado - Objeto empleado
+ * @returns {string} - Información formateada
+ */
+const obtenerInfoSecundariaEmpleado = (empleado) => {
+  if (!empleado) return 'Info no disponible';
+  
+  const id = empleado.id_empleado || empleado.id || 'N/A';
+  const usuario = empleado.usuario || 'N/A';
+  
+  return `ID: ${id} | Usuario: ${usuario}`;
+};
+
 export default function DatosCliente({ 
   datosFactura, 
   clientes, 
@@ -120,7 +174,7 @@ export default function DatosCliente({
     setMostrarResultadosCliente(filtrados.length > 0);
   }, [busquedaCliente, clientes]);
 
-  // Filtrar empleados en tiempo real - MEJORADO CON ID
+  // Filtrar empleados en tiempo real - MEJORADO CON VALIDACIÓN DE CAMPOS
   useEffect(() => {
     if (busquedaEmpleado.trim() === "") {
       setEmpleadosFiltrados([]);
@@ -130,7 +184,11 @@ export default function DatosCliente({
 
     const searchNormalized = normalizeSearch(busquedaEmpleado);
     const filtrados = empleados.filter(e => {
-      const nombreCompleto = normalizeSearch(`${e.nombre || ''} ${e.apellido || ''}`);
+      // Construir nombre completo solo con campos que existan
+      const nombre = (e.nombre || '').trim();
+      const apellido = (e.apellido || '').trim();
+      const nombreCompleto = normalizeSearch(`${nombre} ${apellido}`.trim());
+      
       const usuario = normalizeSearch(e.usuario || '');
       const idStr = (e.id || e.id_empleado || '').toString();
       
@@ -153,7 +211,7 @@ export default function DatosCliente({
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "";
   };
 
-  // Obtener nombre del empleado seleccionado - MEJORADO
+  // Obtener nombre del empleado seleccionado - MEJORADO CON FALLBACKS
   const obtenerNombreEmpleado = () => {
     if (!datosFactura.id_empleado) return "";
     
@@ -164,12 +222,7 @@ export default function DatosCliente({
              e.id == datosFactura.id_empleado;
     });
     
-    if (empleado) {
-      const nombreCompleto = `${empleado.nombre || ''} ${empleado.apellido || ''}`.trim();
-      return nombreCompleto || empleado.usuario || "Empleado sin nombre";
-    }
-    
-    return "Empleado no encontrado";
+    return obtenerNombreCompletoEmpleado(empleado);
   };
 
   // Validar campo en tiempo real
@@ -213,94 +266,92 @@ export default function DatosCliente({
     return Object.keys(erroresTemp).length === 0;
   };
 
-  // Manejar cambio de teléfono con validación
-  const handleTelefonoChange = (valor) => {
-    // Solo números y guión
-    if (!/^[0-9-]*$/.test(valor)) {
-      return; // Bloquear caracteres inválidos
-    }
+  // Combinar errores del componente padre con errores locales
+  const erroresCombinados = { ...errores, ...erroresLocal };
 
-    const valorFormateado = formatearTelefono(valor);
-    validarCampo('telefono', valorFormateado);
-    onActualizar('telefono', valorFormateado);
-    onCambioCampo && onCambioCampo('telefono');
-  };
-
-  // Manejar cambio de dirección con validación
+  // Manejar cambios de dirección con validación
   const handleDireccionChange = (valor) => {
-    // Validar texto seguro
-    if (valor && !validaciones.textoSeguro(valor)) {
-      return; // Bloquear caracteres peligrosos
-    }
-
-    const valorSanitizado = sanitizar.texto(valor);
-    validarCampo('direccion', valorSanitizado);
-    onActualizar('direccion', valorSanitizado);
+    const sanitizado = sanitizar.texto(valor);
+    validarCampo('direccion', sanitizado);
+    onActualizar('direccion', sanitizado);
     onCambioCampo && onCambioCampo('direccion');
   };
 
-  // Manejar cambio de RTN con validación
-  const handleRTNChange = (valor) => {
-    // Solo números y guión
-    if (!/^[0-9-]*$/.test(valor)) {
-      return; // Bloquear caracteres inválidos
-    }
+  // Manejar cambios de teléfono con formateo automático
+  const handleTelefonoChange = (valor) => {
+    const formateado = formatearTelefono(valor);
+    validarCampo('telefono', formateado);
+    onActualizar('telefono', formateado);
+    onCambioCampo && onCambioCampo('telefono');
+  };
 
-    const valorFormateado = formatearRTN(valor);
-    validarCampo('rtn', valorFormateado);
-    onActualizar('rtn', valorFormateado);
+  // Manejar cambios de RTN con formateo automático
+  const handleRTNChange = (valor) => {
+    const formateado = formatearRTN(valor);
+    validarCampo('rtn', formateado);
+    onActualizar('rtn', formateado);
     onCambioCampo && onCambioCampo('rtn');
   };
 
-  // Manejar selección de cliente
+  // Seleccionar cliente
   const handleSeleccionarCliente = (cliente) => {
-    const clienteId = cliente.id_cliente || cliente.id;
-    onClienteChange(clienteId);
+    console.log("Cliente seleccionado:", cliente);
     
-    // Auto-llenar campos
-    onActualizar('telefono', cliente.telefono || '');
-    onActualizar('direccion', cliente.direccion || '');
-    onActualizar('rtn', cliente.rtn || '');
+    onActualizar('id_cliente', cliente.id_cliente || cliente.id);
+    
+    // Cargar automáticamente todos los datos del cliente
+    if (cliente.direccion) onActualizar('direccion', cliente.direccion);
+    if (cliente.telefono) onActualizar('telefono', cliente.telefono);
+    if (cliente.rtn) onActualizar('rtn', cliente.rtn);
+    
+    // Ejecutar callback si existe
+    if (onClienteChange) {
+      onClienteChange(cliente);
+    }
     
     setBusquedaCliente("");
     setMostrarResultadosCliente(false);
-    onCambioCampo && onCambioCampo('id_cliente');
+    
+    // Limpiar errores relacionados con el cliente
+    const erroresTemp = { ...erroresLocal };
+    delete erroresTemp.telefono;
+    delete erroresTemp.direccion;
+    delete erroresTemp.rtn;
+    setErroresLocal(erroresTemp);
   };
 
-  // Manejar selección de empleado
+  // Seleccionar empleado
   const handleSeleccionarEmpleado = (empleado) => {
-    const empleadoId = empleado.id_empleado || empleado.id;
-    onActualizar('id_empleado', empleadoId);
+    console.log("Empleado seleccionado:", empleado);
+    onActualizar('id_empleado', empleado.id_empleado || empleado.id);
     setBusquedaEmpleado("");
     setMostrarResultadosEmpleado(false);
-    onCambioCampo && onCambioCampo('id_empleado');
   };
 
   // Limpiar selección de cliente
   const limpiarCliente = () => {
-    onActualizar('id_cliente', '');
-    onActualizar('direccion', '');
-    onActualizar('telefono', '');
-    onActualizar('rtn', '');
+    onActualizar('id_cliente', "");
+    onActualizar('direccion', "");
+    onActualizar('telefono', "");
+    onActualizar('rtn', "");
     setBusquedaCliente("");
-    setErroresLocal({});
-    onCambioCampo && onCambioCampo('id_cliente');
+    setMostrarResultadosCliente(false);
   };
 
   // Limpiar selección de empleado
   const limpiarEmpleado = () => {
-    onActualizar('id_empleado', '');
+    onActualizar('id_empleado', "");
     setBusquedaEmpleado("");
-    onCambioCampo && onCambioCampo('id_empleado');
+    setMostrarResultadosEmpleado(false);
   };
 
-  // Combinar errores externos e internos
-  const erroresCombinados = { ...errores, ...erroresLocal };
-
   return (
-    <div className="formulario-factura">
+    <div className="datos-cliente">
+      <h3>Información del Cliente y Vendedor</h3>
+      
+      {/* BÚSQUEDA DE CLIENTES Y EMPLEADOS */}
       <div className="fila-formulario">
-        {/* BÚSQUEDA DE CLIENTE - MEJORADA */}
+        {/* BÚSQUEDA DE CLIENTE - SIN CAMBIOS */}
         <div className="campo-formulario" ref={refBusquedaCliente}>
           <label htmlFor="busqueda_cliente">Cliente *</label>
           
@@ -327,7 +378,6 @@ export default function DatosCliente({
                 }} />
               </div>
 
-              {/* Resultados de búsqueda */}
               {mostrarResultadosCliente && clientesFiltrados.length > 0 && (
                 <div className="resultados-busqueda">
                   {clientesFiltrados.map(cliente => (
@@ -339,14 +389,10 @@ export default function DatosCliente({
                       <div>
                         <strong>{cliente.nombre} {cliente.apellido}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                          ID: {cliente.numero_identidad}
-                          {cliente.telefono && ` | Tel: ${cliente.telefono}`}
+                          {cliente.numero_identidad && `ID: ${cliente.numero_identidad}`}
+                          {cliente.numero_identidad && cliente.rtn && ' | '}
+                          {cliente.rtn && `RTN: ${cliente.rtn}`}
                         </div>
-                        {cliente.rtn && (
-                          <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                            RTN: {cliente.rtn}
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -363,12 +409,19 @@ export default function DatosCliente({
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreCliente()}</strong>
-                <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                  ID: {clientes.find(c => 
+                {(() => {
+                  const cliente = clientes.find(c => 
                     c.id_cliente === parseInt(datosFactura.id_cliente) || 
                     c.id === parseInt(datosFactura.id_cliente)
-                  )?.numero_identidad}
-                </div>
+                  );
+                  return cliente ? (
+                    <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                      {cliente.numero_identidad && `ID: ${cliente.numero_identidad}`}
+                      {cliente.numero_identidad && cliente.rtn && ' | '}
+                      {cliente.rtn && `RTN: ${cliente.rtn}`}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <button 
                 type="button"
@@ -383,7 +436,7 @@ export default function DatosCliente({
           {erroresCombinados?.id_cliente && <span className="mensaje-error">{erroresCombinados.id_cliente}</span>}
         </div>
 
-        {/* BÚSQUEDA DE EMPLEADO - MEJORADA CON 3 CAMPOS SIEMPRE */}
+        {/* BÚSQUEDA DE EMPLEADO - CORREGIDA CON VALIDACIÓN DE CAMPOS */}
         <div className="campo-formulario" ref={refBusquedaEmpleado}>
           <label htmlFor="busqueda_empleado">Empleado/Vendedor *</label>
           
@@ -410,7 +463,7 @@ export default function DatosCliente({
                 }} />
               </div>
 
-              {/* Resultados de búsqueda - FORMATO MEJORADO CON 3 CAMPOS SIEMPRE */}
+              {/* Resultados de búsqueda - CORREGIDO CON VALIDACIÓN DE CAMPOS */}
               {mostrarResultadosEmpleado && empleadosFiltrados.length > 0 && (
                 <div className="resultados-busqueda">
                   {empleadosFiltrados.map(empleado => (
@@ -420,9 +473,9 @@ export default function DatosCliente({
                       onClick={() => handleSeleccionarEmpleado(empleado)}
                     >
                       <div>
-                        <strong>{empleado.nombre} {empleado.apellido}</strong>
+                        <strong>{obtenerNombreCompletoEmpleado(empleado)}</strong>
                         <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                          ID: {empleado.id || empleado.id_empleado || 'N/A'} | Usuario: {empleado.usuario || 'N/A'}
+                          {obtenerInfoSecundariaEmpleado(empleado)}
                         </div>
                       </div>
                     </div>
@@ -437,7 +490,7 @@ export default function DatosCliente({
               )}
             </div>
           ) : (
-            // Mostrar empleado seleccionado - FORMATO MEJORADO CON 3 CAMPOS SIEMPRE
+            // Mostrar empleado seleccionado - CORREGIDO CON VALIDACIÓN DE CAMPOS
             <div className="seleccion-mostrada">
               <div style={{ flex: 1 }}>
                 <strong>{obtenerNombreEmpleado()}</strong>
@@ -449,10 +502,7 @@ export default function DatosCliente({
                       e.id === parseInt(datosFactura.id_empleado) ||
                       e.id == datosFactura.id_empleado
                     );
-                    if (emp) {
-                      return `ID: ${emp.id || emp.id_empleado || 'N/A'} | Usuario: ${emp.usuario || 'N/A'}`;
-                    }
-                    return 'Info no disponible';
+                    return obtenerInfoSecundariaEmpleado(emp);
                   })()}
                 </div>
               </div>
