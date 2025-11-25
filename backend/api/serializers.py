@@ -1058,11 +1058,26 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
 
             print("Factura #{} creada".format(factura.numero_factura))
 
-            # Crear detalles de productos - USAR 'JOYA' EN LUGAR DE 'PRODUCTO'
+            # Crear detalles de productos
+            # IMPORTANTE: Para FABRICACIÓN y REPARACIÓN, los productos son el resultado del trabajo
+            # (se están fabricando/reparando), NO se venden del inventario existente
+            # Por lo tanto, se registran como SERVICIO para evitar que el trigger intente descontar stock
             for index, producto in enumerate(productos_data):
+                # Determinar tipo_item según el tipo de venta
+                if tipo_venta in ['FABRICACION', 'REPARACION']:
+                    # Servicio de fabricación/reparación
+                    tipo_item_producto = 'SERVICIO'
+                    print("Producto {} en {} - registrado como SERVICIO (resultado del trabajo)".format(
+                        index + 1, tipo_venta
+                    ))
+                else:
+                    # Venta de joya del inventario
+                    tipo_item_producto = 'JOYA'
+                    print("Producto {} en VENTA - registrado como JOYA".format(index + 1))
+
                 TblDetallesFactura.objects.create(
                     numero_factura=factura,
-                    tipo_item='JOYA',  # CAMBIADO: 'PRODUCTO' → 'JOYA'
+                    tipo_item=tipo_item_producto,
                     codigo_item=producto.get('codigo', index + 1),
                     descripcion="{} - {}".format(
                         producto.get('producto', 'Producto sin nombre'),
@@ -1071,7 +1086,6 @@ class CrearFacturaSimpleSerializer(serializers.Serializer):
                     cantidad=producto.get('cantidad', 1),
                     precio_unitario=producto.get('precio', 0)
                 )
-                print("Producto {} agregado como JOYA".format(index + 1))
 
             # Crear detalles de materiales
             # IMPORTANTE: Para FABRICACIÓN y REPARACIÓN, los materiales son COSTOS de producción,
