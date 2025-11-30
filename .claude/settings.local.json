@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sc query:*)",
+      "Bash(net start MSSQLSERVER)",
+      "Bash(npm run start:full:*)",
+      "Bash(npm start)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(taskkill /F /PID 29468)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
