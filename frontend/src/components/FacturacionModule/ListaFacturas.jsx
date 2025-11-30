@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react"; 
-import { 
-  FaSearch, FaFileInvoice, FaCheck, FaClock, FaEye, 
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  FaSearch, FaFileInvoice, FaCheck, FaClock, FaEye,
   FaBox, FaTools, FaSync, FaMoneyBillWave, FaReceipt,
   FaFilter, FaTimes, FaExclamationTriangle
 } from "react-icons/fa";
 import ModalDetalleFactura from "./ModalDetalleFactura";
+import { ENDPOINTS } from '../../config/config';
 
 export default function ListaFacturas() {
   const [facturas, setFacturas] = useState([]);
@@ -32,7 +33,7 @@ export default function ListaFacturas() {
       setError(null);
       console.log("🔄 Cargando facturas desde API...");
 
-      const response = await fetch('http://20.64.150.5:8000/api/facturas/completas/');
+      const response = await fetch(`${ENDPOINTS.facturas}completas/`);
       
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -63,10 +64,10 @@ export default function ListaFacturas() {
         })
       };
 
-      console.log('📤 Enviando PATCH a:', `http://20.64.150.5:8000/api/facturas/${numeroFactura}/`);
+      console.log('📤 Enviando PATCH a:', `${ENDPOINTS.facturas}${numeroFactura}/`);
       console.log('📦 Payload:', payload);
 
-      const response = await fetch(`http://20.64.150.5:8000/api/facturas/${numeroFactura}/`, {
+      const response = await fetch(`${ENDPOINTS.facturas}${numeroFactura}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -4,6 +4,7 @@ import {
   formatearTelefono,
   REGEX_PATTERNS
 } from '../../utils/validaciones';
+import { ENDPOINTS } from '../../config/config';
 
 const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
   useEffect(() => {
     const cargarPerfiles = async () => {
       try {
-        const response = await fetch('http://20.64.150.5:8000/api/perfiles/');
+        const response = await fetch(ENDPOINTS.perfiles);
         if (response.ok) {
           const data = await response.json();
           setPerfiles(data);
@@ -134,7 +135,7 @@ const FormularioEmpleado = ({ onClose, onEmpleadoAgregado }) => {
 
       console.log('🚀 Enviando empleado:', empleadoData);
 
-      const response = await fetch('http://20.64.150.5:8000/api/empleados/nuevo/', {
+      const response = await fetch(`${ENDPOINTS.empleados}nuevo/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

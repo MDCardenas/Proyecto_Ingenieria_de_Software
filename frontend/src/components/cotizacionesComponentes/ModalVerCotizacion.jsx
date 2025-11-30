@@ -1,20 +1,21 @@
 // components/cotizacionesComponentes/ModalVerCotizacion.jsx
 import React from 'react';
-import { 
-    FaTimes, 
-    FaDownload, 
-    FaPrint, 
-    FaUser, 
-    FaCalendar, 
-    FaDollarSign, 
-    FaInfoCircle, 
-    FaBox, 
+import {
+    FaTimes,
+    FaDownload,
+    FaPrint,
+    FaUser,
+    FaCalendar,
+    FaDollarSign,
+    FaInfoCircle,
+    FaBox,
     FaTools,
     FaUsers,
     FaTag,
     FaListAlt,
     FaImage
 } from 'react-icons/fa';
+import { BACKEND_URL } from '../../config/config';
 import "../../styles/scss/components/_modales.scss";
 
 export default function ModalVerCotizacion({ cotizacion, onClose }) {
@@ -128,8 +129,7 @@ export default function ModalVerCotizacion({ cotizacion, onClose }) {
         }
         
         // Ya que Django está sirviendo las imágenes correctamente
-        const baseUrl = 'http://20.64.150.5:8000';
-        const urlImagen = `${baseUrl}/media/${cotizacion.imagen_referencia}`;
+        const urlImagen = `${BACKEND_URL}/media/${cotizacion.imagen_referencia}`;
         
         console.log('✅ URL imagen funcionando:', urlImagen);
         return urlImagen;

@@ -4,6 +4,7 @@ import FormularioEmpleado from './FormularioEmpleado';
 import FormularioEditarEmpleado from './FormularioEditarEmpleado';
 import ModalDetallesEmpleado from './ModalDetallesEmpleado'; // <--- IMPORTAR MODAL
 import '../../styles/Usuarios.css';
+import { ENDPOINTS } from '../../config/config';
 
 const Usuarios = () => {
   const [empleados, setEmpleados] = useState([]);
@@ -19,7 +20,7 @@ const Usuarios = () => {
   // Cargar empleados
   const fetchEmpleados = async () => {
     try {
-      const response = await fetch("http://20.64.150.5:8000/api/empleados/");
+      const response = await fetch(ENDPOINTS.empleados);
       const data = await response.json();
 
       if (Array.isArray(data)) {

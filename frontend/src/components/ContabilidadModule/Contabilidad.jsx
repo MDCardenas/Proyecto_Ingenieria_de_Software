@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "../../styles/Contabilidad.css";
 import ResumenCard from "./ResumenCard";
 import MovimientoItem from "./MovimientoItem";
+import { ENDPOINTS } from '../../config/config';
 
 export default function Contabilidad() {
     const [ingresosMes, setIngresosMes] = useState(0);
@@ -17,7 +18,7 @@ export default function Contabilidad() {
 
     const cargarContabilidad = async () => {
         try {
-            const res = await fetch("http://20.64.150.5:8000/api/contabilidad/resumen/");
+            const res = await fetch(`${ENDPOINTS.contabilidad}resumen/`);
             const data = await res.json();
 
             const ingresos = data.ingresos_mes || 0;

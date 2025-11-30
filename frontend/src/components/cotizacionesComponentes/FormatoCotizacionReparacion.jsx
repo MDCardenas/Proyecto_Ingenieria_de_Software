@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import PDFCotizacionReparacion from './PDFCotizacionReparacion.jsx';
 import Material from './Material.jsx';
+import { ENDPOINTS } from '../../config/config';
 import "../../styles/scss/components/_cotizacionReparacion.scss";
 
 export default function FormatoCotizacionReparacion({ 
@@ -137,9 +138,9 @@ export default function FormatoCotizacionReparacion({
             setLoading(true);
             
             const [clientesRes, empleadosRes, materialesRes] = await Promise.all([
-                axios.get('http://20.64.150.5:8000/api/clientes/'),
-                axios.get('http://20.64.150.5:8000/api/empleados/'),
-                axios.get('http://20.64.150.5:8000/api/materiales/')
+                axios.get(ENDPOINTS.clientes),
+                axios.get(ENDPOINTS.empleados),
+                axios.get(ENDPOINTS.materiales)
             ]);
 
             setClientes(clientesRes.data);
@@ -423,7 +424,7 @@ export default function FormatoCotizacionReparacion({
 
             console.log("Enviando FormData con imagen...");
 
-            const endpoint = 'http://20.64.150.5:8000/api/cotizaciones/';
+            const endpoint = ENDPOINTS.cotizaciones;
             
             // ✅ CORREGIR: Usar fetch correctamente con FormData
             const response = await fetch(endpoint, {

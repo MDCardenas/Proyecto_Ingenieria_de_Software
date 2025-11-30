@@ -67,9 +67,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'JOYERIA',
-        'USER': 'adminjoyas',
-        'PASSWORD': 'Joyas2025/',
-        'HOST': 'joyas-app.database.windows.net',
+        'USER': 'sa',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
         'PORT': '1433',
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaSync } from 'react-icons/fa';
 import axios from "axios";
+import { ENDPOINTS } from '../../config/config';
 
 // Importar componentes modulares
 import AccionesRapidas from './AccionesRapidas';
@@ -40,7 +41,7 @@ export default function ClientesModule({ setVistaActual }) {
     try {
       setLoading(true);
       console.log("🔄 Cargando clientes...");
-      const res = await axios.get("http://20.64.150.5:8000/api/clientes/");
+      const res = await axios.get(ENDPOINTS.clientes);
       console.log("✅ Clientes cargados:", res.data);
       setClientes(res.data);
       setError(null);
@@ -162,10 +163,10 @@ export default function ClientesModule({ setVistaActual }) {
 
       let response;
       if (editId) {
-        response = await axios.put(`http://20.64.150.5:8000/api/clientes/${editId}/`, dataToSend);
+        response = await axios.put(`${ENDPOINTS.clientes}${editId}/`, dataToSend);
         setSuccess("¡Cliente actualizado exitosamente!");
       } else {
-        response = await axios.post("http://20.64.150.5:8000/api/clientes/", dataToSend);
+        response = await axios.post(ENDPOINTS.clientes, dataToSend);
         setSuccess("¡Cliente registrado exitosamente!");
       }
 
@@ -245,7 +246,7 @@ export default function ClientesModule({ setVistaActual }) {
     if (window.confirm("¿Seguro que quieres eliminar este cliente?")) {
       setLoading(true);
       try {
-        await axios.delete(`http://20.64.150.5:8000/api/clientes/${id}/`);
+        await axios.delete(`${ENDPOINTS.clientes}${id}/`);
         await fetchClientes();
         setError(null);
         setSuccess("¡Cliente eliminado exitosamente!");

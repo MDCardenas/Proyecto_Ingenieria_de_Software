@@ -6,6 +6,7 @@ import { normalizeText } from '../../utils/normalize.js';
 import DatosCliente from '../FacturacionModule/DatosCliente.jsx';
 import Producto from '../FacturacionModule/Producto.jsx';
 import Material from './Material.jsx';
+import { ENDPOINTS } from '../../config/config';
 
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -124,9 +125,9 @@ export default function FormatoCotizacionFabricacion({
             setLoading(true);
             
             const [clientesRes, empleadosRes, materialesRes] = await Promise.all([
-                axios.get('http://20.64.150.5:8000/api/clientes/'),
-                axios.get('http://20.64.150.5:8000/api/empleados/'),
-                axios.get('http://20.64.150.5:8000/api/materiales/')
+                axios.get(ENDPOINTS.clientes),
+                axios.get(ENDPOINTS.empleados),
+                axios.get(ENDPOINTS.materiales)
             ]);
 
             setClientes(clientesRes.data);
@@ -138,7 +139,7 @@ export default function FormatoCotizacionFabricacion({
             console.log("✅ Materiales cargados:", materialesRes.data.length);
             
             try {
-                const productosRes = await axios.get('http://20.64.150.5:8000/api/joyas/');
+                const productosRes = await axios.get(ENDPOINTS.joyas);
                 setProductosStock(productosRes.data);
                 console.log("✅ Productos cargados:", productosRes.data.length);
             } catch (productosError) {
@@ -279,7 +280,7 @@ export default function FormatoCotizacionFabricacion({
 
             console.log("📤 Enviando datos:", cotizacionData);
 
-            const endpoint = 'http://20.64.150.5:8000/api/cotizaciones/';
+            const endpoint = ENDPOINTS.cotizaciones;
             
             const response = await fetch(endpoint, {
                 method: 'POST',

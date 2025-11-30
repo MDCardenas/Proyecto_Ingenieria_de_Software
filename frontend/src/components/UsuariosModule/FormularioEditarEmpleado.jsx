@@ -4,6 +4,7 @@ import {
   formatearTelefono,
   REGEX_PATTERNS
 } from '../../utils/validaciones';
+import { ENDPOINTS } from '../../config/config';
 
 const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) => {
   const [formData, setFormData] = useState({
@@ -26,11 +27,11 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const perfilesRes = await fetch('http://20.64.150.5:8000/api/perfiles/');
+        const perfilesRes = await fetch(ENDPOINTS.perfiles);
         const perfilesData = await perfilesRes.json();
         setPerfiles(perfilesData);
 
-        const empleadoRes = await fetch(`http://20.64.150.5:8000/api/empleados/${empleado.id_empleado}/`);
+        const empleadoRes = await fetch(`${ENDPOINTS.empleados}${empleado.id_empleado}/`);
         const datos = await empleadoRes.json();
 
         const perfilEncontrado = perfilesData.find(p => p.perfil === datos.perfil);
@@ -142,7 +143,7 @@ const FormularioEditarEmpleado = ({ empleado, onClose, onEmpleadoActualizado }) 
         telefono: formData.telefono ? formData.telefono.replace(/-/g, '') : null
       };
 
-      const response = await fetch(`http://20.64.150.5:8000/api/empleados/${empleado.id_empleado}/actualizar/`, {
+      const response = await fetch(`${ENDPOINTS.empleados}${empleado.id_empleado}/actualizar/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(empleadoData)

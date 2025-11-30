@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  FaUser, 
-  FaEnvelope, 
-  FaUserTag, 
-  FaCheckCircle, 
-  FaTimesCircle, 
+import {
+  FaUser,
+  FaEnvelope,
+  FaUserTag,
+  FaCheckCircle,
+  FaTimesCircle,
   FaTrash,
   FaEdit,
   FaPhone,
   FaUserCircle,
   FaEye // <--- Importar icono de ojo
 } from 'react-icons/fa';
+import { ENDPOINTS } from '../../config/config';
 
 const TarjetaUsuario = ({ empleado, onEditar, onEliminado, onVerDetalles }) => {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
@@ -20,7 +21,7 @@ const TarjetaUsuario = ({ empleado, onEditar, onEliminado, onVerDetalles }) => {
     setEliminando(true);
     try {
       const response = await fetch(
-        `http://20.64.150.5:8000/api/empleados/${empleado.id_empleado}/eliminar/`,
+        `${ENDPOINTS.empleados}${empleado.id_empleado}/eliminar/`,
         { method: "DELETE" }
       );
 
